@@ -1,0 +1,21 @@
+## Beta 3 - 2016-dec-7
+
+### Fixed
+ - Error when switching to video screen before opening any video
+
+
+
+## Beta 2 - 2016-dec-4
+
+### Added
+ - Can add files to unopened playlists
+ - Can add files to beginning or end of playlist
+ - App displays video in a resizable lower corner frame when video screen is not active
+
+### Changed
+ - Increased min sidebar width from 20 dp to 4 cm
+ - Limited max sidebar width to 8 cm
+
+### Fixed
+ - Fixed playlist loading on windows
+ - Active media stays highlighted after switching playlists

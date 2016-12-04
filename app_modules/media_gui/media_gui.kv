@@ -1,0 +1,166 @@
+#:import recc23 app_modules.media_gui.labelbutton.LabelButton
+
+<Media_Button>:
+    size_hint: 1, 1
+    text: self.name
+    pstate: 'default'
+    bg_color: [0.20, 0.20, 0.40, 1]
+    bg_hover: [0.5, 0.5, 0.5, 1]
+    bg_default: [0.20, 0.20, 0.40, 1]
+    bg_playing: [0.5, 0.15, 0.3, 1]
+    bg_disabled: [0.2, 0.2, 0.2, 1]
+    bg_error: [1, 0.3, 0.3, 1]
+    bg_folder: [0.2, 0.2, 0.2, 1]
+    bg_colors: {'default': self.bg_default, 'playing': self.bg_playing, 'playing-stopped': self.bg_default, 'disabled': self.bg_disabled, 'error': self.bg_error, 'folder': self.bg_folder, 'hover': self.bg_hover}
+    # on_release: root.press(root)
+    LabelButton:
+        text: root.text
+        size_hint: 0.9, 1
+        text_size: self.size[0], self.text_size[1]
+        padding_x: 20
+        canvas.before:
+            Color:
+                rgba: root.bg_color
+            Rectangle:
+                pos: root.pos
+                size: root.size
+        # on_release: root.press(root)
+
+
+<MRV_Base>:
+    scroll_type: ['bars', 'content']
+    scroll_wheel_distance: dp(114)
+    bar_width: dp(10)
+    data: []
+    RecycleBoxLayout:
+        id: rvbox
+        orientation: 'vertical'
+        size_hint: None, None
+        height: self.minimum_height
+        width: self.parent.width
+        default_size: None, cm(1)
+        default_size_hint: 1, None
+        spacing: '2dp'
+
+
+<Media_GUI>:
+    # Carousel_Modified:
+    #     id: carousel
+    #     direction: 'right'
+    #     size_hint: 1, None
+    #     height: self.parent.height - cm(4)
+    #     ignore_perpendicular_swipes: True
+    #     min_move: 0.2
+    #     scroll_timeout : 150
+    #     scroll_distance : dp(40)
+    # StackLayout:
+    #     id: stackrv_11
+    #     size_hint: 1, None
+    #     height: self.parent.height
+    RecycleView:
+        id: rv_p
+        size_hint: 1, None
+        height: self.parent.height
+        scroll_type: ['bars', 'content']
+        scroll_wheel_distance: dp(114)
+        bar_width: dp(10)
+        viewclass: 'Media_Button'
+        data: []
+        ProjectsRecycleBoxLayout:
+            id: rv_box_p
+            orientation: 'vertical'
+            size_hint: None, None
+            height: self.minimum_height
+            width: self.parent.width
+            default_size: None, cm(1)
+            default_size_hint: 1, None
+            spacing: '2dp'
+
+        # StackLayout:
+        #     id: stackrv_2
+        #     size_hint: 1, None
+        #     height: self.parent.height
+        #     RecycleView_Modified:
+        #         id: rv2_p
+        #         size_hint: 1 - video_frame.size_hint_x, None
+        #         height: self.parent.height
+        #         scroll_type: ['bars', 'content']
+        #         scroll_wheel_distance: dp(114)
+        #         bar_width: dp(10)
+        #         viewclass: 'Media_Button_Queue'
+        #         data: []
+        #         ProjectsRecycleBoxLayout:
+        #             id: rv2_box_p
+        #             orientation: 'vertical'
+        #             size_hint: None, None
+        #             height: self.minimum_height
+        #             width: self.parent.width
+        #             default_size: None, cm(1)
+        #             default_size_hint: 1, None
+        #             spacing: '2dp'
+        #     StackLayout:
+        #         id: video_frame
+        #         size_hint: 0.001, None
+        #         height: self.parent.height
+        #         canvas:
+        #             Color:
+        #                 rgba: 0, 0, 0, 1
+        #             Rectangle:
+        #                 pos: self.pos
+        #                 size: self.size
+
+
+    # StackLayout:
+    #     id: media_stacks2
+    #     size_hint: 1, None
+    #     height: cm(4)
+    #     canvas.before:
+    #         Color:
+    #             rgba: 0.2, 0.2, 0.2, 1
+    #         Rectangle:
+    #             pos: self.pos
+    #             size: self.size
+    #     canvas.after:
+    #         Color:
+    #             rgba: 0.4, 0.4, 0.4, 1
+    #         Line:
+    #             points: [self.pos[0],self.pos[1]+self.size[1],self.pos[0]+self.size[0],self.pos[1]+self.size[1]]
+
+    # Label:
+    #     id: media_label
+    #     text: '..'
+    #     text_width: self.width
+    #     size_hint: 1, 0.2
+    #
+    # Button:
+    #     id: seek_label1
+    #     text: '00:00'
+    #     size_hint: 0.13, 0.25
+    #     background_color: 0,0,0,0
+    # Slider:
+    #     id: seek_slider
+    #     min: 0
+    #     max: 100
+    #     value: 0
+    #     size_hint: 0.74, 0.25
+    # Button:
+    #     id: seek_label2
+    #     text: '00:00'
+    #     size_hint: 0.08, 0.25
+    #     background_color: 0,0,0,0
+    #
+    # Button:
+    #     id: btn1
+    #     text: 'Previous'
+    #     size_hint: 0.25, 0.33
+    #     on_release: root.play_previous()
+    # Button:
+    #     id: btn2
+    #     text: 'Play'
+    #     size_hint: 0.5, 0.33
+    #     on_release: root.play_pause()
+    # Button:
+    #     id: btn3
+    #     text: 'Next'
+    #     size_hint: 0.25, 0.33
+    #     on_release: root.play_next()

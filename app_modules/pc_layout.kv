@@ -1,0 +1,105 @@
+#: import aa3 app_modules.multi_line_label.MultiLineLabel
+#: import aa4 app_modules.labelbutton.LabelButton
+#: import aa5 app_modules.rv_sidebar.rv_sidebar.SideBarRecycleView
+#: import aa6 app_modules.playback_bar.playback_bar.PlayBackBar
+#: import aa7 app_modules.widgets.resizable_boxlayout.ResizableBoxLayout
+#: import aa8 app_modules.widgets.small_video.SmallVideo
+
+<LabelButton>:
+    size_hint: 1, None
+    height: cm(13)
+    canvas.before:
+        Color:
+            rgb: 1, 0, 0
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+
+<Jotube>:
+    side_bar_width: cm(4)
+    side_bar_color: [0.1, 0.1, 0.1]
+    upper_bar_height: int(cm(1))
+    lower_bar_height: int(cm(1.5))
+    sm_area_width: self.width - sidebar.width
+    sm_area_height: self.height - self.upper_bar_height - self.lower_bar_height
+    border_color: 0.4, 0.4, 0.4
+    # StackLayout:
+    #     id: app_stacks
+
+    BoxLayout:
+        id: upper_bar
+        size_hint: 1, None
+        height: root.upper_bar_height
+        pos: 0, root.height - root.upper_bar_height
+        canvas:
+            Color:
+                rgb: root.side_bar_color
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        # Button:
+        #     text: 'UPPER BAR'
+
+    ResizableBoxLayout:
+        id: sidebar
+        resizable_right: True
+        orientation: 'vertical'
+        size_hint: None, None
+        size: root.side_bar_width, root.sm_area_height
+        min_resizable_width: root.side_bar_width
+        max_resizable_width: self.min_resizable_width * 2
+        pos: 0, root.lower_bar_height
+        canvas.before:
+            Color:
+                rgb: root.side_bar_color
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        SideBarRecycleView:
+            height: self.parent.height - cm(1)
+            data: root.sidebar_items
+        Button:
+            text: 'Add playlist'
+            size_hint_y: None
+            height: cm(1)
+            text_size: self.width * 0.8, 20
+            background_color: 0.6, 0.6, 0.6, 0.7
+            on_release: root.mgui_add_playlist()
+
+    BoxLayout:
+        id: sm_area
+        size_hint: None, None
+        size: root.sm_area_width, root.sm_area_height
+        pos: sidebar.width, root.lower_bar_height
+
+
+    BoxLayout:
+        id: lower_bar
+        size_hint: 1, None
+        height: root.lower_bar_height
+        PlayBackBar:
+            id: playback_bar
+
+    Widget:
+        canvas.after:
+            Color:
+                rgb: root.border_color
+            Line:
+                points: 0, upper_bar.pos[1], upper_bar.width, upper_bar.pos[1]
+            Line:
+                points: 0, lower_bar.height, lower_bar.width, lower_bar.height
+            Line:
+                points: sidebar.width, sidebar.pos[1], sidebar.width, sidebar.pos[1] + sidebar.height
+    SmallVideo:
+        id: video_small
+        pos: root.width - self.offset_x, root.lower_bar_height + cm(1)
+        size_hint: None, None
+        size: root.width * 0.25, root.height * 0.25
+        offset_x_in: self.width + cm(1)
+        canvas.before:
+            Color:
+                rgba: 0.1, 0.1, 0.1, 0.8
+            Rectangle:
+                pos: self.pos
+                size: self.size
