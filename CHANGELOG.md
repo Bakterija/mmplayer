@@ -11,7 +11,7 @@
  - Side bar, lower bar, upper bar animate out of window when video screen is selected (Side bar can be brought back in by moving mouse to the windows left side and lower bar by moving mouse to the bottom)
 
 ### Changed
- - Right click and mouse scroll do not seek or change volume while sliding over sliders anymore
+ - Right click and mouse scroll do not seek or change volume while mouse is hovering over sliders anymore
  - MediaPlayer logs a warning instead of crashing when playlist is empty
 
 ### Fixed
