@@ -57,6 +57,8 @@ if platform == 'android':
 elif platform in ('windows', 'linux'):
     from multiprocessing import Process
     from service import main as PCservice
+    from app_modules.layouts.pc_layout_methods import LayoutMethods
+
     def pcservice():
         PCservice.main_loop()
 
@@ -228,8 +230,26 @@ class Global_Callbacks(object):
             x()
 
 
-class Jotube(TerminalApp, FloatLayout):
-    sidebar_items = ListProperty([])
+class Jotube(TerminalApp, LayoutMethods, FloatLayout):
+    sidebar_items = ListProperty()
+
+    def __init__(self, **kwargs):
+        super(Jotube, self).__init__(**kwargs)
+        global data_list, serviceConnected , serviceStarted
+        self.data_list = []
+        data_list = self.data_list
+        self.settings = {}
+        # Window.clearcolor = (0.1, 0.1, 0.1, 0.1)
+        if platform == 'linux' or platform == 'windows':
+            Window.set_icon(return_path()+'data/icon.png')
+            # Window.system_size = (480,960)
+            # Window.system_size = (1000,650)
+            # Window.system_size = (700,420)
+        self.service = None
+        Builder.load_file('app_modules/layouts/screen_manager.kv')
+        self.keybinder = KeyBinder()
+        Window.bind(on_dropfile=self.on_dropfile)
+        Clock.schedule_once(self.init_widgets, 0)
 
     def add_file(self,text,dlFormat):
         if self.service.connected:
@@ -324,7 +344,8 @@ class Jotube(TerminalApp, FloatLayout):
                     append_item(item)
                 else:
                     nm = item['section']
-                    self.sidebar_items.append({'text': '', 'wtype': 'separator'})
+                    self.sidebar_items.append(
+                        {'text': '', 'wtype': 'separator'})
                     self.sidebar_items.append(
                         {'text': item['section'].upper(), 'wtype': 'section'})
                     append_item(item)
@@ -340,25 +361,7 @@ class Jotube(TerminalApp, FloatLayout):
         self.mGUI.add_local_files_popup()
 
     def on_video_screen(self, *args):
-        print(args)
-
-    def __init__(self, **kwargs):
-        super(Jotube, self).__init__(**kwargs)
-        global data_list, serviceConnected , serviceStarted
-        self.data_list = []
-        data_list = self.data_list
-        self.settings = {}
-        # Window.clearcolor = (0.1, 0.1, 0.1, 0.1)
-        if platform == 'linux' or platform == 'windows':
-            Window.set_icon(return_path()+'data/icon.png')
-            # Window.system_size = (480,960)
-            # Window.system_size = (1000,650)
-            # Window.system_size = (700,420)
-        self.service = None
-        Builder.load_file('app_modules/screen_manager.kv')
-        self.keybinder = KeyBinder()
-        Window.bind(on_dropfile=self.on_dropfile)
-        Clock.schedule_once(self.init_widgets, 0)
+        super(Jotube, self).on_video_screen(*args)
 
     def init_widgets(self, *args):
         make_dirs()
@@ -367,12 +370,18 @@ class Jotube(TerminalApp, FloatLayout):
         self.ids.sm_area.add_widget(self.manager)
 
         self.manager.current = 'sc-media'
-        self.settings['download_mode'] = str(read_settings('download_mode=','Sequential'))
-        self.settings['download_format'] = str(read_settings('download_format=','Audio'))
-        self.settings['video_provider'] = str(read_settings('video_provider=','Kivy'))
-        self.settings['audio_provider'] = str(read_settings('audio_provider=','Kivy'))
-        self.settings['stream_provider'] = str(read_settings('stream_provider=','Kivy'))
-        self.settings['startup_mode'] = str(read_settings('startup_mode=','Yes'))
+        self.settings['download_mode'] = str(
+            read_settings('download_mode=','Sequential'))
+        self.settings['download_format'] = str(
+            read_settings('download_format=','Audio'))
+        self.settings['video_provider'] = str(
+            read_settings('video_provider=','Kivy'))
+        self.settings['audio_provider'] = str(
+            read_settings('audio_provider=','Kivy'))
+        self.settings['stream_provider'] = str(
+            read_settings('stream_provider=','Kivy'))
+        self.settings['startup_mode'] = str(
+            read_settings('startup_mode=','Yes'))
 
         self.service = serviceCom(self)
         serviceConnected = self.service.connected
@@ -395,7 +404,10 @@ class Jotube(TerminalApp, FloatLayout):
             self.mGUI = Media_GUI(self.mPlayer)
             self.mGUI.videoframe = self.manager.ids.sc4
             self.mGUI.videoframe_small = self.ids.video_small
-            self.mGUI.bind(videoframe_is_visible=self.on_video_screen)
+            self.mGUI.bind(videoframe_is_visible=lambda obj, val:
+                           self.on_video_screen(val, self.mGUI.playing_video))
+            self.ids.sm_area.bind(
+                size=lambda ob,v:self.mGUI.on_video_resize(v))
 
             playlistview = MediaPlaylistView(self.mGUI, size_hint_y=1)
             queueview = MediaQueueView(self.mGUI)
@@ -403,24 +415,54 @@ class Jotube(TerminalApp, FloatLayout):
             self.manager.ids.sc55_stack1.add_widget(queueview)
             self.mGUI.bind_on_playlists(self.reset_sidebar_widgets)
             self.mGUI.reset_playlists()
-            self.mGUI.bind(playing_seek_value=self.ids.playback_bar.on_media_progress_val)
-            self.mGUI.bind(playing_seek_max=self.ids.playback_bar.on_media_progress_max)
+            self.mGUI.bind(
+                playing_seek_value=self.ids.playback_bar.on_media_progress_val)
+            self.mGUI.bind(
+                playing_seek_max=self.ids.playback_bar.on_media_progress_max)
             self.ids.playback_bar.on_seeking = self.mPlayer.seek
             self.ids.playback_bar.on_playbtn = self.mGUI.play_pause
             self.ids.playback_bar.on_prevbtn = self.mGUI.play_previous
             self.ids.playback_bar.on_nextbtn = self.mGUI.play_next
-            self.ids.playback_bar.bind(media_volume=lambda obj, val: self.mPlayer.set_volume(val))
+            self.ids.playback_bar.media_volume = self.mPlayer.volume * 100
+            self.mPlayer.modes['on_pause'].append(self.ids.playback_bar.on_pause)
+            self.mPlayer.modes['on_resume'].append(self.ids.playback_bar.on_play)
+            self.mPlayer.modes['on_start'].append(self.ids.playback_bar.on_play)
+            self.ids.playback_bar.bind(
+                media_volume=lambda obj, val: self.mPlayer.set_volume(val))
+            self.ids.video_small.on_video_touch = (
+                lambda: self.switch_screen('sc-video'))
+            self.ids.video_small.on_video_scroll_down = (
+                self.ids.playback_bar.volume_increase)
+            self.ids.video_small.on_video_scroll_up = (
+                self.ids.playback_bar.volume_decrease)
 
-            self.keybinder.add('mans1', '273', 'up', self.ids.playback_bar.volume_increase)
-            self.keybinder.add('mans2', '276', 'up', lambda: print('left'))
-            self.keybinder.add('mans3', '274', 'up', self.ids.playback_bar.volume_decrease)
-            self.keybinder.add('mans4', '275', 'up', lambda: print('right'))
+            self.keybinder.add(
+                'vol_increase', '273', 'up',
+                self.ids.playback_bar.volume_increase)
+            self.keybinder.add(
+                'vol_decrease', '274', 'up',
+                self.ids.playback_bar.volume_decrease)
+            self.keybinder.add(
+                'seek_4_sec_back', '276', 'down',
+                lambda: self.mPlayer.seek_relative(-4), modifier=['shift'])
+            self.keybinder.add(
+                'seek_4_sec_forward', '275', 'down',
+                lambda: self.mPlayer.seek_relative(4), modifier=['shift'])
+            self.keybinder.add(
+                'seek_60_sec_back', '276', 'down',
+                lambda: self.mPlayer.seek_relative(-60), modifier=['ctrl'])
+            self.keybinder.add(
+                'seek_60_sec_forward', '275', 'down',
+                lambda: self.mPlayer.seek_relative(60), modifier=['ctrl'])
+            self.keybinder.add(
+                'play_pause_toggle', '32', 'up', self.mGUI.play_pause)
         except Exception as e:
             traceback.print_exc()
         ## OPTIONS sc-options
         optionlayout = self.manager.ids.sc1_stack1
 
-        option_scroll = ScrollView2y(size_hint=(1,0.85), scroll_distance=50, do_scroll_x=False)
+        option_scroll = ScrollView2y(
+            size_hint=(1,0.85), scroll_distance=50, do_scroll_x=False)
         option_grid = option_scroll.children[0]
         optionlayout.add_widget(option_scroll)
 
@@ -438,9 +480,15 @@ class Jotube(TerminalApp, FloatLayout):
             audioset.bind_click(self.mPlayer.set_audio_provider, run=True)
             streamset.bind_click(self.mPlayer.set_stream_provider, run=True)
         else:
-            videoset = Setting_handler(option_grid,self.settings,'video_provider','Video provider',('Kivy','No video'))
-        dlfset = Setting_handler(option_grid,self.settings,'download_format','Download format',('Audio','Video'))
-        startupset = Setting_handler(option_grid,self.settings,'startup_mode','Startup service',('Yes','No'))
+            videoset = Setting_handler(
+                option_grid, self.settings, 'video_provider',
+                'Video provider' , ('Kivy','No video'))
+        dlfset = Setting_handler(
+            option_grid, self.settings, 'download_format',
+            'Download format' , ('Audio','Video'))
+        startupset = Setting_handler(
+            option_grid , self.settings , 'startup_mode',
+            'Startup service' , ('Yes','No'))
         videoset.bind_click(self.mPlayer.set_video_provider, run=True)
         if platform == 'android' and self.settings['startup_mode'] == 'Yes':
             self.service.toggle_service()
@@ -457,7 +505,8 @@ class Jotube(TerminalApp, FloatLayout):
         # self.ydl_test.set_like_count('like_c 300')
         # self.ydl_test.set_duration('dur 3:20')
         # self.ydl_test.set_dislike_count('disl_c 400')
-        # self.ydl_test.set_description("Imagine that you add some code to the end of the client")
+        # self.ydl_test.set_description(
+            # "Imagine that you add some code to the end of the client")
         ptimer.add('app init')
         for x in ptimer.get():
             self.tapp_add('[PTimer] %s %s %s' % (x[1], x[2], x[0]))
@@ -467,9 +516,11 @@ class Jotube(TerminalApp, FloatLayout):
             'app_modules/behaviors/resizable/resize2.png',
             'app_modules/behaviors/resizable/resize_vertical.png',
             'app_modules/behaviors/resizable/resize1.png',)
+        super(Jotube, self).init_widgets()
 
 class Jotube_SM(ScreenManager):
-    def screen_switch_modified(self): pass
+    def screen_switch_modified(self):
+        pass
 
 class JotubeApp(App):
     def build(self):
@@ -486,24 +537,28 @@ class JotubeApp(App):
         global_callbacks.on_resume()
 
     def on_stop(self):
-        self.app_rt.mPlayer.stop()
-        self.app_rt.service.stop()
-        sleep(0.4)
+        try:
+            self.app_rt.mPlayer.stop()
+        except Exception as e:
+            print(e)
+        try:
+            self.app_rt.service.stop()
+        except Exception as e:
+            service = serviceCom(object)
+            service.stop()
+        sleep(0.1)
         osc.dontListen()
-        self.app_rt.service.SERVICEdisconnect()
 
 
 global_callbacks = Global_Callbacks()
 if __name__ == "__main__":
     try:
-        Builder.load_file('app_modules/pc_layout.kv')
+        Builder.load_file('app_modules/layouts/pc_layout.kv')
         ptimer.add('kv load')
         app = JotubeApp()
         ptimer.add('app load')
         app.run()
     except Exception as e:
         traceback.print_exc()
-        try:
-            app.on_stop()
-        except Exception as e:
-            print(e)
+        Logger.error('[App         ] Crashed, stopping processes')
+        app.on_stop()

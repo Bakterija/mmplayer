@@ -174,10 +174,9 @@ class Service:
         osc.init()
         self.eventThread()
 
-    def osc_callback(self,message,*args):
+    def osc_callback(self, message, *args):
         if message[0] == '/jotube_api':
             data = message[2]
-            # print data
             if data[:8] == 'audioCL:':
                 self.media_player.osc_callback(data[8:])
             elif data == 'OPEN::':
@@ -197,6 +196,7 @@ class Service:
 
     def send_message(self,text,api='/jotube_api'):
         self.sender_queue.append([api, text])
+
     def _send_message(self,text,api='/jotube_api'):
         osc.sendMsg(api, [text], port=44772)
 
@@ -234,7 +234,7 @@ class Service:
                 sleep(0.05)
             if self.media_player.server_active:
                 self.media_player.update(self.cl_connected)
-            for api,text in list(self.sender_queue):
+            for api, text in list(self.sender_queue):
                 self._send_message(text, api=api)
                 del self.sender_queue[0]
                 sleep(0.05)

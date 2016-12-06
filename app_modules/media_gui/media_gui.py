@@ -103,9 +103,9 @@ class Media_GUI(StackLayout):
     videoframe = None
     videoframe_is_visible = BooleanProperty(False)
     videoframe_small = None
-    videoframe_current = ''
+    playing_video = BooleanProperty(False)
 
-    def __init__(self,mplayer,**kwargs):
+    def __init__(self, mplayer, **kwargs):
         try:
             super(Media_GUI, self).__init__(**kwargs)
             self.mPlayer = mplayer
@@ -173,15 +173,15 @@ class Media_GUI(StackLayout):
     def set_media_labels(self, string):
         def resizer_clock(*arg):
             label = lbl
-            ratio = float(label.size[0])/float(label.texture_size[0])
+            ratio = float(label.size[0]) / float(label.texture_size[0])
             if ratio < 1:
                 lentext = len(label.text)
-                will_remove = lentext-int(float(lentext)*float(ratio))+4
+                will_remove = lentext-int(float(lentext) * float(ratio)) + 4
                 templist = list(label.text)
                 while will_remove:
-                    del templist[int(len(templist)*0.8)]
+                    del templist[int(len(templist) * 0.8)]
                     will_remove -= 1
-                templist.insert(int(len(templist)*0.8) , '...')
+                templist.insert(int(len(templist) * 0.8) , '...')
                 label.text = ''.join(templist)
 
         lbl = self.ids.media_label
@@ -215,6 +215,11 @@ class Media_GUI(StackLayout):
         self.playing_seek_value = self.mPlayer.get_mediaPos()
         self.playing_seek_max = self.mPlayer.get_mediaDur()
 
+    def on_video_resize(self, size):
+        if self.playing_video:
+            if self.videoframe and self.videoframe_is_visible:
+                self.videoframe.children[0].size = size
+
     def video_show(self, widget):
         if self.videoframe and self.videoframe_is_visible:
             self.videoframe.add_widget(widget)
@@ -222,13 +227,16 @@ class Media_GUI(StackLayout):
             self.videoframe_small.add_widget(widget)
             self.videoframe_small.animate_in()
         self.mPlayer.modes['on_start'].append(self.video_hide)
+        self.playing_video = True
 
     def video_hide(self):
         if self.videoframe:
             self.videoframe.clear_widgets()
         if self.videoframe_small:
             self.videoframe_small.clear_widgets()
+            self.videoframe_small.animate_out()
         self.mPlayer.modes['on_start'].remove(self.video_hide)
+        self.playing_video = False
 
     def on_videoframe_is_visible(self, obj, val):
         if val:
@@ -238,7 +246,8 @@ class Media_GUI(StackLayout):
                 self.videoframe.add_widget(temp)
                 self.videoframe_small.animate_out()
                 temp.pos = (0, 0)
-        elif self.videoframe.children[0].children:
+        elif self.videoframe.children:
+            # if self.videoframe.children[0].children:
             temp = self.videoframe.children[0]
             self.videoframe.remove_widget(temp)
             self.videoframe_small.add_widget(temp)

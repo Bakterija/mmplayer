@@ -5,8 +5,10 @@ from kivy.clock import Clock
 from threading import Thread
 from kivy.lib import osc
 from time import sleep
-try: from android import AndroidService
-except: pass
+try:
+    from android import AndroidService
+except:
+    pass
 
 class serviceCom:
     def __init__(self,parent):
@@ -43,13 +45,15 @@ class serviceCom:
             self.send_message('OPEN::')
             self.connected = True
             Thread(target=self.recv_thread).start()
-            if self.bindings['on_connect'] != None: self.bindings['on_connect']()
+            if self.bindings['on_connect'] != None:
+                self.bindings['on_connect']()
 
     def SERVICEdisconnect(self,*arg):
         if self.connected == True:
             self.send_message('CLOSE::')
             self.connected = False
-            if self.bindings['on_disconnect'] != None: self.bindings['on_disconnect']()
+            if self.bindings['on_disconnect'] != None:
+                self.bindings['on_disconnect']()
 
     def stop(self,*arg):
         self.send_message('STOP::')

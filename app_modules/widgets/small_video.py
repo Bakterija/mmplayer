@@ -29,3 +29,31 @@ class SmallVideo(ResizableBehavior, BoxLayout):
             d=0.4, t='in_quad')
         anim.start(self)
         self.inside_window = False
+
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos):
+            if touch.button == 'scrolldown':
+                self.on_video_scroll_down()
+                return True
+            elif touch.button == 'left':
+                self.on_video_touch()
+                return True
+            super(SmallVideo, self).on_touch_down(touch)
+            return True
+
+    def on_touch_up(self, touch):
+        if self.collide_point(*touch.pos):
+            if touch.button == 'scrollup':
+                self.on_video_scroll_up()
+                return True
+            super(SmallVideo, self).on_touch_up(touch)
+            return True
+
+    def on_video_scroll_up(self, *args):
+        pass
+
+    def on_video_scroll_down(self, *args):
+        pass
+
+    def on_video_touch(self, *args):
+        pass

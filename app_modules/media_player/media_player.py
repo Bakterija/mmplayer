@@ -20,8 +20,8 @@ class Playlist(object):
             except:
                 self.current = 0
                 return self.current, self.list[self.current]
-        else:
-            raise Exception('Playlist error','list is empty')
+        Logger.warning('[Media Player] Playlist is empty')
+        return None, (None, None)
 
     def get_previous(self):
         self.current -= 1
@@ -31,8 +31,8 @@ class Playlist(object):
             except:
                 self.current = self.length-1
                 return self.current, self.list[self.current]
-        else:
-            raise Exception('Playlist error','list is empty')
+        Logger.warning('[Media Player] Playlist is empty')
+        return None, (None, None)
 
     def get_current(self):
         if self.list:
@@ -91,17 +91,22 @@ class Media_Player(object):
     gui_update = None
     starting = False
     volume = 1.0
+    pauseSeek = 0
     def __init__(self):
         self.playlist = Playlist()
         self.mediaName = ''
         self.sound = self.Dummy()
         self.player = 'audio'
         self.stream = False
-        self.modes = {'next_on_stop': True,
-                      'on_video': [],
-                      'on_start': [],
-                      'on_next': [],
-                      'on_previous': []
+        self.modes = {
+            'next_on_stop': True,
+            'on_video': [],
+            'on_start': [],
+            'on_next': [],
+            'on_previous': [],
+            'on_pause': [],
+            'on_resume': [],
+            'on_error': []
         }
         self.providers_active = {
             'video':'Kivy',
@@ -126,16 +131,16 @@ class Media_Player(object):
             ]
         }
 
-    def set_video_provider(self,value):
+    def set_video_provider(self, value):
         self.providers_active['video'] = value
 
-    def set_audio_provider(self,value):
+    def set_audio_provider(self, value):
         self.providers_active['audio'] = value
 
-    def set_stream_provider(self,value):
+    def set_stream_provider(self, value):
         self.providers_active['stream'] = value
 
-    def set_gui_update_callback(self,callback):
+    def set_gui_update_callback(self, callback):
         self.gui_update = callback
 
     def set_modes(self,dictio):
@@ -221,21 +226,34 @@ class Media_Player(object):
                 self.sound.play()
             Clock.schedule_once(self.resume, 0.2)
             self.state = 'play'
-        except: pass
+        except Exception as e:
+            print(e)
 
     def next(self,*arg):
         ID,(name,path) = self.playlist.get_next()
-        self.start(str(ID))
-        for x in self.modes['on_next']:
-            x()
+        if ID:
+            self.start(str(ID))
+            for x in self.modes['on_next']:
+                x()
+        else:
+            for x in self.modes['on_error']:
+                x('playlist is empty')
 
     def previous(self,*arg):
         ID,(name,path) = self.playlist.get_previous()
-        name = self.start(str(ID))
-        for x in self.modes['on_previous']:
-            x()
+        if ID:
+            name = self.start(str(ID))
+            for x in self.modes['on_previous']:
+                x()
+        else:
+            for x in self.modes['on_error']:
+                x('playlist is empty')
 
     def seek(self, value):
+        if value < 0.0:
+            value = 0.0
+        elif value > self.get_mediaDur():
+            value = self.get_mediaDur() - 0.2
         self.seeking = True
         if self.paused:
             self.pauseSeek = float(value)
@@ -251,12 +269,21 @@ class Media_Player(object):
                 self.sound.seek(fn)
         self.seeking = False
 
+    def seek_relative(self, value):
+        value = self.get_mediaPos() + value
+        self.seek(value)
+
     def resume(self,*arg):
-        self.paused = False
-        if self.pauseSupported == False:
-            try: self.sound.seek(self.pauseSeek)
-            except: pass
-        self.state = 'play'
+        if self.sound and type(self.sound) != self.Dummy:
+            self.paused = False
+            if self.pauseSupported == False:
+                try:
+                    self.sound.seek(self.pauseSeek)
+                except:
+                    pass
+            self.state = 'play'
+            for x in self.modes['on_resume']:
+                x(self, self.pauseSeek)
 
     def stop(self,*arg):
         if self.player in ('audio', 'video2') and self.sound:
@@ -267,20 +294,26 @@ class Media_Player(object):
             self.sound.source = ''
         self.state = 'stop'
 
-    def pause(self,*arg):
-        self.paused = True
-        self.pauseSeek = self.get_mediaPos()
-        if self.player in ('audio', 'video2'):
-            self.sound.stop()
-        elif self.player == 'video':
-            self.sound.state = 'pause'
+    def pause(self, *arg):
+        if self.sound and type(self.sound) != self.Dummy:
+            self.pauseSeek = self.get_mediaPos()
+            self.paused = True
+            if self.player in ('audio', 'video2'):
+                self.sound.stop()
+            elif self.player == 'video':
+                self.sound.state = 'pause'
+            for x in self.modes['on_pause']:
+                x(self, self.pauseSeek)
 
     def get_mediaPos(self,*arg):
+        if self.paused:
+            return self.pauseSeek
         if self.seeking:
             return -9
         else:
             pos = 0
-            if self.stream: pos = self.streamTimer.get_pos()
+            if self.stream:
+                pos = self.streamTimer.get_pos()
             elif self.player in ('audio', 'video2'):
                 pos = self.sound.get_pos()
             elif self.player == 'video':

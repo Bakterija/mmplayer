@@ -21,17 +21,24 @@
     side_bar_color: [0.1, 0.1, 0.1]
     upper_bar_height: int(cm(1))
     lower_bar_height: int(cm(1.5))
+    lower_bar_offset_y: 0
+    side_bar_offset_x: 0
+    upper_bar_offset_y: 0
     sm_area_width: self.width - sidebar.width
     sm_area_height: self.height - self.upper_bar_height - self.lower_bar_height
     border_color: 0.4, 0.4, 0.4
-    # StackLayout:
-    #     id: app_stacks
+
+    BoxLayout:
+        id: sm_area
+        size_hint: None, None
+        size: 100, 100
+        pos: 100, 100
 
     BoxLayout:
         id: upper_bar
         size_hint: 1, None
         height: root.upper_bar_height
-        pos: 0, root.height - root.upper_bar_height
+        pos: 0, root.height - root.upper_bar_height + root.upper_bar_offset_y
         canvas:
             Color:
                 rgb: root.side_bar_color
@@ -49,7 +56,7 @@
         size: root.side_bar_width, root.sm_area_height
         min_resizable_width: root.side_bar_width
         max_resizable_width: self.min_resizable_width * 2
-        pos: 0, root.lower_bar_height
+        pos: 0 - root.side_bar_offset_x, root.lower_bar_height
         canvas.before:
             Color:
                 rgb: root.side_bar_color
@@ -68,16 +75,10 @@
             on_release: root.mgui_add_playlist()
 
     BoxLayout:
-        id: sm_area
-        size_hint: None, None
-        size: root.sm_area_width, root.sm_area_height
-        pos: sidebar.width, root.lower_bar_height
-
-
-    BoxLayout:
         id: lower_bar
         size_hint: 1, None
         height: root.lower_bar_height
+        pos: 0, 0 - root.lower_bar_offset_y
         PlayBackBar:
             id: playback_bar
 
@@ -86,11 +87,12 @@
             Color:
                 rgb: root.border_color
             Line:
-                points: 0, upper_bar.pos[1], upper_bar.width, upper_bar.pos[1]
+                points: upper_bar.pos[0], upper_bar.pos[1], upper_bar.width, upper_bar.pos[1]
             Line:
-                points: 0, lower_bar.height, lower_bar.width, lower_bar.height
+                points: lower_bar.pos[0], lower_bar.pos[1] + lower_bar.height, lower_bar.width, lower_bar.pos[1] + lower_bar.height
             Line:
-                points: sidebar.width, sidebar.pos[1], sidebar.width, sidebar.pos[1] + sidebar.height
+                points: sidebar.width + sidebar.pos[0], sidebar.pos[1], sidebar.width + sidebar.pos[0], sidebar.pos[1] + sidebar.height
+
     SmallVideo:
         id: video_small
         pos: root.width - self.offset_x, root.lower_bar_height + cm(1)

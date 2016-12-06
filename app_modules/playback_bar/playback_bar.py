@@ -12,6 +12,7 @@ from kivy.metrics import cm, dp
 from kivy.lang import Builder
 from kivy.graphics import *
 from app_modules.behaviors.hover_behavior import HoverBehavior
+from kivy.clock import Clock
 from sys import path
 
 
@@ -118,6 +119,8 @@ class SliderProgressBar(ProgressBar):
                 self.value = value
 
     def on_touch_down(self, touch):
+        if touch.button in ('scrollup', 'scrolldown', 'right'):
+            return False
         if self.collide_point(touch.pos[0], touch.pos[1]):
             touch.grab(self)
             self.seeking_touch = True
@@ -125,6 +128,8 @@ class SliderProgressBar(ProgressBar):
             return True
 
     def on_touch_up(self, touch):
+        if touch.button in ('scrollup', 'scrolldown', 'right'):
+            return False
         if self.seeking_touch:
             self.seeking_touch = False
             touch.ungrab(self)
@@ -181,14 +186,9 @@ class PlayBackBar(BoxLayout):
     dont_update_progress = False
     def __init__(self, **kwargs):
         super(PlayBackBar, self).__init__(**kwargs)
-        # self.bind(media_progress_val=self.on_media_progress_val)
-        # self.bind(media_progress_max=self.on_media_progress_max)
         self.on_media_progress_val()
         self.on_media_progress_max()
-        from kivy.clock import Clock
-        def mans(*args):
-            self.media_progress_val += 1
-        Clock.schedule_interval(self.bind_children_clock, 1)
+        Clock.schedule_interval(self.bind_children_clock, 0)
 
     def bind_children_clock(self, *args):
         self.ids.progress1.on_seeking = self.on_seeking
@@ -242,6 +242,12 @@ class PlayBackBar(BoxLayout):
 
     def on_nextbtn(self, *args):
         pass
+
+    def on_play(self, *args):
+        self.ids.btn2.text = 'Pause'
+
+    def on_pause(self, *args):
+        self.ids.btn2.text = 'Play'
 
     def on_seeking(self, value):
         if self.on_seeking_function:
