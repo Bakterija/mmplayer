@@ -188,10 +188,10 @@ class PlayBackBar(BoxLayout):
         super(PlayBackBar, self).__init__(**kwargs)
         self.on_media_progress_val()
         self.on_media_progress_max()
-        Clock.schedule_interval(self.bind_children_clock, 0)
+        Clock.schedule_once(self.bind_children_clock, 0)
 
     def bind_children_clock(self, *args):
-        self.ids.progress1.on_seeking = self.on_seeking
+        self.ids.progress1.on_seeking = lambda *args: self.on_seeking(*args)
         self.bind(media_progress_val=self.ids.progress1.on_value_update)
         self.ids.progress1.bind(on_touch_down=self.toggle_progress_update)
         self.ids.progress1.bind(on_touch_up=self.toggle_progress_update)

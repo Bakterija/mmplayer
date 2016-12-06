@@ -1,3 +1,10 @@
+## Beta 3.1 - 2016-dec-6 - hotfix
+
+### Fixed
+ - High cpu usage and memory leak in PlaybackBar
+
+
+
 ## Beta 3 - 2016-dec-6
 
 ### Added

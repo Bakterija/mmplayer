@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Version: Beta 2
+# Version: Beta 3.1
 from __future__ import print_function
 from time import strftime, time, sleep
 from app_modules.ptimer import PTimer
