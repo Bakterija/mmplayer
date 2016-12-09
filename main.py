@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Version: Beta 3.1
+# Version: Beta 4
 from __future__ import print_function
+from kivy import require as kivy_require
+kivy_require('1.9.2')
 from time import strftime, time, sleep
 from app_modules.ptimer import PTimer
 ptimer = PTimer()
@@ -54,7 +56,7 @@ ptimer.add('imports')
 if platform == 'android':
     import android
     # from android.runnable import run_on_ui_thread
-elif platform in ('windows', 'linux'):
+elif platform in ('windows','win', 'linux'):
     from multiprocessing import Process
     from service import main as PCservice
     from app_modules.layouts.pc_layout_methods import LayoutMethods
@@ -363,6 +365,9 @@ class Jotube(TerminalApp, LayoutMethods, FloatLayout):
     def on_video_screen(self, *args):
         super(Jotube, self).on_video_screen(*args)
 
+    def on_error(self, error):
+        self.ids.info_widget.error(error)
+
     def init_widgets(self, *args):
         make_dirs()
         self.manager = Jotube_SM(size_hint=(1,1))
@@ -399,6 +404,7 @@ class Jotube(TerminalApp, LayoutMethods, FloatLayout):
         ## FIRST SCREEN MEDIA PLAYER - sc-media
         try:
             self.mPlayer = Media_Player()
+            self.mPlayer.modes['on_error'].append(self.on_error)
             self.mPlayer.set_osc_sender(self.service.send_message)
             global_callbacks.add('on_pause', self.mPlayer.background_switch)
             self.mGUI = Media_GUI(self.mPlayer)
@@ -437,11 +443,11 @@ class Jotube(TerminalApp, LayoutMethods, FloatLayout):
                 self.ids.playback_bar.volume_decrease)
 
             self.keybinder.add(
-                'vol_increase', '273', 'up',
-                self.ids.playback_bar.volume_increase)
+                'vol_increase', '273', 'down',
+                self.ids.playback_bar.volume_increase, modifier=['ctrl'])
             self.keybinder.add(
-                'vol_decrease', '274', 'up',
-                self.ids.playback_bar.volume_decrease)
+                'vol_decrease', '274', 'down',
+                self.ids.playback_bar.volume_decrease, modifier=['ctrl'])
             self.keybinder.add(
                 'seek_4_sec_back', '276', 'down',
                 lambda: self.mPlayer.seek_relative(-4), modifier=['shift'])
@@ -455,7 +461,7 @@ class Jotube(TerminalApp, LayoutMethods, FloatLayout):
                 'seek_60_sec_forward', '275', 'down',
                 lambda: self.mPlayer.seek_relative(60), modifier=['ctrl'])
             self.keybinder.add(
-                'play_pause_toggle', '32', 'up', self.mGUI.play_pause)
+                'play_pause_toggle', '32', 'down', self.mGUI.play_pause)
         except Exception as e:
             traceback.print_exc()
         ## OPTIONS sc-options
@@ -516,7 +522,11 @@ class Jotube(TerminalApp, LayoutMethods, FloatLayout):
             'app_modules/behaviors/resizable/resize2.png',
             'app_modules/behaviors/resizable/resize_vertical.png',
             'app_modules/behaviors/resizable/resize1.png',)
-        super(Jotube, self).init_widgets()
+        try:
+            super(Jotube, self).init_widgets()
+        except Exception as e:
+            self.ids.info_widget.error(traceback.format_exc())
+            traceback.print_exc()
 
 class Jotube_SM(ScreenManager):
     def screen_switch_modified(self):
@@ -541,6 +551,10 @@ class JotubeApp(App):
             self.app_rt.mPlayer.stop()
         except Exception as e:
             print(e)
+        self.stop_static(self)
+
+    @staticmethod
+    def stop_static(self):
         try:
             self.app_rt.service.stop()
         except Exception as e:
@@ -561,4 +575,7 @@ if __name__ == "__main__":
     except Exception as e:
         traceback.print_exc()
         Logger.error('[App         ] Crashed, stopping processes')
-        app.on_stop()
+        try:
+            app.on_stop()
+        except:
+            JotubeApp.stop_static('')

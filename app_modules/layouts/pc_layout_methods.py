@@ -11,6 +11,7 @@ class LayoutMethods(object):
     def init_widgets(self, *args):
         Window.bind(mouse_pos=self.on_mouse_move)
         self.bind(size=self.on_size)
+        self.bind(sm_area_width=self.on_size)
         self.bind(lower_bar_offset_y=self.on_size)
         self.bind(side_bar_offset_x=self.on_size)
         self.bind(upper_bar_offset_y=self.on_size)
@@ -18,7 +19,8 @@ class LayoutMethods(object):
     def on_size(self, *args):
         if not self.video_screen:
             self.ids.sm_area.size = (self.sm_area_width, self.sm_area_height)
-            self.ids.sm_area.pos = self.side_bar_width, self.lower_bar_height
+            self.ids.sm_area.pos = (
+                self.ids.sidebar.width, self.lower_bar_height)
         else:
             self.ids.sm_area.size = self.size
             self.ids.sm_area.pos = (0, 0)
@@ -34,14 +36,14 @@ class LayoutMethods(object):
             #     self.lower_bar_height - self.lower_bar_offset_y)
 
     def on_mouse_move(self, obj, pos):
-        if pos[0] < self.side_bar_width:
+        if pos[0] < self.ids.sidebar.width:
             if not self.hovering_side_bar:
                 self.hovering_side_bar = True
                 if self.video_screen and self.video_playing:
                     self.anim_side_bar_in()
 
-        elif self.hovering_side_bar:
-            if pos[0] > self.side_bar_width + dp(30):
+        elif self.hovering_side_bar and not self.ids.sidebar.resizing:
+            if pos[0] > self.ids.sidebar.width + dp(30):
                 self.hovering_side_bar = False
                 if self.video_screen and self.video_playing:
                     self.anim_side_bar_out()
@@ -72,7 +74,7 @@ class LayoutMethods(object):
                              d=0.2, t='in_quad')
             anim.start(self)
         if not self.hovering_side_bar:
-            anim3 = Animation(side_bar_offset_x=self.side_bar_width + 2,
+            anim3 = Animation(side_bar_offset_x=self.ids.sidebar.width + 2,
                              d=0.2, t='in_quad')
             anim3.start(self)
         anim2 = Animation(upper_bar_offset_y=self.upper_bar_height + 2,
@@ -108,7 +110,7 @@ class LayoutMethods(object):
         anim.start(self)
 
     def anim_side_bar_out(self, *args):
-        anim = Animation(side_bar_offset_x=self.side_bar_width + 2,
+        anim = Animation(side_bar_offset_x=self.ids.sidebar.width + 2,
                          d=0.2, t='in_quad')
         anim.start(self)
 

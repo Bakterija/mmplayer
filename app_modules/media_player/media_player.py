@@ -168,21 +168,32 @@ class Media_Player(object):
                 self.stream = False
                 try:
                     self.streamTimer.stop_thread(reason='Start media')
-                except: pass
+                except:
+                    pass
                 self.streamTimer = None
             stream = False
-            try: self.stop()
+            try:
+                self.stop()
             except Exception as e:
                 pass
-            self.player = 'none'
+            self.player = ''
 
             if path[:7] == 'http://' or  path[:8] == 'https://':
                 self.player = 'stream-audio'
-            if self.player == 'none':
+            if not self.player:
                 for x in '.wav','.mp3','.ogg','.m4a':
-                   if path[-4:] == x: self.player = 'audio'
+                   if path[-4:] == x:
+                       self.player = 'audio'
                 for x in '.mp4','.mkv':
-                   if path[-4:] == x: self.player = 'video'
+                   if path[-4:] == x:
+                       self.player = 'video'
+
+            if not self.player:
+                e = '''[MediaPlayer error] Could not detect format of file:
+                    {}\n\n{}'''.format(path, name)
+                for x in self.modes['on_error']:
+                    x(str(e))
+                return None
 
             found = False
             for provider, callback in self.providers[self.player]:

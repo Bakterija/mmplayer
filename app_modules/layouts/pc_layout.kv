@@ -4,6 +4,7 @@
 #: import aa6 app_modules.playback_bar.playback_bar.PlayBackBar
 #: import aa7 app_modules.widgets.resizable_boxlayout.ResizableBoxLayout
 #: import aa8 app_modules.widgets.small_video.SmallVideo
+#: import aa9 app_modules.widgets.info_widget.InfoWidget
 
 <LabelButton>:
     size_hint: 1, None
@@ -105,3 +106,8 @@
             Rectangle:
                 pos: self.pos
                 size: self.size
+
+    InfoWidget:
+        id: info_widget
+        width: cm(8)
+        pos: root.width - self.width - dp(20), root.height - self.height - dp(20)

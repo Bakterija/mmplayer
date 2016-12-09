@@ -246,7 +246,7 @@ class Media_GUI(StackLayout):
                 self.videoframe.add_widget(temp)
                 self.videoframe_small.animate_out()
                 temp.pos = (0, 0)
-        elif self.videoframe.children:
+        elif self.videoframe.children and self.playing_video:
             # if self.videoframe.children[0].children:
             temp = self.videoframe.children[0]
             self.videoframe.remove_widget(temp)

@@ -29,6 +29,8 @@ kv = '''
     scroll_wheel_distance: dp(114)
     bar_width: dp(10)
     viewclass: 'SideBarViewClass'
+    bar_color: .4, .4, .4, 1
+    bar_inactive_color: .4, .4, .4, .7
     canvas.before:
         Color:
             rgb: 0.1, 0.1, 0.1
@@ -40,7 +42,7 @@ kv = '''
         orientation: 'vertical'
         size_hint: None, None
         height: self.minimum_height
-        width: self.parent.width
+        width: root.width - root.bar_width
         default_size: None, None
         default_size_hint: 1, None
         spacing: '2dp'

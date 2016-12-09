@@ -1,3 +1,23 @@
+## Beta 4 - 2016-dec-9
+
+### Added
+ - InfoWidget in right upper corner displays errors, warnings, info
+ - InfoWidget will display a error label when MediaPlayer can't play a file
+ - User places in windows os
+
+### Changed
+ - Volume hotkeys (up arrow, down arrow) now require ctrl modifier
+ - Made scrollbars always visible and have their own space instead of drawing
+   over other widgets
+ - Screen size changes when side bar is resized while no video is playing
+
+### Fixed
+ - Small video widget should not animate in while no video is playing anymore
+ - Updated resizable behavior and removed white blocks in windows os
+ - Adjusted side bar animations to work with resizing
+
+
+
 ## Beta 3.1 - 2016-dec-6 - hotfix
 
 ### Fixed
@@ -15,10 +35,13 @@
  - Relative seek(60 sec) with ctrl + left / right arrow
  - Change video volume with mousewheel
  - Left click on small video widget switches to video screen
- - Side bar, lower bar, upper bar animate out of window when video screen is selected (Side bar can be brought back in by moving mouse to the windows left side and lower bar by moving mouse to the bottom)
+ - Side bar, lower bar, upper bar animate out of window when video screen is
+   selected (Side bar can be brought back in by moving mouse to the windows
+   left side and lower bar by moving mouse to the bottom)
 
 ### Changed
- - Right click and mouse scroll do not seek or change volume while mouse is hovering over sliders anymore
+ - Right click and mouse scroll do not seek or change volume while mouse is
+   hovering over sliders anymore
  - MediaPlayer logs a warning instead of crashing when playlist is empty
 
 ### Fixed
@@ -34,7 +57,8 @@
 ### Added
  - Can add files to unopened playlists
  - Can add files to beginning or end of playlist
- - App displays video in a resizable lower corner frame when video screen is not active
+ - App displays video in a resizable lower corner frame when video screen is
+   not active
 
 ### Changed
  - Increased min sidebar width from 20 dp to 4 cm

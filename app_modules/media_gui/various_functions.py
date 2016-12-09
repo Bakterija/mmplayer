@@ -15,14 +15,12 @@ if platform == 'android':
         ['Music', '/storage/emulated/0/Music']]
 else:
     syspath = path[0]
-    if platform == 'linux':
+    if platform in ('linux', 'win'):
         audio_path = syspath+'/media/'
         platformfolders = [
             ['Downloads', home_dir+'Downloads/'],
             ['Music', home_dir+'Music/'],
             ['Videos', home_dir+'Videos/']]
-    elif platform in ('windows', 'win'):
-        audio_path = syspath+'\\media\\'
 
 
 def load_json(path):
