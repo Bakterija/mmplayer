@@ -53,6 +53,7 @@ import traceback
 import sys
 import os
 ptimer.add('imports')
+
 if platform == 'android':
     import android
     # from android.runnable import run_on_ui_thread
@@ -60,14 +61,15 @@ elif platform in ('windows','win', 'linux'):
     from multiprocessing import Process
     from service import main as PCservice
     from app_modules.layouts.pc_layout_methods import LayoutMethods
+    KivyConfig.set( 'input', 'mouse', 'mouse,disable_multitouch')
+    sys.dont_write_bytecode = True
 
+def start_pc_service():
     def pcservice():
         PCservice.main_loop()
 
-    sys.dont_write_bytecode = True
-    KivyConfig.set( 'input', 'mouse', 'mouse,disable_multitouch')
-##    service_process = Process(target=pcservice)
-##    service_process.start()
+    service_process = Process(target=pcservice)
+    service_process.start()
 
 
 def return_path():
@@ -242,7 +244,8 @@ class Jotube(TerminalApp, LayoutMethods, FloatLayout):
         data_list = self.data_list
         self.settings = {}
         # Window.clearcolor = (0.1, 0.1, 0.1, 0.1)
-        if platform == 'linux' or platform == 'windows':
+        if platform in ('linux', 'win', 'windows'):
+            start_pc_service()
             Window.set_icon(return_path()+'data/icon.png')
             # Window.system_size = (480,960)
             # Window.system_size = (1000,650)
