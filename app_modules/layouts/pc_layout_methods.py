@@ -1,20 +1,40 @@
 from kivy.animation import Animation
 from kivy.core.window import Window
 from kivy.metrics import dp
+from kivy.clock import Clock
+
 
 class LayoutMethods(object):
     hovering_side_bar = False
     hovering_lower_bar = False
     video_screen = False
     video_playing = False
+    maximized = False
 
     def init_widgets(self, *args):
         Window.bind(mouse_pos=self.on_mouse_move)
+        Window.bind(on_maximize=self.on_maximize)
+        Window.bind(on_restore=self.on_restore)
         self.bind(size=self.on_size)
         self.bind(sm_area_width=self.on_size)
         self.bind(lower_bar_offset_y=self.on_size)
         self.bind(side_bar_offset_x=self.on_size)
         self.bind(upper_bar_offset_y=self.on_size)
+        self.manager.ids.videoframe.full_screen_check = self.is_playing
+        self.manager.bind(current=self.restore_window)
+
+    def restore_window(self, *args):
+        if self.manager.ids.videoframe.maximized:
+            self.manager.ids.videoframe.maximize_borderless_toggle()
+
+    def is_playing(self):
+        return self.video_playing
+
+    def on_maximize(self, *args):
+        self.maximized = True
+
+    def on_restore(self, *args):
+        self.maximized = False
 
     def on_size(self, *args):
         if not self.video_screen:

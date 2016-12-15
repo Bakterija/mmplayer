@@ -66,8 +66,8 @@ elif platform in ('windows','win', 'linux'):
 
     sys.dont_write_bytecode = True
     KivyConfig.set( 'input', 'mouse', 'mouse,disable_multitouch')
-    service_process = Process(target=pcservice)
-    service_process.start()
+##    service_process = Process(target=pcservice)
+##    service_process.start()
 
 
 def return_path():

@@ -1,4 +1,5 @@
 #: import aaa3 app_modules.multi_line_label.MultiLineLabel
+#: import VideoFrame app_modules.media_gui.videoframe.VideoFrame
 
 <Jotube_SM>:
     Screen:
@@ -36,8 +37,7 @@
 	Screen:
 		id: sc4
 		name: "sc-video"
-        BoxLayout:
-            orientation: 'vertical'
+        VideoFrame:
             id: videoframe
 
 	Screen:
