@@ -1,3 +1,9 @@
+## Beta 5 - 2016-dec-19
+
+### Added
+ - Window maximize toggle on video doubleclick, auto restore on screen switch
+
+
 ## Beta 4 - 2016-dec-9
 
 ### Added
