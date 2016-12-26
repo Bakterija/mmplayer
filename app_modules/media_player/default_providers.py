@@ -130,3 +130,15 @@ def start_stream_kivy(self,place):
             self.player = 'external'
             android_fileExt_activity("video/*",path)
             return 'External player'
+
+def start_audio_other_gst(self, place):
+    from app_modules.other.gstplayer.audio_gstplayer import SoundGstplayer
+    Sound = SoundGstplayer()
+    ID, (name, path) = self.playlist.get_current()
+    if type(path) == unicode:
+        path = path.encode('utf-8')
+    self.sound = Sound.load(path)
+    if self.sound:
+        self.sound.play()
+        self.sound.bind(on_stop=self.on_stop)
+        return name

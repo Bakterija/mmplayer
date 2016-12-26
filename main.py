@@ -507,6 +507,8 @@ class Jotube(TerminalApp, LayoutMethods, FloatLayout):
             self.service.toggle_service()
         self.mPlayer.set_modes({'screen_on':False})
 
+        if platform in ('win', 'linux'):
+            self.mPlayer.set_audio_provider('Other_GST')
         # Youtube Browser for testing
         #
         # self.manager.current = 'sc-browser'

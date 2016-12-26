@@ -132,7 +132,8 @@ class Media_Player(object):
             ],
             'audio':[
                 ['Kivy', default_providers.start_audio_kivy],
-                ['External', default_providers.start_audio_kivy]
+                ['External', default_providers.start_audio_kivy],
+                ['Other_GST', default_providers.start_audio_other_gst]
             ],
             'stream-audio':[
                 ['Kivy', default_providers.start_stream_kivy],
@@ -340,7 +341,6 @@ class Media_Player(object):
                 pos = self.sound.get_pos()
             elif self.player == 'video':
                 pos = self.sound.position
-        print (pos)
         return pos
 
     def get_mediaDur(self,*arg):
