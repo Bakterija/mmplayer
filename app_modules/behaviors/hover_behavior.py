@@ -4,6 +4,7 @@ from kivy.core.window import Window
 
 class HoverBehavior(Widget):
     hovering = BooleanProperty(False)
+
     def __init__(self, **kwargs):
         super(HoverBehavior, self).__init__(**kwargs)
         Window.bind(mouse_pos=self.on_mouse_move)

@@ -17,7 +17,7 @@ def start_audio_kivy(self, place):
     self.sound = SoundLoader.load(path)
     if self.sound:
         self.sound.play()
-        self.sound.bind(on_stop= self.on_stop)
+        self.sound.bind(on_stop=self.on_stop)
         return name
 
 def start_audio_external(self, place):

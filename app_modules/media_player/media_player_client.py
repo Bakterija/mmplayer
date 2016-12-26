@@ -7,37 +7,40 @@ import traceback
 
 
 class Playlist_Client(Playlist):
-        def __init__(self,osc_sender):
-            super(Playlist_Client, self).__init__()
-            self.osc_sender = osc_sender
-            self.mstring = 'audioCL:'
+    '''A playlist which is synchronized with service Media_Player'''
 
-        def add(self, name, path):
-            super(Playlist_Client, self).add(name,path)
-            if type(name) == unicode:
-                name = name.encode('utf-8')
-            if type(path) == unicode:
-                path = path.encode('utf-8')
-            msg = '{}addPlaylist:{}:{}'.format(self.mstring, name, path)
-            self.osc_sender(msg)
+    def __init__(self,osc_sender):
+        super(Playlist_Client, self).__init__()
+        self.osc_sender = osc_sender
+        self.mstring = 'audioCL:'
 
-        def insert(self, index, name, path):
-            super(Playlist_Client, self).insert(index, name, path)
-            if type(name) == unicode:
-                name = name.encode('utf-8')
-            if type(path) == unicode:
-                path = path.encode('utf-8')
-            msg = '{}insertPlaylist:{}:{}:{}'.format(
-                self.mstring, index, name, path)
-            self.osc_sender(msg)
+    def add(self, name, path):
+        super(Playlist_Client, self).add(name,path)
+        if type(name) == unicode:
+            name = name.encode('utf-8')
+        if type(path) == unicode:
+            path = path.encode('utf-8')
+        msg = '{}addPlaylist:{}:{}'.format(self.mstring, name, path)
+        self.osc_sender(msg)
 
-        def reset(self):
-            super(Playlist_Client, self).reset()
-            self.osc_sender(self.mstring+'resetPlaylist:')
+    def insert(self, index, name, path):
+        super(Playlist_Client, self).insert(index, name, path)
+        if type(name) == unicode:
+            name = name.encode('utf-8')
+        if type(path) == unicode:
+            path = path.encode('utf-8')
+        msg = '{}insertPlaylist:{}:{}:{}'.format(
+            self.mstring, index, name, path)
+        self.osc_sender(msg)
+
+    def reset(self):
+        super(Playlist_Client, self).reset()
+        self.osc_sender(self.mstring+'resetPlaylist:')
 
 
 class OSC_Media_Interface(object):
-    def __init__(self,place,osc_sender):
+
+    def __init__(self, place, osc_sender):
         self.mstring = 'audioCL:'
         self.osc_sender = osc_sender
         self.pos = 0

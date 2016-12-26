@@ -5,6 +5,8 @@ from kivy.clock import Clock
 
 
 class LayoutMethods(object):
+    '''These are methods for large screen desktop computers,
+    Inherited by root widget'''
     hovering_side_bar = False
     hovering_lower_bar = False
     video_screen = False

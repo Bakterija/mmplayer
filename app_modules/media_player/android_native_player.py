@@ -42,7 +42,6 @@ class Android_Native_Player:
 
     def get_pos(self,*arg):
         if self.enabled:
-            # self.length = self.player.getDuration()/1000
             pos = self.player.getCurrentPosition()/1000
             if pos == self.length:
                 self.state = 'stop'
@@ -53,4 +52,5 @@ class Android_Native_Player:
 
     def bind(self,*arg,**kwarg):
         kwarg.setdefault('on_stop',False)
-        if kwarg['on_stop'] != False: self.stopCallback = kwarg['on_stop']
+        if kwarg['on_stop'] != False:
+            self.stopCallback = kwarg['on_stop']

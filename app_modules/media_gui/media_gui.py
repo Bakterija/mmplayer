@@ -23,7 +23,6 @@ from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.behaviors.focus import FocusBehavior
 from kivy.animation import Animation
 from app_modules.behaviors.hover_behavior import HoverBehavior
-from app_modules.widgets.context_menu import *
 from kivy.uix.image import Image
 from kivy.clock import Clock
 from kivy.core.window import Window

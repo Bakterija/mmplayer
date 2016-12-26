@@ -1,10 +1,13 @@
 from __future__ import print_function
 from kivy.core.window import Window
+from kivy.logger import Logger
 
 
 class KeyBinder(object):
+    keybinds = {}
+    use_logger = False
+
     def __init__(self):
-        self.keybinds = {}
         Window.bind(on_key_down=self.on_key_down)
         Window.bind(on_key_up=self.on_key_up)
 
@@ -20,11 +23,12 @@ class KeyBinder(object):
         del self.keybinds[name]
 
     def on_key_down(self, win, key, *args):
-        # print('DOWN', key, args[2])
         try:
             modifier = args[2]
         except:
             modifier = []
+        if self.use_logger:
+            Logger.info('KeyBinder: on_key_down: {} - {}'.format(key, modifier))
         for k, v in self.keybinds.iteritems():
             if v['key'] == str(key):
                 if v['state'] in ('down', 'any', 'all'):
@@ -32,7 +36,8 @@ class KeyBinder(object):
                         v['callback']()
 
     def on_key_up(self, win, key, *args):
-        # print('__UP', key, args)
+        if self.use_logger:
+            Logger.info('KeyBinder: on_key___up: {} - {}'.format(key, args))
         for k, v in self.keybinds.iteritems():
             if v['key'] == str(key):
                 if v['state'] in ('up', 'any', 'all'):

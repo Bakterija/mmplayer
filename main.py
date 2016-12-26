@@ -253,21 +253,29 @@ class Jotube(TerminalApp, LayoutMethods, FloatLayout):
         self.service = None
         Builder.load_file('app_modules/layouts/screen_manager.kv')
         self.keybinder = KeyBinder()
+        # self.keybinder.use_logger = True
         Window.bind(on_dropfile=self.on_dropfile)
         Clock.schedule_once(self.init_widgets, 0)
 
-    def add_file(self,text,dlFormat):
+    def add_file(self, text, dlFormat):
+        '''Used to get audio/video files to play from youtue linkes
+        GUI parts were removed at some point'''
         if self.service.connected:
-            if dlFormat == 'Video': sett = 'dl-video'
-            else: sett = 'dl-audio'
+            if dlFormat == 'Video':
+                sett = 'dl-video'
+            else:
+                sett = 'dl-audio'
             sendmsg = 'DOWNLOAD::'+sett+':'+text
             self.service.send_message(sendmsg.encode('utf_8'))
 
     def receive_data(self,*arg):
+        '''Parses data from the app service and executes funtions'''
         for data in self.data_list:
             if data[:8] == 'audioSV:':
+                # MediaPlayer server commands
                 self.mPlayer.osc_callback(data[8:])
             elif data[:15] == 'DL::Downloader-':
+                # Removed youtube loader commands
                 self.mGUI.downloader_task(data[15:])
                 self.ins_text(data)
             else:
@@ -278,16 +286,6 @@ class Jotube(TerminalApp, LayoutMethods, FloatLayout):
         self.terminal.add_tdata(unicode(text))
 
     def switch_screen(self, screen_name):
-        # if screen_name == 'sc-video':
-        #     Window.clearcolor = (0, 0, 0, 0)
-        # else:
-        #     Window.clearcolor = (0.1, 0.1, 0.1, 0.1)
-        # if screen_name == 'sc-terminal':
-        #     self.terminal.tcan_refresh = True
-        #     self.terminal.scroll_y = 0.0
-        # else:
-        #     self.terminal.tcan_refresh = False
-        #     self.terminal.scroll_y = 1.0
         self.manager.current = screen_name
         self.mGUI.current_screen = screen_name
         if screen_name == 'sc-video':
@@ -357,18 +355,24 @@ class Jotube(TerminalApp, LayoutMethods, FloatLayout):
         self.sidebar_items.append({'text': '', 'wtype': 'separator'})
 
     def on_dropfile(self, win, val):
+        '''Runs when a file is dropped on the window'''
         self.mGUI.on_dropfile(val)
 
     def mgui_add_playlist(self, *args):
+        '''For adding playlists in mGUI from GUI buttons'''
         self.mGUI.create_playlist_popup()
 
     def mgui_add_local_files(self, *args):
+        '''For adding files to playlists in mGUI from GUI buttons'''
         self.mGUI.add_local_files_popup()
 
     def on_video_screen(self, *args):
+        '''Runs when video screen is entered and left.
+        Moves small video in or out, among other things'''
         super(Jotube, self).on_video_screen(*args)
 
     def on_error(self, error):
+        '''For showing errors in GUI'''
         self.ids.info_widget.error(error)
 
     def init_widgets(self, *args):
@@ -503,6 +507,8 @@ class Jotube(TerminalApp, LayoutMethods, FloatLayout):
             self.service.toggle_service()
         self.mPlayer.set_modes({'screen_on':False})
 
+        # Youtube Browser for testing
+        #
         # self.manager.current = 'sc-browser'
         # self.ydl_test = YDL_Browser()
         # self.manager.ids.sc5_stack1.add_widget(self.ydl_test)
@@ -526,6 +532,7 @@ class Jotube(TerminalApp, LayoutMethods, FloatLayout):
             'app_modules/behaviors/resizable/resize_vertical.png',
             'app_modules/behaviors/resizable/resize1.png',)
         try:
+            # Run LayoutMethods init_widgets method when this is done
             super(Jotube, self).init_widgets()
         except Exception as e:
             self.ids.info_widget.error(traceback.format_exc())

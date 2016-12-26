@@ -10,11 +10,10 @@ class Playlist(object):
     def __init__(self,*args,**kwargs):
         self.list = []
         self.current = 0
-        self.length = 0
 
     def get_next(self):
         self.current +=1
-        if self.length != 0:
+        if self.list != []:
             try:
                 return self.current, self.list[self.current]
             except:
@@ -25,11 +24,11 @@ class Playlist(object):
 
     def get_previous(self):
         self.current -= 1
-        if self.length != 0:
+        if self.list != []:
             try:
                 return self.current, self.list[self.current]
             except:
-                self.current = self.length-1
+                self.current = len(self.list) - 1
                 return self.current, self.list[self.current]
         Logger.warning('[Media Player] Playlist is empty')
         return None, (None, None)
@@ -51,7 +50,6 @@ class Playlist(object):
         for key, value in kwargs.iteritems():
             self.appending['key'] = value
         self.list.append(appending)
-        self.length += 1
 
     def insert(self, index, name, path, **kwargs):
         appending = {'name': name, 'path': path}
@@ -59,30 +57,42 @@ class Playlist(object):
             self.appending['key'] = value
         self.list.insert(index, appending)
         # print(name, path)
-        self.length += 1
 
     def reset(self):
         self.current = 0
-        self.length = 0
         self.list = []
 
 
-class Media_Player(object):
-    class Dummy(object):
-        class Sound(object):
-            def __init__(self):
-                self.sound, self.state = 'Dummy', 'Dummy'
-            def seek(self): return 0
-            def unload(self): pass
+class Dummy(object):
+    ''' Will be removed later'''
+    class Sound(object):
         def __init__(self):
-            self.state = 'stop'
-            self.length, self.source, name_name, self.sound = 0, False, False, self.Sound()
-            self.paused = False
-        def unload(self,*arg): return 'Dummy'
-        def play(self,*arg): return 'Dummy'
-        def stop(self,*arg): return 'Dummy'
-        def get_pos(self,*arg): return 0
-        def seek(self,*arg): return 'Dummy'
+            self.sound, self.state = 'Dummy', 'Dummy'
+        def seek(self):
+            return 0
+        def unload(self):
+            pass
+    def __init__(self):
+        self.state = 'stop'
+        self.length, self.source, name_name, self.sound = 0, False, False, self.Sound()
+        self.paused = False
+    def unload(self,*arg):
+        return 'Dummy'
+    def play(self,*arg):
+        return 'Dummy'
+    def stop(self,*arg):
+        return 'Dummy'
+    def get_pos(self,*arg):
+        return 0
+    def seek(self,*arg):
+        return 'Dummy'
+
+
+class Media_Player(object):
+    '''The audio/video player class of the application.
+    Does not use any kivy GUI widgets on purpose, to make it possible to
+    us it inside another GUI, in a terminal or as a service'''
+
     seeking = False
     paused = False
     pauseSupported = False
@@ -92,10 +102,11 @@ class Media_Player(object):
     starting = False
     volume = 1.0
     pauseSeek = 0
+
     def __init__(self):
         self.playlist = Playlist()
         self.mediaName = ''
-        self.sound = self.Dummy()
+        self.sound = Dummy()
         self.player = 'audio'
         self.stream = False
         self.modes = {
@@ -216,7 +227,7 @@ class Media_Player(object):
                         return self.mediaName
                     found = False
             if not found:
-                self.sound = self.Dummy()
+                self.sound = Dummy()
                 self.starting = False
                 return False
         except Exception as e:
@@ -285,7 +296,7 @@ class Media_Player(object):
         self.seek(value)
 
     def resume(self,*arg):
-        if self.sound and type(self.sound) != self.Dummy:
+        if self.sound and type(self.sound) != Dummy:
             self.paused = False
             if self.pauseSupported == False:
                 try:
@@ -306,7 +317,7 @@ class Media_Player(object):
         self.state = 'stop'
 
     def pause(self, *arg):
-        if self.sound and type(self.sound) != self.Dummy:
+        if self.sound and type(self.sound) != Dummy:
             self.pauseSeek = self.get_mediaPos()
             self.paused = True
             if self.player in ('audio', 'video2'):
@@ -316,20 +327,21 @@ class Media_Player(object):
             for x in self.modes['on_pause']:
                 x(self, self.pauseSeek)
 
-    def get_mediaPos(self,*arg):
+    def get_mediaPos(self, *arg):
+        pos = 0
         if self.paused:
-            return self.pauseSeek
+            pos = self.pauseSeek
         if self.seeking:
-            return -9
+            pos = -9
         else:
-            pos = 0
             if self.stream:
                 pos = self.streamTimer.get_pos()
             elif self.player in ('audio', 'video2'):
                 pos = self.sound.get_pos()
             elif self.player == 'video':
                 pos = self.sound.position
-            return pos
+        print (pos)
+        return pos
 
     def get_mediaDur(self,*arg):
         dur = 0

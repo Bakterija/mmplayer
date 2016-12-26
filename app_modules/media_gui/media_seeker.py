@@ -21,7 +21,8 @@ class Media_Seeker(object):
                     self.skipSeek = 2
                 self.seekLock = False
 
-    def func_seek(self,value): self.mPlayer.seek(int(value))
+    def func_seek(self,value):
+        self.mPlayer.seek(int(value))
 
     def update_seek(self,*arg):
         try:

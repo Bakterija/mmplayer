@@ -415,9 +415,7 @@ class ResizableBehavior(object):
         Window.bind(mouse_pos=lambda obj, val: self.on_mouse_move(val))
         self.cursor = None
         app = App.get_running_app()
-        try:
-            app.resizable_cursor
-        except AttributeError:
+        if not hasattr(app, 'resizable_cursor'):
             app.resizable_cursor = ModalViewModified()
             Clock.schedule_once(app.resizable_cursor.put_on_top, 0)
         self.modalview = app.resizable_cursor
