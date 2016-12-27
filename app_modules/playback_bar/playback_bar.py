@@ -91,25 +91,34 @@ class SliderProgressBar(ProgressBar):
     on_seeking_function = None
     circle_size = NumericProperty(int(cm(0.3)))
     circle_color = ListProperty([1, 1, 1, 0.2])
+
     def __init__(self, **kwargs):
         super(SliderProgressBar, self).__init__(**kwargs)
         Window.bind(mouse_pos=self.on_mouse_move)
+        Window.bind(on_cursor_leave=self.hide_circle)
         Clock.schedule_once(self.after_init, 0)
 
     def after_init(self, *args):
         circlesource = path[0]+'/app_modules/playback_bar/circle.png'
-        self.circle = Image(source=circlesource, pos=(-999,-999), size=(self.circle_size, self.circle_size))
+        self.circle = Image(source=circlesource, pos=(-999,-999), size=(
+            self.circle_size, self.circle_size))
         self.add_widget(self.circle)
 
     def on_mouse_move(self, win, (posx, posy)):
         if self.collide_point_window(posx, posy) or self.seeking_touch:
             if self.max == 0 or self.value == 0:
-                self.circle.pos = (self.x, self.y + self.height/2 - (self.circle_size / 2))
+                self.circle.pos = (self.x, self.y + self.height/2 - (
+                    self.circle_size / 2))
             else:
-                self.circle.pos = (self.x + (self.width / self.max * self.value)- (self.circle_size / 2),
-                                   self.y + self.height/2 - (self.circle_size / 2))
+                self.circle.pos = (
+                    self.x + (self.width / self.max * self.value) - \
+                    (self.circle_size / 2), self.y + self.height/2 - \
+                    (self.circle_size / 2))
         else:
-            self.circle.pos = (-999 - (self.circle_size / 2), -999 - (self.circle_size / 2))
+            self.hide_circle()
+
+    def hide_circle(self, *args):
+        self.circle.pos = (-999 - (self.circle_size / 2), -999 - (self.circle_size / 2))
 
     def on_value_update(self, widget, value):
         if self.value != value:
@@ -125,6 +134,8 @@ class SliderProgressBar(ProgressBar):
             touch.grab(self)
             self.seeking_touch = True
             self.on_touch_move(touch)
+            if self.max:
+                self.circle.pos[0] = Window.mouse_pos[0]
             return True
 
     def on_touch_up(self, touch):
@@ -134,7 +145,8 @@ class SliderProgressBar(ProgressBar):
             self.seeking_touch = False
             touch.ungrab(self)
             self.on_seeking(self.value)
-            self.circle.pos[0] = Window.mouse_pos[0]
+            if self.max:
+                self.circle.pos[0] = Window.mouse_pos[0]
             return True
 
     def on_touch_move(self, touch):

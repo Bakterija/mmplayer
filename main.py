@@ -17,7 +17,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder
-from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.core.clipboard import Clipboard
 from kivy.uix.button import Button
 from kivy.core.window import Window
@@ -377,7 +377,8 @@ class Jotube(TerminalApp, LayoutMethods, FloatLayout):
 
     def init_widgets(self, *args):
         make_dirs()
-        self.manager = Jotube_SM(size_hint=(1,1))
+        self.manager = Jotube_SM()
+        # self.manager = Jotube_SM(transition=NoTransition())
         self.manager.screen_switch_modified = self.switch_screen
         self.ids.sm_area.add_widget(self.manager)
 
@@ -541,8 +542,10 @@ class Jotube(TerminalApp, LayoutMethods, FloatLayout):
             traceback.print_exc()
 
 class Jotube_SM(ScreenManager):
+
     def screen_switch_modified(self):
         pass
+
 
 class JotubeApp(App):
     def build(self):

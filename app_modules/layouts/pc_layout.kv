@@ -58,6 +58,8 @@
         min_resizable_width: root.side_bar_width
         max_resizable_width: self.min_resizable_width * 2
         pos: 0 - root.side_bar_offset_x, root.lower_bar_height
+        resizable_border: dp(8)
+        resizable_border_offset: dp(10)
         canvas.before:
             Color:
                 rgb: root.side_bar_color

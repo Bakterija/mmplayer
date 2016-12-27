@@ -23,7 +23,12 @@ class SoundGstplayerModified(SoundGstplayer):
 
     def load(self, uri):
         self.unload()
-        uri = 'file:' + pathname2url(realpath(uri))
+
+        if not uri:
+            return
+        if not '://' in uri:
+            uri = 'file:' + pathname2url(realpath(uri))
+
         self.player = GstPlayer(uri, None, self._on_gst_eos_sync,
                                 _on_gstplayer_message)
         self.player.load()

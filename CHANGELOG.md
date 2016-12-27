@@ -1,7 +1,19 @@
-## Beta 5 - 2016-dec-19
+## Beta 5 - 2016-dec-27
 
 ### Added
- - Window maximize toggle on video doubleclick, auto restore on screen switch
+ - Window maximize toggle on video double click, auto restore on screen switch
+
+### Changed
+ - Side bar and lower bar animate out when cursor leaves window (while
+   watching video)
+ - White circle in progress bars disappears when cursor leaves window
+ - Circle in progress bar moves instantly on click
+ - Circle stays at beginning and doesn't move when nothing is playing
+
+### Fixed
+ - Adjusted side bar resize border position and size to not interfere with
+   it's slider
+ - Many Kivy GstPlayer errors
 
 
 ## Beta 4 - 2016-dec-9

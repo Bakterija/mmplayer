@@ -2,6 +2,7 @@ from kivy.animation import Animation
 from kivy.core.window import Window
 from kivy.metrics import dp
 from kivy.clock import Clock
+from kivy.properties import BooleanProperty
 
 
 class LayoutMethods(object):
@@ -12,11 +13,14 @@ class LayoutMethods(object):
     video_screen = False
     video_playing = False
     maximized = False
+    mouse_inside = BooleanProperty()
 
     def init_widgets(self, *args):
         Window.bind(mouse_pos=self.on_mouse_move)
         Window.bind(on_maximize=self.on_maximize)
         Window.bind(on_restore=self.on_restore)
+        Window.bind(on_cursor_enter=self.on_cursor_enter)
+        Window.bind(on_cursor_leave=self.on_cursor_leave)
         self.bind(size=self.on_size)
         self.bind(sm_area_width=self.on_size)
         self.bind(lower_bar_offset_y=self.on_size)
@@ -24,6 +28,13 @@ class LayoutMethods(object):
         self.bind(upper_bar_offset_y=self.on_size)
         self.manager.ids.videoframe.full_screen_check = self.is_playing
         self.manager.bind(current=self.restore_window)
+
+    def on_cursor_enter(self, *args):
+        self.mouse_inside = True
+
+    def on_cursor_leave(self, *args):
+        self.mouse_inside = False
+        self.on_mouse_move(None, (-1,-1))
 
     def restore_window(self, *args):
         if self.manager.ids.videoframe.maximized:
@@ -58,29 +69,38 @@ class LayoutMethods(object):
             #     self.lower_bar_height - self.lower_bar_offset_y)
 
     def on_mouse_move(self, obj, pos):
-        if pos[0] < self.ids.sidebar.width:
+        if not self.video_screen and not self.video_playing:
+            return
+
+        if self.mouse_inside:
             if not self.hovering_side_bar:
-                self.hovering_side_bar = True
-                if self.video_screen and self.video_playing:
+                if pos[0] < self.ids.sidebar.width:
+                    self.hovering_side_bar = True
                     self.anim_side_bar_in()
 
-        elif self.hovering_side_bar and not self.ids.sidebar.resizing:
-            if pos[0] > self.ids.sidebar.width + dp(30):
-                self.hovering_side_bar = False
-                if self.video_screen and self.video_playing:
+            elif self.hovering_side_bar and not self.ids.sidebar.resizing:
+                if pos[0] > self.ids.sidebar.width + dp(30):
+                    self.hovering_side_bar = False
                     self.anim_side_bar_out()
 
-        if pos[1] < self.lower_bar_height:
             if not self.hovering_lower_bar:
-                self.hovering_lower_bar = True
-                if self.video_screen and self.video_playing:
+                if pos[1] < self.lower_bar_height:
+                    self.hovering_lower_bar = True
                     self.anim_lower_bar_in()
 
-        elif self.hovering_lower_bar:
-            if pos[1] > self.lower_bar_height + dp(30):
-                self.hovering_lower_bar = False
-                if self.video_screen and self.video_playing:
+            elif self.hovering_lower_bar:
+                if pos[1] > self.lower_bar_height + dp(30):
+                    self.hovering_lower_bar = False
                     self.anim_lower_bar_out()
+        else:
+            if self.hovering_side_bar:
+                self.hovering_side_bar = False
+                self.anim_side_bar_out()
+
+            if self.hovering_lower_bar:
+                self.hovering_lower_bar = False
+                self.anim_lower_bar_out()
+
 
     def on_video_screen(self, screen, playing):
         if screen and playing:

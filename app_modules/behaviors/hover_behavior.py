@@ -1,9 +1,11 @@
-from kivy.properties import BooleanProperty
+from kivy.properties import BooleanProperty, NumericProperty
 from kivy.uix.widget import Widget
 from kivy.core.window import Window
 
 class HoverBehavior(Widget):
     hovering = BooleanProperty(False)
+    hover_resize_x = NumericProperty()
+    hover_resize_y = NumericProperty()
 
     def __init__(self, **kwargs):
         super(HoverBehavior, self).__init__(**kwargs)
@@ -27,4 +29,8 @@ class HoverBehavior(Widget):
 
     def collide_point_window(self, x, y):
         sx, sy = self.to_window(self.x, self.y)
-        return sx <= x <= sx + self.width and sy <= y <= sy + self.height
+        sx += self.hover_resize_x
+        sy += self.hover_resize_y
+        width = self.width - self.hover_resize_x
+        height = self.height - self.hover_resize_y
+        return sx <= x <= sx + width and sy <= y <= sy + height
