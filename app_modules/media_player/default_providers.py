@@ -1,6 +1,7 @@
 from __future__ import print_function
 from kivy.core.audio import SoundLoader
 from video_player_modified import VideoPlayerModified
+from audio_gstplayer_modified import SoundGstplayerModified
 from kivy.utils import platform
 from threading import Thread
 from time import sleep
@@ -132,12 +133,10 @@ def start_stream_kivy(self,place):
             return 'External player'
 
 def start_audio_other_gst(self, place):
-    from app_modules.other.gstplayer.audio_gstplayer import SoundGstplayer
-    Sound = SoundGstplayer()
     ID, (name, path) = self.playlist.get_current()
     if type(path) == unicode:
         path = path.encode('utf-8')
-    self.sound = Sound.load(path)
+    self.sound = SoundGstplayerModified().load(path)
     if self.sound:
         self.sound.play()
         self.sound.bind(on_stop=self.on_stop)

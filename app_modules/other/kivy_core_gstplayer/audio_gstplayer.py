@@ -54,15 +54,12 @@ class SoundGstplayer(Sound):
         else:
             self.stop()
 
-    def load(self, *args):
+    def load(self):
         self.unload()
-        # uri = self._get_uri()
-        uri = args[0]
-        uri = 'file:' + pathname2url(realpath(uri))
+        uri = self._get_uri()
         self.player = GstPlayer(uri, None, self._on_gst_eos_sync,
                                 _on_gstplayer_message)
         self.player.load()
-        return self
 
     def play(self):
         # we need to set the volume everytime, it seems that stopping + playing
@@ -99,3 +96,5 @@ class SoundGstplayer(Sound):
         if not '://' in uri:
             uri = 'file:' + pathname2url(realpath(uri))
         return uri
+
+SoundLoader.register(SoundGstplayer)
