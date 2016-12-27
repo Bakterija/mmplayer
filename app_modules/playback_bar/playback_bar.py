@@ -110,15 +110,18 @@ class SliderProgressBar(ProgressBar):
                 self.circle.pos = (self.x, self.y + self.height/2 - (
                     self.circle_size / 2))
             else:
-                self.circle.pos = (
-                    self.x + (self.width / self.max * self.value) - \
-                    (self.circle_size / 2), self.y + self.height/2 - \
-                    (self.circle_size / 2))
+                self.move_circle_to_progress()
         else:
             self.hide_circle()
 
     def hide_circle(self, *args):
         self.circle.pos = (-999 - (self.circle_size / 2), -999 - (self.circle_size / 2))
+
+    def move_circle_to_progress(self, *args):
+        self.circle.pos = (
+            self.x + (self.width / self.max * self.value) - \
+            (self.circle_size / 2),
+            self.y + self.height/2 - (self.circle_size / 2))
 
     def on_value_update(self, widget, value):
         if self.value != value:
@@ -126,6 +129,8 @@ class SliderProgressBar(ProgressBar):
                 self.value = self.seeking_touch_value
             else:
                 self.value = value
+                if self.hovering:
+                    self.move_circle_to_progress()
 
     def on_touch_down(self, touch):
         if touch.button in ('scrollup', 'scrolldown', 'right'):
@@ -135,7 +140,8 @@ class SliderProgressBar(ProgressBar):
             self.seeking_touch = True
             self.on_touch_move(touch)
             if self.max:
-                self.circle.pos[0] = Window.mouse_pos[0]
+                # self.circle.pos[0] = Window.mouse_pos[0]
+                self.move_circle_to_progress()
             return True
 
     def on_touch_up(self, touch):
@@ -145,8 +151,8 @@ class SliderProgressBar(ProgressBar):
             self.seeking_touch = False
             touch.ungrab(self)
             self.on_seeking(self.value)
-            if self.max:
-                self.circle.pos[0] = Window.mouse_pos[0]
+            # if self.max:
+            #     self.circle.pos[0] = Window.mouse_pos[0]
             return True
 
     def on_touch_move(self, touch):

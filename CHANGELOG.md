@@ -1,3 +1,10 @@
+## Beta 6 - 2016-dec-31
+
+### Changed
+ - Progress bar white circle moves together with progress value when not seeking
+
+
+
 ## Beta 5 - 2016-dec-27
 
 ### Added
