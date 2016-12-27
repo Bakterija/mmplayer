@@ -1,4 +1,4 @@
-from app_modules.other.kivy_core_gstplayer.audio_gstplayer import SoundGstplayer
+from kivy.core.audio.audio_gstplayer import SoundGstplayer
 from kivy.logger import Logger
 from kivy.compat import PY2
 from os.path import realpath
