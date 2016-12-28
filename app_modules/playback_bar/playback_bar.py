@@ -140,7 +140,6 @@ class SliderProgressBar(ProgressBar):
             self.seeking_touch = True
             self.on_touch_move(touch)
             if self.max:
-                # self.circle.pos[0] = Window.mouse_pos[0]
                 self.move_circle_to_progress()
             return True
 
@@ -151,8 +150,6 @@ class SliderProgressBar(ProgressBar):
             self.seeking_touch = False
             touch.ungrab(self)
             self.on_seeking(self.value)
-            # if self.max:
-            #     self.circle.pos[0] = Window.mouse_pos[0]
             return True
 
     def on_touch_move(self, touch):

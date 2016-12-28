@@ -2,7 +2,7 @@
 
 ### Changed
  - Progress bar white circle moves together with progress value when not seeking
-
+ - Playlists display file names instead of paths
 
 
 ## Beta 5 - 2016-dec-27

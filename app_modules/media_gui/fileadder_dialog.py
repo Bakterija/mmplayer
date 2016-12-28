@@ -13,6 +13,7 @@ from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from kivy.properties import StringProperty
 from kivy.metrics import cm
 from kivy.lang import Builder
+import os
 
 
 kv = '''
@@ -97,16 +98,28 @@ class FileAdderDialog(Popup):
         self.ids.addbtn.bind(on_release=lambda *args: self.accept_files(on_add))
 
     def add_file(self, path):
-        self.ids.file_list.data.append({'text':path})
+        name = os.path.split(path)[1]
+        self.ids.file_list.data.append({'text':name, 'path':path})
         self.ids.filecounter.text = '%s files' % (len(self.ids.file_list.data))
 
     def accept_files(self, func):
+        templist = []
+        for i in self.ids.file_list.data:
+            try:
+                templist.append(
+                    {'text':unicode(i['text'].decode('utf-8')),
+                    'path':unicode(i['path'].decode('utf-8')) })
+            except:
+                templist.append(
+                    {'text':unicode(i['text']),
+                    'path':unicode(i['path']) })
         func(
             self.ids.playlist_spinner.text,
             self.ids.playlist_spinner2.text,
-            [i['text'] for i in self.ids.file_list.data],
+            templist
         )
         self.dismiss()
+
 
 class FileViewClass(RecycleDataViewBehavior, Label):
     def __init__(self, **kwargs):

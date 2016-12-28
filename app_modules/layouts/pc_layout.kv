@@ -5,6 +5,11 @@
 #: import aa7 app_modules.widgets.resizable_boxlayout.ResizableBoxLayout
 #: import aa8 app_modules.widgets.small_video.SmallVideo
 #: import aa9 app_modules.widgets.info_widget.InfoWidget
+#: import AppMenu app_modules.other.garden_contextmenu.AppMenu
+#: import AppMenuTextItem app_modules.other.garden_contextmenu.AppMenuTextItem
+#: import ContextMenu app_modules.other.garden_contextmenu.ContextMenu
+#: import ContextMenuTextItem app_modules.other.garden_contextmenu.ContextMenuTextItem
+#: include app_modules/layouts/globals.kv
 
 <LabelButton>:
     size_hint: 1, None
@@ -34,20 +39,6 @@
         size_hint: None, None
         size: 100, 100
         pos: 100, 100
-
-    BoxLayout:
-        id: upper_bar
-        size_hint: 1, None
-        height: root.upper_bar_height
-        pos: 0, root.height - root.upper_bar_height + root.upper_bar_offset_y
-        canvas:
-            Color:
-                rgb: root.side_bar_color
-            Rectangle:
-                size: self.size
-                pos: self.pos
-        # Button:
-        #     text: 'UPPER BAR'
 
     ResizableBoxLayout:
         id: sidebar
@@ -84,6 +75,18 @@
         pos: 0, 0 - root.lower_bar_offset_y
         PlayBackBar:
             id: playback_bar
+
+    BoxLayout:
+        id: upper_bar
+        size_hint: 1, None
+        height: root.upper_bar_height
+        pos: 0, root.height - root.upper_bar_height + root.upper_bar_offset_y
+        canvas:
+            Color:
+                rgb: root.side_bar_color
+            Rectangle:
+                size: self.size
+                pos: self.pos
 
     Widget:
         canvas.after:

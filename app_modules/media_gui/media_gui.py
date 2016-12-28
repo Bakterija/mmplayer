@@ -153,7 +153,7 @@ class Media_GUI(StackLayout):
             index = 0
         self.mPlayer.playlist.insert(index, name, path)
         self.queue.insert(index, {
-            'text': name, 'name': name, 'path': name, 'mgui': self,
+            'text': name, 'name': name, 'path': path, 'mgui': self,
             'mtype': 'media', 'pstate': 'default'
         })
 
@@ -290,8 +290,8 @@ class Media_GUI(StackLayout):
             index = 0
         if target[:7] == 'Current':
             if self.current_screen == 'sc-queue':
-                for path in plist:
-                    self.insert_queue(path, path, index)
+                for item in plist:
+                    self.insert_queue(item['text'], item['path'], index)
                 return
         for i, x in enumerate(self.playlists[1]):
             if target[:7] == 'Current':
@@ -314,17 +314,17 @@ class Media_GUI(StackLayout):
             elif index == 'End':
                 index = len(target['files'])
             if target2 == 'Current':
-                for path in plist:
+                for item in plist:
                     target['files'].insert(index, {
-                        'text': path, 'name': path,
-                        'path': path, 'mgui': self,
+                        'text': item['text'], 'name': item['text'],
+                        'path': item['path'], 'mgui': self,
                         'mtype': 'media', 'pstate': 'default'
                     })
             else:
-                for path in plist:
+                for item in plist:
                     target['files'].insert(index, {
-                        'text': path, 'name': path,
-                        'path': path, 'mgui': self,
+                        'text': item['text'], 'name': item['text'],
+                        'path': item['path'], 'mgui': self,
                         'mtype': 'media', 'pstate': 'default'
                     })
             if target['name'] == self.active_playlist['name']:
@@ -350,7 +350,6 @@ class Media_GUI(StackLayout):
             # aa = self.eemo.open_file()
             self.ee = filechooser22.instance()
             aa = self.ee._file_selection_dialog(mode = 'filename')
-            print(aa)
         except Exception as e:
             traceback.print_exc()
 

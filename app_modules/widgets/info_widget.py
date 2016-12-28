@@ -95,7 +95,10 @@ class InfoLabel(HoverBehavior, Label):
         self.ttl = 0
 
     def remove_self(self, *args):
-        self.parent.remove_widget(self)
+        if self.parent:
+            self.parent.remove_widget(self)
+        else:
+            print 'NO PARENT ', self
 
     def on_enter(self):
         self.bold = True

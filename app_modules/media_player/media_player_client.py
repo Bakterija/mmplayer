@@ -82,11 +82,11 @@ class Media_Player_Client(Media_Player):
         self.add_provider('audio',['Kivy-Server',start_audio_kivy_server])
         self.mstring = 'audioCL:'
 
-    def set_osc_sender(self,value):
+    def set_osc_sender(self, value):
         self.osc_sender = value
         self.playlist = Playlist_Client(value)
 
-    def osc_callback(self,message):
+    def osc_callback(self, message):
         try:
             msg = message.split(':')
             if self.oscPlayer:
