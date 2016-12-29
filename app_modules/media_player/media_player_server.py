@@ -69,7 +69,7 @@ class Media_Player_Server(Media_Player):
                 self.playlist.reset()
             elif msg[0] == 'Seek':
                 self.seek(msg[1])
-                sleep(1)
+                sleep(0.1)
             elif msg[0] == 'background_switch':
                 self.start(msg[1],seek=msg[4])
         except Exception as e:

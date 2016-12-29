@@ -508,8 +508,8 @@ class Jotube(TerminalApp, LayoutMethods, FloatLayout):
             self.service.toggle_service()
         self.mPlayer.set_modes({'screen_on':False})
 
-        if platform in ('win', 'linux'):
-            self.mPlayer.set_audio_provider('Other_GST')
+##        if platform in ('win', 'linux'):
+##            self.mPlayer.set_audio_provider('Other_GST')
         # Youtube Browser for testing
         #
         # self.manager.current = 'sc-browser'
@@ -529,11 +529,6 @@ class Jotube(TerminalApp, LayoutMethods, FloatLayout):
         for x in ptimer.get():
             self.tapp_add('[PTimer] %s %s %s' % (x[1], x[2], x[0]))
 
-        self.ids.sidebar.set_cursor_icons(
-            'app_modules/behaviors/resizable/resize_horizontal.png',
-            'app_modules/behaviors/resizable/resize2.png',
-            'app_modules/behaviors/resizable/resize_vertical.png',
-            'app_modules/behaviors/resizable/resize1.png',)
         try:
             # Run LayoutMethods init_widgets method when this is done
             super(Jotube, self).init_widgets()

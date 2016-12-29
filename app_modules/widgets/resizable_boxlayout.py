@@ -1,5 +1,6 @@
-from app_modules.behaviors.resizable.resize import ResizableBehavior
+##from app_modules.behaviors.resizable.resize import ResizableBehavior
 from kivy.uix.boxlayout import BoxLayout
+from kivy.garden.resizable_behavior import ResizableBehavior
 
 
 class ResizableBoxLayout(ResizableBehavior, BoxLayout):

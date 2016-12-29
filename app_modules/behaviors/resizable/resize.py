@@ -73,6 +73,9 @@ from kivy.uix.modalview import ModalView
 from kivy.logger import Logger
 from kivy.app import App
 from time import time
+import os
+path = os.path.split(os.path.realpath(__file__))[0]
+os.chdir(path)
 
 __all__ = ('ResizableBehavior', )
 
@@ -80,8 +83,6 @@ __all__ = ('ResizableBehavior', )
 class ModalViewModified(ModalView):
     '''
     The ModalViewModified is the parent of ResizableCursor
-
-    .. versionadded:: 1.9.2
     '''
 
     last_opened = 0.0
@@ -128,8 +129,6 @@ class ModalViewModified(ModalView):
 class ResizableCursor(Widget):
     '''
     The ResizableCursor is the mouse cursor
-
-    .. versionadded:: 1.9.2
     '''
 
     hidden = BooleanProperty(True)
@@ -142,21 +141,19 @@ class ResizableCursor(Widget):
     '''
 
     resize_icon_paths = ListProperty([
-    'data/images/resizable/resize_horizontal.png',
-    'data/images/resizable/resize2.png',
-    'data/images/resizable/resize_vertical.png',
-    'data/images/resizable/resize1.png',
-    'data/images/resizable/transparent.png'
+    'resize_horizontal.png',
+    'resize2.png',
+    'resize_vertical.png',
+    'resize1.png',
     ])
     '''Cursor icon paths,
 
     :attr:`resize_icon_paths` is a :class:`~kivy.properties.ListProperty` and
     defaults to [
-    'data/images/resizable/resize_horizontal.png',
-    'data/images/resizable/resize2.png',
-    'data/images/resizable/resize_vertical.png',
-    'data/images/resizable/resize1.png',
-    'data/images/resizable/transparent.png'
+    'resize_horizontal.png',
+    'resize2.png',
+    'resize_vertical.png',
+    'resize1.png',
     ]
     '''
 
@@ -249,8 +246,6 @@ class ResizableBehavior(object):
     :attr:`~kivy.uix.behaviors.resize.ResizableBehavior.resizable_border`
     will resize the widget. Please see the :mod:`drag behaviors module
     <kivy.uix.behaviors.resize>` documentation for more information.
-
-    .. versionadded:: 1.9.2
     '''
 
     hovering_resizable = BooleanProperty(False)
