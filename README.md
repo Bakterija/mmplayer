@@ -3,4 +3,4 @@ Python and Kivy based crossplatform media player (Only GNU/Linux and Windows sup
      
 Beta 6 screenshot below     
      
-![ScreenShot](https://raw.github.com/bakterija/mmplayer/data/screenshot.png)
+![ScreenShot](https://raw.github.com/bakterija/mmplayer/master/data/screenshot.png)
