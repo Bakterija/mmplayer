@@ -1,15 +1,16 @@
+from kivy.properties import NumericProperty
 from jnius import autoclass
 MediaPlayer = autoclass('android.media.MediaPlayer')
 
 
-class Android_Native_Player:
-    def __init__(self,*arg,**kwarg):
-        self.enabled = False
-        self.state = 'init'
-        self.length = -1
-        self.stopCallback = False
+class AndroidPlayer:
+    name = 'Android Player'
+    enabled = False
+    state = 'init'
+    length = NumericProperty(-1)
+    stopCallback = False
 
-    def load(self,path,stream=False):
+    def load(self, path, stream=False):
         self.player = MediaPlayer()
         if stream:
             AudioManager = autoclass('android.media.AudioManager')

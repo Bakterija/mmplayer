@@ -115,6 +115,9 @@ class Media_GUI(StackLayout):
             self.recicler_queue = self.rv_queue
             self.reset_playlists()
             Clock.schedule_interval(self.update_seek, 0.2)
+            # def testinj(*a):
+            #     print(self.mPlayer.get_state_all())
+            # Clock.schedule_interval(testinj, 1)
         except:
             traceback.print_exc()
 
@@ -158,7 +161,8 @@ class Media_GUI(StackLayout):
         })
 
     def play_pause(self):
-        if self.mPlayer.paused:
+        state = self.mPlayer.get_state()
+        if state in ('pause', 'stop'):
             self.mPlayer.play()
         else:
             self.mPlayer.pause()

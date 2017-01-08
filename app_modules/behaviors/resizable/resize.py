@@ -75,7 +75,6 @@ from kivy.app import App
 from time import time
 import os
 path = os.path.split(os.path.realpath(__file__))[0]
-os.chdir(path)
 
 __all__ = ('ResizableBehavior', )
 
@@ -141,10 +140,10 @@ class ResizableCursor(Widget):
     '''
 
     resize_icon_paths = ListProperty([
-    'resize_horizontal.png',
-    'resize2.png',
-    'resize_vertical.png',
-    'resize1.png',
+    '{}/resize_horizontal.png'.format(path),
+    '{}/resize2.png'.format(path),
+    '{}/resize_vertical.png'.format(path),
+    '{}/resize1.png'.format(path),
     ])
     '''Cursor icon paths,
 

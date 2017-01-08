@@ -58,8 +58,9 @@ if platform == 'android':
     import android
     # from android.runnable import run_on_ui_thread
 elif platform in ('windows','win', 'linux'):
-    from multiprocessing import Process
-    from service import main as PCservice
+    # Disabled for now
+    # from multiprocessing import Process
+    # from service import main as PCservice
     from app_modules.layouts.pc_layout_methods import LayoutMethods
     KivyConfig.set( 'input', 'mouse', 'mouse,disable_multitouch')
     sys.dont_write_bytecode = True
@@ -67,9 +68,10 @@ elif platform in ('windows','win', 'linux'):
 def start_pc_service():
     def pcservice():
         PCservice.main_loop()
-
-    service_process = Process(target=pcservice)
-    service_process.start()
+    # Disabled for now
+    # service_process = Process(target=pcservice)
+    # service_process.start()
+    pass
 
 
 def return_path():
@@ -481,31 +483,31 @@ class Jotube(TerminalApp, LayoutMethods, FloatLayout):
         optionlayout.add_widget(option_scroll)
 
         testing = True
-        if platform == 'android' or testing:
-            videoset = Setting_handler(
-                option_grid, self.settings, 'video_provider',
-                'Video provider', ('Kivy','External','No video'))
-            audioset = Setting_handler(
-                option_grid, self.settings, 'audio_provider',
-                'Audio provider', ('Kivy','Kivy-Server','External'))
-            streamset = Setting_handler(
-                option_grid,self.settings, 'stream_provider',
-                'Stream provider', ('Kivy','External'))
-            audioset.bind_click(self.mPlayer.set_audio_provider, run=True)
-            streamset.bind_click(self.mPlayer.set_stream_provider, run=True)
-        else:
-            videoset = Setting_handler(
-                option_grid, self.settings, 'video_provider',
-                'Video provider' , ('Kivy','No video'))
-        dlfset = Setting_handler(
-            option_grid, self.settings, 'download_format',
-            'Download format' , ('Audio','Video'))
-        startupset = Setting_handler(
-            option_grid , self.settings , 'startup_mode',
-            'Startup service' , ('Yes','No'))
-        videoset.bind_click(self.mPlayer.set_video_provider, run=True)
-        if platform == 'android' and self.settings['startup_mode'] == 'Yes':
-            self.service.toggle_service()
+        # if platform == 'android' or testing:
+        #     videoset = Setting_handler(
+        #         option_grid, self.settings, 'video_provider',
+        #         'Video provider', ('Kivy','External','No video'))
+        #     audioset = Setting_handler(
+        #         option_grid, self.settings, 'audio_provider',
+        #         'Audio provider', ('Kivy','Kivy-Server','External'))
+        #     streamset = Setting_handler(
+        #         option_grid,self.settings, 'stream_provider',
+        #         'Stream provider', ('Kivy','External'))
+        #     audioset.bind_click(self.mPlayer.set_audio_provider, run=True)
+        #     streamset.bind_click(self.mPlayer.set_stream_provider, run=True)
+        # else:
+        #     videoset = Setting_handler(
+        #         option_grid, self.settings, 'video_provider',
+        #         'Video provider' , ('Kivy','No video'))
+        # dlfset = Setting_handler(
+        #     option_grid, self.settings, 'download_format',
+        #     'Download format' , ('Audio','Video'))
+        # startupset = Setting_handler(
+        #     option_grid , self.settings , 'startup_mode',
+        #     'Startup service' , ('Yes','No'))
+        # videoset.bind_click(self.mPlayer.set_video_provider, run=True)
+        # if platform == 'android' and self.settings['startup_mode'] == 'Yes':
+        #     self.service.toggle_service()
         self.mPlayer.set_modes({'screen_on':False})
 
 ##        if platform in ('win', 'linux'):

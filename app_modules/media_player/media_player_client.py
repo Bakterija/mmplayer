@@ -79,7 +79,7 @@ class Media_Player_Client(Media_Player):
         super(Media_Player_Client, self).__init__()
         self.osc_sender = None
         self.oscPlayer = False
-        self.add_provider('audio',['Kivy-Server',start_audio_kivy_server])
+        # self.add_provider('audio',['Kivy-Server',start_audio_kivy_server])
         self.mstring = 'audioCL:'
 
     def set_osc_sender(self, value):
