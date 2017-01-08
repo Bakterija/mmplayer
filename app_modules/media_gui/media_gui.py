@@ -115,9 +115,6 @@ class Media_GUI(StackLayout):
             self.recicler_queue = self.rv_queue
             self.reset_playlists()
             Clock.schedule_interval(self.update_seek, 0.2)
-            # def testinj(*a):
-            #     print(self.mPlayer.get_state_all())
-            # Clock.schedule_interval(testinj, 1)
         except:
             traceback.print_exc()
 
