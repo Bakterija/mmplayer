@@ -1,3 +1,10 @@
+## Beta 7 - 2016-jan-16
+
+### Changed
+ - Improved media playback and cleaned up code
+
+
+
 ## Beta 6 - 2016-dec-31
 
 ### Changed

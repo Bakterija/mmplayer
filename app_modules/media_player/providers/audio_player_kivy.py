@@ -27,8 +27,12 @@ class AudioPlayer(EventDispatcher):
 
     def pause(self):
         self.pause_seek = self.get_pos()
-        self.sound.stop()
         self.state = 'pause'
+        self.sound.stop()
+
+    def on_stop(self, *args):
+        if self.state != 'pause':
+            self.mplayer.on_stop()
 
     def stop(self):
         self.sound.stop()
@@ -48,7 +52,7 @@ class AudioPlayer(EventDispatcher):
         self.sound = SoundLoader.load(path)
         self.length = self.sound.length
         self.sound.bind(on_length=self.setter('length'))
-        self.sound.bind(on_stop = self.mplayer.on_stop)
+        self.sound.bind(on_stop = self.on_stop)
         self.bind(volume=self.on_volume)
 
     def unload(self):
