@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Version: Beta 7
+# Version: Beta 7.1
 from __future__ import print_function
 from kivy import require as kivy_require
 kivy_require('1.9.2')
-from time import strftime, time, sleep
 from app_modules.ptimer import PTimer
 ptimer = PTimer()
 from kivy.app import App
 from app_modules.terminal_app.terminalapp import TerminalApp
-from threading import Thread
 from kivy.uix.floatlayout import FloatLayout
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
@@ -18,52 +16,28 @@ from kivy.core.window import Window
 from kivy.clock import Clock, mainthread
 from kivy.utils import platform
 from kivy.properties import StringProperty, ListProperty, ObjectProperty
-from kivy.metrics import cm, dp
-from kivy.graphics import *
-from sys import path
-from kivy import kivy_home_dir
 from kivy.logger import Logger, LoggerHistory
 from app_modules.service_com import serviceCom
 from app_modules.media_player.media_player_client import \
 Media_Player_Client as Media_Player
-from app_modules.youtube_view import Youtube_View
 from app_modules.media_gui.media_gui import Media_GUI
 from app_modules.media_gui.media_playlist_view import MediaPlaylistView
 from app_modules.media_gui.media_queue_view import MediaQueueView
-import app_modules.accurate_seeker_buttons as Accurate_Seeker
 from app_modules.key_binder.key_binder import KeyBinder
 from kivy.config import Config as KivyConfig
 from kivy.lib import osc
-import json
 import traceback
 import sys
 import os
 ptimer.add('imports')
 
-if platform == 'android':
-    import android
-    # from android.runnable import run_on_ui_thread
-elif platform in ('windows','win', 'linux'):
+if platform in ('windows','win', 'linux'):
     # Disabled for now
     # from multiprocessing import Process
     # from service import main as PCservice
     from app_modules.layouts.pc_layout_methods import LayoutMethods
     KivyConfig.set( 'input', 'mouse', 'mouse,disable_multitouch')
     sys.dont_write_bytecode = True
-
-def start_pc_service():
-    def pcservice():
-        PCservice.main_loop()
-    # Disabled for now
-    # service_process = Process(target=pcservice)
-    # service_process.start()
-    pass
-
-
-def return_path():
-    if platform == 'android':
-        return '/storage/emulated/0/github_bakterija/jotube/'
-    return path[0]+'/'
 
 
 def make_dirs():
@@ -74,13 +48,16 @@ def make_dirs():
         d = os.path.dirname('/storage/emulated/0/github_bakterija/jotube/')
         if not os.path.exists(d):
             os.makedirs(d)
-        d = os.path.dirname('/storage/emulated/0/github_bakterija/jotube/audio/')
+        d = os.path.dirname(
+            '/storage/emulated/0/github_bakterija/jotube/audio/')
         if not os.path.exists(d):
             os.makedirs(d)
-        d = os.path.dirname('/storage/emulated/0/github_bakterija/jotube/audio/thumbnails/')
+        d = os.path.dirname(
+            '/storage/emulated/0/github_bakterija/jotube/audio/thumbnails/')
         if not os.path.exists(d):
             os.makedirs(d)
-        d = os.path.dirname('/storage/emulated/0/github_bakterija/jotube/audio/')
+        d = os.path.dirname(
+            '/storage/emulated/0/github_bakterija/jotube/audio/')
     else:
         d = os.path.dirname('media/thumbnails/')
         if not os.path.exists(d):
@@ -88,41 +65,6 @@ def make_dirs():
         d = os.path.dirname('media/playlists/')
         if not os.path.exists(d):
             os.makedirs(d)
-
-
-class Global_Callbacks(object):
-    def __init__(self,*arg):
-        self.dict = {
-            'on_resize': [],
-            'on_pause': [],
-            'on_resume': [],
-            'on_screen': [],
-        }
-        Window.bind(on_size= self.on_resize)
-
-    def add(self, dictio,func):
-        self.dict[dictio].append(func)
-
-    def remove(self,dictio,func):
-        for i,x in enumerate(self.dict[dictio]):
-            if x == func:
-                del self.dict[dictio][i]
-
-    def on_resize(self,*arg):
-        for x in self.dict['on_resize']:
-            x()
-
-    def on_pause(self,*arg):
-        for x in self.dict['on_pause']:
-            x()
-
-    def on_resume(self,*arg):
-        for x in self.dict['on_resume']:
-            x()
-
-    def on_screen(self,*arg):
-        for x in self.dict['on_screen']:
-            x()
 
 
 class Jotube(TerminalApp, LayoutMethods, FloatLayout):
@@ -136,8 +78,7 @@ class Jotube(TerminalApp, LayoutMethods, FloatLayout):
         self.settings = {}
         # Window.clearcolor = (0.1, 0.1, 0.1, 0.1)
         if platform in ('linux', 'win', 'windows'):
-            start_pc_service()
-            Window.set_icon(return_path()+'data/icon.png')
+            Window.set_icon('data/icon.png')
             # Window.system_size = (480,960)
             # Window.system_size = (1000,650)
             # Window.system_size = (700,420)
@@ -288,16 +229,15 @@ class Jotube(TerminalApp, LayoutMethods, FloatLayout):
             self.mPlayer = Media_Player()
             self.mPlayer.modes['on_error'].append(self.on_error)
             self.mPlayer.set_osc_sender(self.service.send_message)
-            global_callbacks.add('on_pause', self.mPlayer.background_switch)
             self.mGUI = Media_GUI(self.mPlayer)
             self.mGUI.videoframe = self.manager.ids.sc4
             self.mGUI.videoframe_small = self.ids.video_small
             self.mGUI.bind(videoframe_is_visible=lambda obj, val:
                            self.on_video_screen(val, self.mGUI.playing_video))
             self.ids.sm_area.bind(
-                size=lambda ob,v:self.mGUI.on_video_resize(v))
+                size=lambda ob,v: self.mGUI.on_video_resize(v))
 
-            playlistview = MediaPlaylistView(self.mGUI, size_hint_y=1)
+            playlistview = MediaPlaylistView(self.mGUI)
             queueview = MediaQueueView(self.mGUI)
             self.manager.ids.sc2_stack1.add_widget(playlistview)
             self.manager.ids.sc55_stack1.add_widget(queueview)
@@ -373,12 +313,11 @@ class JotubeApp(App):
 
     def on_pause(self):
         self.app_rt.service.SERVICEdisconnect()
-        global_callbacks.on_pause()
+        self.app_rt.mPlayer.background_switch()
         return True
 
     def on_resume(self):
         self.app_rt.service.SERVICEconnect()
-        global_callbacks.on_resume()
 
     def on_stop(self):
         try:
@@ -394,11 +333,9 @@ class JotubeApp(App):
         except Exception as e:
             service = serviceCom(object)
             service.stop()
-        sleep(0.1)
         osc.dontListen()
 
 
-global_callbacks = Global_Callbacks()
 if __name__ == "__main__":
     try:
         Builder.load_file('app_modules/layouts/pc_layout.kv')
@@ -412,4 +349,4 @@ if __name__ == "__main__":
         try:
             app.on_stop()
         except:
-            JotubeApp.stop_static('')
+            JotubeApp.stop_static(None)

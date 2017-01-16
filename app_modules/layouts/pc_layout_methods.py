@@ -14,6 +14,7 @@ class LayoutMethods(object):
     video_playing = False
     maximized = False
     mouse_inside = BooleanProperty()
+    video_animspeed = 0.1
 
     def init_widgets(self, *args):
         Window.bind(mouse_pos=self.on_mouse_move)
@@ -69,7 +70,7 @@ class LayoutMethods(object):
             #     self.lower_bar_height - self.lower_bar_offset_y)
 
     def on_mouse_move(self, obj, pos):
-        if not self.video_screen and not self.video_playing:
+        if not self.video_screen or not self.video_playing:
             return
 
         if self.mouse_inside:
@@ -113,47 +114,47 @@ class LayoutMethods(object):
     def full_window_video_in(self, *arg):
         if not self.hovering_lower_bar:
             anim = Animation(lower_bar_offset_y=self.lower_bar_height + 2,
-                             d=0.2, t='in_quad')
+                             d=self.video_animspeed, t='in_quad')
             anim.start(self)
         if not self.hovering_side_bar:
             anim3 = Animation(side_bar_offset_x=self.ids.sidebar.width + 2,
-                             d=0.2, t='in_quad')
+                             d=self.video_animspeed, t='in_quad')
             anim3.start(self)
         anim2 = Animation(upper_bar_offset_y=self.upper_bar_height + 2,
-                         d=0.2, t='in_quad')
+                         d=self.video_animspeed, t='in_quad')
         anim2.start(self)
 
     def full_window_video_out(self, *args):
         if not self.hovering_lower_bar:
             anim = Animation(lower_bar_offset_y=0,
-                             d=0.2, t='in_quad')
+                             d=self.video_animspeed, t='out_quad')
             anim.start(self)
         if not self.hovering_side_bar:
             anim3 = Animation(side_bar_offset_x=0,
-                             d=0.2, t='in_quad')
+                             d=self.video_animspeed, t='out_quad')
             anim3.start(self)
         anim2 = Animation(upper_bar_offset_y=0,
-                         d=0.2, t='in_quad')
+                         d=self.video_animspeed, t='out_quad')
         anim2.start(self)
 
     def anim_lower_bar_in(self, *args):
         anim = Animation(lower_bar_offset_y=0,
-                         d=0.2, t='in_quad')
+                         d=self.video_animspeed, t='in_quad')
         anim.start(self)
 
     def anim_lower_bar_out(self, *args):
         anim = Animation(lower_bar_offset_y=self.lower_bar_height + 2,
-                         d=0.2, t='in_quad')
+                         d=self.video_animspeed, t='out_quad')
         anim.start(self)
 
     def anim_side_bar_in(self, *args):
         anim = Animation(side_bar_offset_x=0,
-                         d=0.2, t='in_quad')
+                         d=self.video_animspeed, t='out_quad')
         anim.start(self)
 
     def anim_side_bar_out(self, *args):
         anim = Animation(side_bar_offset_x=self.ids.sidebar.width + 2,
-                         d=0.2, t='in_quad')
+                         d=self.video_animspeed, t='in_quad')
         anim.start(self)
 
     def on_touch_down(self, touch):

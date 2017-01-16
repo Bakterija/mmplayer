@@ -1,3 +1,16 @@
+## Beta 7.1 - 2016-jan-16
+
+### Changed
+ - Sped up animations in video screen 2 times
+ - More code cleanup
+
+### Fixed
+ - Audio Player pauses media properly instead of switching to next file
+ - Side bar and lower bar don't animate out in other screens while video is playing anymore
+ 
+
+
+
 ## Beta 7 - 2016-jan-16
 
 ### Changed
