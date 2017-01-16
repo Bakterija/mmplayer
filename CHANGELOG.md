@@ -1,3 +1,11 @@
+## Beta 8.1 - 2016-jan-16
+
+### Fixed
+ - AudioPlayer length shouldn't be set to 0 anymore while playing
+ - AudioPlayer can load unicode again
+
+
+
 ## Beta 8 - 2016-jan-16
 
 ### Added
@@ -19,7 +27,7 @@
  - Renamed MediaGUI to MediaController and moved app_modules/media_gui to app_modules/media_controller, changed a lot of imports and object names, values
  - Removed a lot of unnecessary imports
  - Changed screen names and ids in app_modules/layouts/screen_manager.kv
- - Replaces on_resume MediaPlayer mode with on_play
+ - Replaced on_resume MediaPlayer mode with on_play
  - Added on_play modes triggering in MediaPlayer play() method
 
 
@@ -34,7 +42,7 @@
 
 ### Other
  - More code cleanup
- - Removed Global_Callbacks class and it's instance and added media players background switch method to App on_pause method
+ - Removed Global_Callbacks class and it's instance, and added media players background switch method to App on_pause method
  - Removed service starter from main.py
 
 

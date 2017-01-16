@@ -55,13 +55,15 @@ class AudioPlayer(EventDispatcher):
                 return self.seek_pos
             else:
                 self.is_seeking = False
+        if self.length == -1:
+            self.length = self.sound.length
         return self.sound.get_pos()
 
     def load(self, path):
+        if type(path) == unicode:
+            path = path.encode('utf-8')
         self.sound = SoundLoader.load(path)
-        self.length = self.sound.length
-        self.sound.bind(on_length=self.setter('length'))
-        self.sound.bind(on_stop = self.on_stop)
+        self.sound.bind(on_stop= self.on_stop)
         self.bind(volume=self.on_volume)
 
     def unload(self):
