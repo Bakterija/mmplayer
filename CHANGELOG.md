@@ -5,18 +5,18 @@
 
 ### Changed
  - Playback bar displays pos and max position as 00:00 when no media is loaded again
- - Added delay betweeen seeking and seek progress bar update to keep the bar smoother
+ - Added delay betweeen seeking and seek progress bar update to make the progress slider smoother
  - Removed terminal screen
 
 ### Fixed
- - Video files queueing works again
+ - Video file queueing works again
  - Play/Pause button text changes when MediaPlayer is paused or resumed again
 
 ### Other
+ - More code cleanup
  - Added app_configs package with new AppConfigHandler class and Config objects
  - Moved key binding, directory making, setting handling, sidebar item loading from main.py to app_configs package Config modules
- - Renamed MediaGUI to MediaController and moved app_modules/media_gui to app_modules/media_controller
- changes a lot of imports and object names, values
+ - Renamed MediaGUI to MediaController and moved app_modules/media_gui to app_modules/media_controller, changed a lot of imports and object names, values
  - Removed a lot of unnecessary imports
  - Changed screen names and ids in app_modules/layouts/screen_manager.kv
  - Replaces on_resume MediaPlayer mode with on_play
@@ -28,26 +28,38 @@
 
 ### Changed
  - Sped up animations in video screen 2 times
- - More code cleanup
 
 ### Fixed
- - Audio Player pauses media properly instead of switching to next file
  - Side bar and lower bar don't animate out in other screens while video is playing anymore
+
+### Other
+ - More code cleanup
+ - Removed Global_Callbacks class and it's instance and added media players background switch method to App on_pause method
+ - Removed service starter from main.py
 
 
 
 ## Beta 7 - 2016-jan-15
 
-### Changed
+### Fixed
+ - Audio Player pauses media properly instead of switching to next file
+
+### Other
+ - Rewrote a lot of app_modules/media_player package modules
  - Improved media playback and cleaned up code
+ - Removed settings.ini
+ - Removed Setting loaders and attributes
+ - Removed app_modules/setting_handler.py
 
 
 
 ## Beta 6 - 2016-dec-31
 
 ### Changed
+ - Replaced app GPL license with app MIT license
  - Progress bar white circle moves together with progress value when not seeking
  - Playlists display file names instead of paths
+
 
 
 ## Beta 5 - 2016-dec-27
@@ -66,6 +78,12 @@
  - Adjusted side bar resize border position and size to not interfere with
    it's slider
  - Many Kivy GstPlayer errors
+
+### Other
+ - Added garden.progressspinner and garden.contextmenu packages
+ - Disabled multitouch for linux and windows
+
+
 
 
 ## Beta 4 - 2016-dec-9
