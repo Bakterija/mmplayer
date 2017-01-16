@@ -1,38 +1,28 @@
 #: import aaa3 app_modules.multi_line_label.MultiLineLabel
-#: import VideoFrame app_modules.media_gui.videoframe.VideoFrame
+#: import VideoFrame app_modules.media_controller.videoframe.VideoFrame
 
 <Jotube_SM>:
 
     Screen:
-        id: sc2
-        name: "sc-media"
+        id: media_screen
+        name: 'media'
         StackLayout:
-            id: sc2_stack1
-            size_hint: 1, 1
+            id: media_stack
 
     Screen:
-        id: sc55
-        name: 'sc-queue'
+        id: queue_screen
+        name: 'queue'
         StackLayout:
-            id: sc55_stack1
-            size_hint: 1, 1
+            id: queue_stack
 
     Screen:
-        id: sc3
-        name: "sc-terminal"
-        StackLayout:
-            id: sc3_stack1
-            size_hint: 1, 1
-
-
-    Screen:
-        id: sc4
-        name: "sc-video"
+        id: video_screen
+        name: 'video'
         VideoFrame:
-			id: videoframe
+            id: videoframe
 
     Screen:
-        id: sc5
-        name: "sc-browser"
+        id: browser_screen
+        name: 'browser'
         StackLayout:
-			id: sc5_stack1
+            id: browser_stack

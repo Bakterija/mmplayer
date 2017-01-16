@@ -85,7 +85,7 @@ class Media_Player(object):
             'on_next': [],
             'on_previous': [],
             'on_pause': [],
-            'on_resume': [],
+            'on_play': [],
             'on_error': []
         }
 
@@ -127,9 +127,11 @@ class Media_Player(object):
                             for x in self.modes['on_video']:
                                 x(self.sound)
             self.starting = False
-            return player
+            return True
         except Exception as e:
             traceback.print_exc()
+        self.starting = False
+        return False
 
     def on_stop(self,*arg):
         if not self.starting:
@@ -139,6 +141,8 @@ class Media_Player(object):
     def play(self, *arg):
         if self.sound:
             self.sound.play()
+            for x in self.modes['on_play']:
+                x(self, self.get_mediaPos())
 
     def next(self,*arg):
         ID,(name,path) = self.playlist.get_next()
@@ -190,7 +194,6 @@ class Media_Player(object):
 
     def get_mediaDur(self, *arg):
         if self.sound:
-            # print (self.sound.length)
             return self.sound.length
         return -1
 
@@ -200,8 +203,11 @@ class Media_Player(object):
         return 'stop'
 
     def get_state_all(self):
+        is_video = False
+        if self.sound:
+            is_video = self.sound.is_video
         return {
-            'is_video': self.sound.is_video, 'state': self.get_state(),
+            'is_video': is_video, 'state': self.get_state(),
             'volume': self.volume, 'pos': self.get_mediaPos(),
             'length': self.get_mediaDur(), 'name': self.cur_media['name'],
             'path': self.cur_media['path']}

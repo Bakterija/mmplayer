@@ -1,6 +1,5 @@
 from __future__ import print_function
 from kivy.uix.stacklayout import StackLayout
-from kivy.uix.floatlayout import FloatLayout
 from kivy.utils import platform
 from kivy.lang import Builder
 from kivy.metrics import dp, cm
@@ -17,16 +16,10 @@ from kivy.uix.recycleview import RecycleView
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from kivy.uix.recycleview.layout import LayoutSelectionBehavior
-from kivy.uix.recycleview.views import RecycleDataViewBehavior
-from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from kivy.uix.behaviors import ButtonBehavior
-from kivy.uix.behaviors.focus import FocusBehavior
-from kivy.animation import Animation
 from app_modules.behaviors.hover_behavior import HoverBehavior
-from kivy.uix.image import Image
 from kivy.clock import Clock
 from kivy.core.window import Window
-from kivy.uix.modalview import ModalView
 import kivy.uix.filechooser as filechooser
 ##from plyer.facades import FileChooser as FileChooser2
 ##from plyer.platforms.linux.filechooser import instance as FileChooser3
@@ -39,12 +32,9 @@ import traceback
 import os
 
 
-class ProjectsRecycleBoxLayout(FocusBehavior, LayoutSelectionBehavior, RecycleBoxLayout):
-    pass
-
-
 class Media_Button(HoverBehavior, RecycleDataViewBehavior, ButtonBehavior, StackLayout):
     index = None  # stores our index
+    rv = None
     bg_colors = DictProperty()
     pstate = StringProperty()
     mtype = StringProperty()
@@ -52,6 +42,7 @@ class Media_Button(HoverBehavior, RecycleDataViewBehavior, ButtonBehavior, Stack
     name = StringProperty()
     path = StringProperty()
     bg_color = ListProperty()
+
     def __init__(self, **kwargs):
         super(Media_Button, self).__init__(**kwargs)
 
@@ -60,6 +51,8 @@ class Media_Button(HoverBehavior, RecycleDataViewBehavior, ButtonBehavior, Stack
         self.index = index
         self.hovering = False
         self.set_bg_color()
+        if not self.rv:
+            self.rv = rv
 
     def set_bg_color(self, *args):
         if self.hovering == True and self.pstate != 'playing':
@@ -85,7 +78,7 @@ class MRV_Base(RecycleView):
     pass
 
 
-class Media_GUI(StackLayout):
+class MediaController(StackLayout):
     rv_playlist = None
     rv_queue = None
     playlists = {}
@@ -106,7 +99,7 @@ class Media_GUI(StackLayout):
 
     def __init__(self, mplayer, **kwargs):
         try:
-            super(Media_GUI, self).__init__(**kwargs)
+            super(MediaController, self).__init__(**kwargs)
             self.mPlayer = mplayer
             self.mPlayer.set_gui_update_callback(self.gui_update)
             self.mPlayer.modes['on_video'].append(self.video_show)
@@ -119,12 +112,13 @@ class Media_GUI(StackLayout):
             traceback.print_exc()
 
     def start_playlist(self, name, path, index, btn):
+        '''Triggered when user touches a MediaButton in playlist'''
         self.mPlayer.playlist.reset()
         self.queue = []
         self.mPlayer.playlist.add(name, path)
         x = self.rv_playlist.data[index]
         self.queue.append({
-            'text': x['name'], 'name': x['name'], 'path': x['path'], 'mgui': self,
+            'text': x['name'], 'name': x['name'], 'path': x['path'],
             'mtype': x['mtype'], 'pstate': x['pstate']
         })
         stat = self.mPlayer.start(0)
@@ -132,12 +126,13 @@ class Media_GUI(StackLayout):
             for x in self.rv_playlist.data[index+1:]:
                 self.mPlayer.playlist.add(x['name'],x['path'])
                 nm = {
-                    'text': x['name'], 'name': x['name'], 'path': x['path'], 'mgui': self,
+                    'text': x['name'], 'name': x['name'], 'path': x['path'],
                     'mtype': x['mtype'], 'pstate': x['pstate']
                 }
                 self.queue.append(nm)
 
     def start_queue(self, index):
+        '''Triggered when user touches a MediaButton in queue'''
         stat = self.mPlayer.start(str(index))
 
     def insert_queue(self, name, path, index):
@@ -153,7 +148,7 @@ class Media_GUI(StackLayout):
             index = 0
         self.mPlayer.playlist.insert(index, name, path)
         self.queue.insert(index, {
-            'text': name, 'name': name, 'path': path, 'mgui': self,
+            'text': name, 'name': name, 'path': path,
             'mtype': 'media', 'pstate': 'default'
         })
 
@@ -211,9 +206,17 @@ class Media_GUI(StackLayout):
             self.refresh_rview_playlist()
             self.refresh_rview_queue()
 
-    def update_seek(self,*arg):
-        self.playing_seek_value = self.mPlayer.get_mediaPos()
-        self.playing_seek_max = self.mPlayer.get_mediaDur()
+    def update_seek(self, *arg):
+        pos = self.mPlayer.get_mediaPos()
+        dur = self.mPlayer.get_mediaDur()
+        if pos == -1:
+            self.playing_seek_value = 0
+        else:
+            self.playing_seek_value = pos
+        if dur == -1:
+            self.playing_seek_max = 0
+        else:
+            self.playing_seek_max = dur
 
     def on_video_resize(self, size):
         if self.playing_video:
@@ -318,14 +321,14 @@ class Media_GUI(StackLayout):
                 for item in plist:
                     target['files'].insert(index, {
                         'text': item['text'], 'name': item['text'],
-                        'path': item['path'], 'mgui': self,
+                        'path': item['path'],
                         'mtype': 'media', 'pstate': 'default'
                     })
             else:
                 for item in plist:
                     target['files'].insert(index, {
                         'text': item['text'], 'name': item['text'],
-                        'path': item['path'], 'mgui': self,
+                        'path': item['path'],
                         'mtype': 'media', 'pstate': 'default'
                     })
             if target['name'] == self.active_playlist['name']:
@@ -397,7 +400,7 @@ class Media_GUI(StackLayout):
             for item in section:
                 nm = {
                     'text': item['name'], 'name': item['name'],
-                    'path': item['path'], 'mgui': self,
+                    'path': item['path'],
                     'mtype': 'folder', 'pstate': 'default',
                     'dictio': item, 'section': item['section'],
                 }
@@ -422,7 +425,7 @@ class Media_GUI(StackLayout):
                 for name, path in files2:
                     files.append({
                         'text': name, 'name': name,
-                        'path': path, 'mgui': self,
+                        'path': path,
                         'mtype': 'media', 'pstate': 'default'
                     })
             elif target['method'] == 'json_loader':
@@ -431,7 +434,7 @@ class Media_GUI(StackLayout):
                     for v in files2['items']:
                         files.append({
                             'text': v['name'], 'name': v['name'],
-                            'path': v['path'], 'mgui': self,
+                            'path': v['path'],
                             'mtype': 'media', 'pstate': 'default'
                         })
 
@@ -439,7 +442,7 @@ class Media_GUI(StackLayout):
             if not files2:
                 files.append({
                     'text': 'Playlist is empty', 'name': '',
-                    'path': '', 'mgui': self,
+                    'path': '',
                     'mtype': 'disabled', 'pstate': 'default'
                 })
 
@@ -464,6 +467,6 @@ class Media_GUI(StackLayout):
 
 
 if platform == 'android':
-    Builder.load_file(path[0]+'/app_modules/media_gui/media_gui.kv')
+    Builder.load_file(path[0]+'/app_modules/media_controller/controller.kv')
 else:
-    Builder.load_file(path[0]+'/app_modules/media_gui/media_gui.kv')
+    Builder.load_file(path[0]+'/app_modules/media_controller/controller.kv')

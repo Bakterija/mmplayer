@@ -199,6 +199,9 @@ class PlayBackBar(BoxLayout):
     media_progress_val_readable = StringProperty('00:00')
     media_progress_max_readable = StringProperty('00:00')
     dont_update_progress = False
+    skip_progress2 = False
+    progress_clock = None
+
     def __init__(self, **kwargs):
         super(PlayBackBar, self).__init__(**kwargs)
         self.on_media_progress_val()
@@ -210,10 +213,14 @@ class PlayBackBar(BoxLayout):
         self.bind(media_progress_val=self.ids.progress1.on_value_update)
         self.ids.progress1.bind(on_touch_down=self.toggle_progress_update)
         self.ids.progress1.bind(on_touch_up=self.toggle_progress_update)
-        self.ids.progress1.bind(on_touch_up=lambda obj, val: setattr(self, 'media_progress_val', self.ids.progress1.value))
-        self.ids.progress1.bind(on_touch_move=lambda obj, val: setattr(self, 'media_progress_val', self.ids.progress1.value))
-        self.ids.progress2.bind(on_touch_move=lambda obj, val: setattr(self, 'media_volume', self.ids.progress2.value))
-        self.ids.progress2.bind(on_touch_up=lambda obj, val: setattr(self, 'media_volume', self.ids.progress2.value))
+        self.ids.progress1.bind(on_touch_up=lambda obj, val: setattr(
+            self, 'media_progress_val', self.ids.progress1.value))
+        self.ids.progress1.bind(on_touch_move=lambda obj, val: setattr(
+            self, 'media_progress_val', self.ids.progress1.value))
+        self.ids.progress2.bind(on_touch_move=lambda obj, val: setattr(
+            self, 'media_volume', self.ids.progress2.value))
+        self.ids.progress2.bind(on_touch_up=lambda obj, val: setattr(
+            self, 'media_volume', self.ids.progress2.value))
 
     def get_readable_from_int(self, seconds):
         seconds = int(seconds)
@@ -224,10 +231,17 @@ class PlayBackBar(BoxLayout):
     def toggle_progress_update(self, *args):
         if self.dont_update_progress:
             self.dont_update_progress = False
+            self.skip_progress2 = True
+            if self.skip_progress2:
+                Clock.unschedule(self.progress_clock)
+            self.progress_clock = Clock.schedule_once(
+                lambda *a: setattr(self, 'skip_progress2', False), 0.6)
         else:
             self.dont_update_progress = True
 
     def on_media_progress_val(self, *args):
+        if self.skip_progress2:
+            return
         if args:
             if self.dont_update_progress == False:
                 self.media_progress_val = args[1]

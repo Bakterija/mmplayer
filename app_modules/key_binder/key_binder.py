@@ -5,7 +5,7 @@ from kivy.logger import Logger
 
 class KeyBinder(object):
     keybinds = {}
-    use_logger = False
+    log_keys = False
 
     def __init__(self):
         Window.bind(on_key_down=self.on_key_down)
@@ -27,8 +27,10 @@ class KeyBinder(object):
             modifier = args[2]
         except:
             modifier = []
-        if self.use_logger:
+
+        if self.log_keys:
             Logger.info('KeyBinder: on_key_down: {} - {}'.format(key, modifier))
+
         for k, v in self.keybinds.iteritems():
             if v['key'] == str(key):
                 if v['state'] in ('down', 'any', 'all'):
@@ -36,8 +38,9 @@ class KeyBinder(object):
                         v['callback']()
 
     def on_key_up(self, win, key, *args):
-        if self.use_logger:
+        if self.log_keys:
             Logger.info('KeyBinder: on_key___up: {} - {}'.format(key, args))
+
         for k, v in self.keybinds.iteritems():
             if v['key'] == str(key):
                 if v['state'] in ('up', 'any', 'all'):

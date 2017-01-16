@@ -1,4 +1,30 @@
-## Beta 7.1 - 2016-jan-16
+## Beta 8 - 2016-jan-16
+
+### Added
+ - Volume is saved between sessions
+
+### Changed
+ - Playback bar displays pos and max position as 00:00 when no media is loaded again
+ - Added delay betweeen seeking and seek progress bar update to keep the bar smoother
+ - Removed terminal screen
+
+### Fixed
+ - Video files queueing works again
+ - Play/Pause button text changes when MediaPlayer is paused or resumed again
+
+### Other
+ - Added app_configs package with new AppConfigHandler class and Config objects
+ - Moved key binding, directory making, setting handling, sidebar item loading from main.py to app_configs package Config modules
+ - Renamed MediaGUI to MediaController and moved app_modules/media_gui to app_modules/media_controller
+ changes a lot of imports and object names, values
+ - Removed a lot of unnecessary imports
+ - Changed screen names and ids in app_modules/layouts/screen_manager.kv
+ - Replaces on_resume MediaPlayer mode with on_play
+ - Added on_play modes triggering in MediaPlayer play() method
+
+
+
+## Beta 7.1 - 2016-jan-15
 
 ### Changed
  - Sped up animations in video screen 2 times
@@ -7,11 +33,10 @@
 ### Fixed
  - Audio Player pauses media properly instead of switching to next file
  - Side bar and lower bar don't animate out in other screens while video is playing anymore
- 
 
 
 
-## Beta 7 - 2016-jan-16
+## Beta 7 - 2016-jan-15
 
 ### Changed
  - Improved media playback and cleaned up code

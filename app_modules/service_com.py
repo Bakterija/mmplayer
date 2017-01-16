@@ -11,7 +11,9 @@ except:
     pass
 
 class serviceCom:
-    def __init__(self,parent):
+
+    def __init__(self, parent):
+        self.parent = parent
         self.port = 44772
         osc.init()
         self.oscid = osc.listen(ipAddr='127.0.0.1', port=self.port)
@@ -20,7 +22,6 @@ class serviceCom:
         self.serviceSTARTED = False
         self.connected = False
         service = None
-        self.parent = parent
         self.bindings = {'on_connect': None,'on_disconnect': None}
         if platform != 'android':
             self.serviceSTARTED = True

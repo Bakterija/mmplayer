@@ -10,6 +10,8 @@ class AudioPlayer(EventDispatcher):
     volume = NumericProperty(1.)
     loop = BooleanProperty(False)
     is_video = False
+    is_seeking = False
+    seek_pos = 0
     state = 'stop'
 
     def __init__(self, mplayer, **kwargs):
@@ -39,6 +41,8 @@ class AudioPlayer(EventDispatcher):
         self.state = 'stop'
 
     def seek(self, position):
+        self.is_seeking = True
+        self.seek_pos = position
         self.sound.seek(position)
 
     def get_pos(self):
@@ -46,6 +50,11 @@ class AudioPlayer(EventDispatcher):
             return -1
         if self.state == 'pause':
             return self.pause_seek
+        if self.is_seeking:
+            if not self.sound.get_pos():
+                return self.seek_pos
+            else:
+                self.is_seeking = False
         return self.sound.get_pos()
 
     def load(self, path):
