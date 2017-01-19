@@ -1,3 +1,24 @@
+## Beta 9 - 2016-jan-19
+
+### Added
+ - New Terminal widget with text input field, openable with tilde key, can play source with "play {path}" or switch screen with "screen {screen name}"
+ - Remove info widget text boxes with click or touch
+
+### Changed
+ - MediaPlayer switches to next in playlist when current can not be played
+
+### Fixed
+ - MediaPlayer doesn't crash when attempting to play file with unplayable extension
+
+### Other
+ - Added warning and exit for python3 in main.py
+ - New hotkeys for terminal widget in app_configs/keybinds.py
+ - Moved standalone widgets to app_modules/widgets_standalone and others to app_modules/widgets_integrated
+ - Removed unneeded widgets
+ - More code cleanup
+
+
+
 ## Beta 8.1 - 2016-jan-16
 
 ### Fixed

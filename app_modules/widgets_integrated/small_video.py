@@ -11,6 +11,7 @@ class SmallVideo(ResizableBehavior, BoxLayout):
     offset_y_out = NumericProperty()
     offset_x = NumericProperty()
     offset_y = NumericProperty()
+    
     inside_window = BooleanProperty(False)
     resizable_up = True
     resizable_left = True

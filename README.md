@@ -1,4 +1,4 @@
-# mmplayer beta 7.1
+# mmplayer beta 9
 Python and Kivy based crossplatform media player (Only GNU/Linux and Windows supported currently)    
 
 Beta 6 screenshot below     

@@ -88,7 +88,7 @@ class Media_Player_Server(Media_Player):
     def gui_video_start(self,*arg):
         try:
             if self.sender_enabled:
-                ID, (name, path) =  self.playlist.get_current()
+                index, name, path =  self.playlist.get_current()
                 seektime = self.return_pos()[1][0]
                 string = self.mstring+'start_video:'+'%s:%s:%s:%s' % (ID, name, path, seektime)
                 self.osc_sender(string)
@@ -98,7 +98,7 @@ class Media_Player_Server(Media_Player):
             traceback.print_exc()
 
     def update_playlist_current(self,*arg):
-        ID, (name, path) =  self.playlist.get_current()
+        index, name, path =  self.playlist.get_current()
         string = self.mstring+'update_media:'+'%s:%s:%s' % (ID, name, path)
         self.osc_sender(string)
 

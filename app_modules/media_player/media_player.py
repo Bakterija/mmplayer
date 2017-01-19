@@ -3,6 +3,7 @@ from kivy.clock import Clock
 from kivy.logger import Logger
 from time import sleep
 from providers import provider_list as providers
+from providers.error_player import ErrorPlayer
 from kivy.utils import platform
 import traceback
 
@@ -14,39 +15,36 @@ class Playlist(object):
 
     def get_next(self):
         self.current +=1
-        if self.list != []:
+        if self.list:
             try:
-                return self.current, self.list[self.current]
+                name = self.list[self.current]['name']
+                path = self.list[self.current]['path']
+                return self.current, name, path
             except:
-                self.current = 0
-                return self.current, self.list[self.current]
-        Logger.warning('[Media Player] Playlist is empty')
-        return None, (None, None)
+                return None, None, None
 
     def get_previous(self):
         self.current -= 1
-        if self.list != []:
+        if self.list:
             try:
-                return self.current, self.list[self.current]
+                name = self.list[self.current]['name']
+                path = self.list[self.current]['path']
+                return self.current, name, path
             except:
-                self.current = len(self.list) - 1
-                return self.current, self.list[self.current]
-        Logger.warning('[Media Player] Playlist is empty')
-        return None, (None, None)
+                return None, None, None
 
     def get_current(self):
         if self.list:
             name = self.list[self.current]['name']
             path = self.list[self.current]['path']
-            return self.current, (name, path)
+            return self.current, name, path
         else:
-            return None
+            return None, None, None
 
     def set_current(self,value):
         self.current = int(value)
 
     def add(self, name, path, **kwargs):
-        # print(name, path)
         appending = {'name': name, 'path': path}
         for key, value in kwargs.iteritems():
             self.appending['key'] = value
@@ -57,7 +55,6 @@ class Playlist(object):
         for key, value in kwargs.iteritems():
             self.appending['key'] = value
         self.list.insert(index, appending)
-        # print(name, path)
 
     def reset(self):
         self.current = 0
@@ -80,6 +77,7 @@ class Media_Player(object):
     def __init__(self):
         self.modes = {
             'next_on_stop': True,
+            'loop': '',
             'on_video': [],
             'on_start': [],
             'on_next': [],
@@ -100,14 +98,23 @@ class Media_Player(object):
         if self.sound:
             self.sound.volume = self.volume
 
+    def do_gui_update(self, *args):
+        if self.gui_update:
+            self.gui_update(**self.get_state_all())
+
     def start(self, place, seek=0.0):
+        if self.sound:
+            try:
+                self.stop()
+            except:
+                pass
         try:
             self.trying_seek = False
             place = int(place)
             self.playlist.set_current(place)
-            ID, (name, path) = self.playlist.get_current()
+            index, name, path = self.playlist.get_current()
             self.starting = True
-            self.stop()
+
 
             for x in providers:
                 player = x.try_loading(self, path)
@@ -117,20 +124,30 @@ class Media_Player(object):
                     self.sound.volume = self.volume
                     self.sound.play()
                     self.cur_media = {'name': name, 'path': path}
+
                     if seek:
                         self.seek(seek)
+
                     if self.gui_update:
-                        self.gui_update(self.get_state_all())
+                        self.gui_update(**self.get_state_all())
                         for x in self.modes['on_start']:
                             x()
+
                         if player.is_video:
                             for x in self.modes['on_video']:
                                 x(self.sound)
-            self.starting = False
-            return True
+                    return True
+
         except Exception as e:
             traceback.print_exc()
         self.starting = False
+        for x in self.modes['on_error']:
+            x('MediaPlayer: Could not play file {}'.format(name))
+
+        self.sound = ErrorPlayer()
+        self.cur_media = {'name': name, 'path': path}
+        if self.gui_update:
+            self.gui_update(**self.get_state_all())
         return False
 
     def on_stop(self,*arg):
@@ -144,25 +161,33 @@ class Media_Player(object):
             for x in self.modes['on_play']:
                 x(self, self.get_mediaPos())
 
-    def next(self,*arg):
-        ID,(name,path) = self.playlist.get_next()
-        if ID:
-            self.start(str(ID))
+    def next(self, *arg):
+        index, name, path = self.playlist.get_next()
+        if index:
+            self.start(str(index))
             for x in self.modes['on_next']:
                 x()
         else:
-            for x in self.modes['on_error']:
-                x('playlist is empty')
+            if self.playlist.list:
+                if self.modes['loop'] == 'playlist':
+                    self.playlist.current = 0
+                    self.start('0')
+                else:
+                    for x in self.modes['on_error']:
+                        x('Done playing')
+            else:
+                for x in self.modes['on_error']:
+                    x('Playlist is empty')
 
-    def previous(self,*arg):
-        ID,(name,path) = self.playlist.get_previous()
-        if ID:
-            name = self.start(str(ID))
+    def previous(self, *arg):
+        index, name, path = self.playlist.get_previous()
+        if index:
+            name = self.start(str(index))
             for x in self.modes['on_previous']:
                 x()
         else:
             for x in self.modes['on_error']:
-                x('playlist is empty')
+                x('Playlist is empty')
 
     def seek(self, value):
         if self.sound:

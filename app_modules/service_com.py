@@ -5,10 +5,9 @@ from kivy.clock import Clock
 from threading import Thread
 from kivy.lib import osc
 from time import sleep
-try:
+if platform == 'android':
     from android import AndroidService
-except:
-    pass
+    
 
 class serviceCom:
 

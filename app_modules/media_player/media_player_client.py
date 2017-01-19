@@ -109,20 +109,16 @@ class Media_Player_Client(Media_Player):
         try:
             seek = float(seek)
             self.oscPlayer = False
-            name = super(Media_Player_Client, self).start(place)
+            playing = super(Media_Player_Client, self).start(place)
             if self.oscPlayer == False:
-                self._gui_update()
                 if seek:
                     Clock.schedule_once(lambda x: self.try_seeking(seek), 1)
-            return name
+
+            if not playing:
+                self.next()
+            return playing
         except Exception as e:
             traceback.print_exc()
-
-    def _gui_update(self, *arg):
-        cur = self.playlist.get_current()
-        if cur:
-            kwargs = {'name': cur[1][0], 'path': cur[1][1]}
-            self.gui_update(**kwargs)
 
     def try_seeking(self,value):
         if self.return_pos()[1][0] < int(value)-3:
@@ -132,7 +128,7 @@ class Media_Player_Client(Media_Player):
     def background_switch(self,*arg):
         try:
             if self.sound.state == 'play' and self.oscPlayer == False:
-                ID, (name, path) =  self.playlist.get_current()
+                index, name, path =  self.playlist.get_current()
                 seektime = self.return_pos()[1][0]
                 string = self.mstring+'background_switch:'+'%s:%s:%s:%s' % (ID, name, path, seektime)
                 self.osc_sender(string)
@@ -150,7 +146,7 @@ class Media_Player_Client(Media_Player):
             super(Media_Player_Client, self).pause()
 
 def start_audio_kivy_server(self,place):
-    ID, (name, path) = self.playlist.get_current()
+    index, name, path = self.playlist.get_current()
     self.sound = OSC_Media_Interface(place,self.osc_sender)
     self.sound.play()
     self.oscPlayer = True

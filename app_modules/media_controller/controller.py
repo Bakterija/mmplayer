@@ -1,92 +1,36 @@
 from __future__ import print_function
+from kivy.uix.widget import Widget
 from kivy.uix.stacklayout import StackLayout
 from kivy.utils import platform
 from kivy.lang import Builder
-from kivy.metrics import dp, cm
-from app_modules.multi_line_button import MultiLineButton
-from app_modules.widgets.background_stacklayout import BackgroundStackLayout
-from kivy.uix.filechooser import FileSystemLocal
+from app_modules.widgets_standalone.background_stacklayout import BackgroundStackLayout
 from kivy.uix.textinput import TextInput
+from kivy.metrics import cm, dp
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.properties import (BooleanProperty, StringProperty, DictProperty,
                              ListProperty, NumericProperty)
-from kivy.uix.recycleview import RecycleView
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.recycleview.views import RecycleDataViewBehavior
-from kivy.uix.recycleview.layout import LayoutSelectionBehavior
-from kivy.uix.behaviors import ButtonBehavior
-from app_modules.behaviors.hover_behavior import HoverBehavior
 from kivy.clock import Clock
 from kivy.core.window import Window
 import kivy.uix.filechooser as filechooser
 ##from plyer.facades import FileChooser as FileChooser2
 ##from plyer.platforms.linux.filechooser import instance as FileChooser3
 from fileadder_dialog import FileAdderDialog
-from app_modules.widgets.section import rvSection
-from sys import path
-from time import time
+from app_modules.widgets_integrated.section import rvSection
 import various_functions as various
 import traceback
-import os
 
 
-class Media_Button(HoverBehavior, RecycleDataViewBehavior, ButtonBehavior, StackLayout):
-    index = None  # stores our index
-    rv = None
-    bg_colors = DictProperty()
-    pstate = StringProperty()
-    mtype = StringProperty()
-    text = StringProperty()
-    name = StringProperty()
-    path = StringProperty()
-    bg_color = ListProperty()
-
-    def __init__(self, **kwargs):
-        super(Media_Button, self).__init__(**kwargs)
-
-    def refresh_view_attrs(self, rv, index, data):
-        super(Media_Button, self).refresh_view_attrs(rv, index, data)
-        self.index = index
-        self.hovering = False
-        self.set_bg_color()
-        if not self.rv:
-            self.rv = rv
-
-    def set_bg_color(self, *args):
-        if self.hovering == True and self.pstate != 'playing':
-            self.bg_color = self.bg_colors['hover']
-        else:
-            if self.mtype == 'media':
-                self.bg_color = self.bg_colors[self.pstate]
-            elif self.mtype == 'folder':
-                self.bg_color = self.bg_colors['folder']
-            elif self.mtype == 'disabled':
-                self.bg_color = self.bg_colors['folder']
-
-    def on_enter(self, *args):
-        if self.pstate != 'playing':
-            self.set_bg_color()
-
-    def on_leave(self, *args):
-        if self.pstate != 'playing':
-            self.set_bg_color()
-
-
-class MRV_Base(RecycleView):
-    pass
-
-
-class MediaController(StackLayout):
+class MediaController(Widget):
     rv_playlist = None
     rv_queue = None
     playlists = {}
     on_playlists = []
-    places = ListProperty([])
-    queue = ListProperty([])
-    playing_name = StringProperty('')
-    playing_path = StringProperty('')
+    places = ListProperty()
+    queue = ListProperty()
+    playing_name = StringProperty()
+    playing_path = StringProperty()
     playing_seek_value = NumericProperty(0)
     playing_seek_max = NumericProperty(0)
     adding_files = False
@@ -121,15 +65,15 @@ class MediaController(StackLayout):
             'text': x['name'], 'name': x['name'], 'path': x['path'],
             'mtype': x['mtype'], 'pstate': x['pstate']
         })
+        for x in self.rv_playlist.data[index+1:]:
+            self.mPlayer.playlist.add(x['name'],x['path'])
+            nm = {
+                'text': x['name'], 'name': x['name'], 'path': x['path'],
+                'mtype': x['mtype'], 'pstate': x['pstate']
+            }
+            self.queue.append(nm)
+        
         stat = self.mPlayer.start(0)
-        if stat:
-            for x in self.rv_playlist.data[index+1:]:
-                self.mPlayer.playlist.add(x['name'],x['path'])
-                nm = {
-                    'text': x['name'], 'name': x['name'], 'path': x['path'],
-                    'mtype': x['mtype'], 'pstate': x['pstate']
-                }
-                self.queue.append(nm)
 
     def start_queue(self, index):
         '''Triggered when user touches a MediaButton in queue'''
@@ -195,14 +139,28 @@ class MediaController(StackLayout):
             path = kwargs['path']
             for i, x in enumerate(self.rv_playlist.data):
                 if x['name'] == name and x['path'] == path:
-                    self.rv_playlist.data[i]['pstate'] = 'playing'
-                elif x['pstate'] == 'playing':
-                    self.rv_playlist.data[i]['pstate'] = 'default'
+                    if kwargs['state'] == 'play':
+                        self.rv_playlist.data[i]['pstate'] = 'playing'
+                    elif kwargs['state'] == 'error':
+                        self.rv_playlist.data[i]['pstate'] = 'error'
+                    continue
+
+                if kwargs['state'] == 'play':
+                    if x['pstate'] == 'playing':
+                        self.rv_playlist.data[i]['pstate'] = 'default'
+
             for i, x in enumerate(self.rv_queue.data):
                 if x['name'] == name and x['path'] == path:
-                    self.rv_queue.data[i]['pstate'] = 'playing'
-                elif x['pstate'] == 'playing':
-                    self.rv_queue.data[i]['pstate'] = 'default'
+                    if kwargs['state'] == 'play':
+                        self.rv_queue.data[i]['pstate'] = 'playing'
+                    elif kwargs['state'] == 'error':
+                        self.rv_queue.data[i]['pstate'] = 'error'
+                    continue
+
+                if kwargs['state'] == 'play':
+                    if x['pstate'] == 'playing':
+                        self.rv_queue.data[i]['pstate'] = 'default'
+
             self.refresh_rview_playlist()
             self.refresh_rview_queue()
 
@@ -456,7 +414,7 @@ class MediaController(StackLayout):
             self.refresh_rview_playlist()
             if self.rv_playlist:
                 self.rv_playlist.on_playlist(self.active_playlist)
-            self.mPlayer._gui_update()
+            self.mPlayer.do_gui_update()
         except IOError:
             self.reset_playlists()
         except Exception as e:
@@ -464,9 +422,3 @@ class MediaController(StackLayout):
 
     def bind_on_playlists(self, func):
         self.on_playlists.append(func)
-
-
-if platform == 'android':
-    Builder.load_file(path[0]+'/app_modules/media_controller/controller.kv')
-else:
-    Builder.load_file(path[0]+'/app_modules/media_controller/controller.kv')

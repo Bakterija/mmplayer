@@ -12,6 +12,7 @@ from kivy.core.window import Window
 
 class HoverBehavior(Widget):
     hovering = BooleanProperty(False)
+
     def __init__(self, **kwargs):
         super(HoverBehavior, self).__init__(**kwargs)
         Window.bind(mouse_pos=self.on_mouse_move)
@@ -108,6 +109,11 @@ class InfoLabel(HoverBehavior, Label):
         if self.ttl <= 0:
             self.fade_out_clock()
 
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos):
+            self.remove_self()
+            return True
+
 
 class InfoWidget(BoxLayout):
     colors = {
@@ -120,7 +126,6 @@ class InfoWidget(BoxLayout):
     default_ttl = 7
     font_size = sp(16)
     last_label = {'time': 0.0, 'ttl': 0.0}
-    # width = NumericProperty200.0
 
     def add_label(self, **kwargs):
         timenow = int(time())

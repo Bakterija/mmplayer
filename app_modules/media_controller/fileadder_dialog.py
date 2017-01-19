@@ -6,8 +6,8 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.clock import Clock
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
-from app_modules.widgets.multi_line_label import MultiLineLabel
-from app_modules.widgets.background_label import BackgroundLabel
+from app_modules.widgets_standalone.multi_line_label import MultiLineLabel
+from app_modules.widgets_standalone.background_label import BackgroundLabel
 from kivy.uix.spinner import Spinner
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from kivy.properties import StringProperty
@@ -17,7 +17,7 @@ import os
 
 
 kv = '''
-#: import aa1 app_modules.widgets.background_label.BackgroundLabel
+#: import aa1 app_modules.widgets_standalone.background_label.BackgroundLabel
 <FileAdderDialog>:
     title: 'File adder dialog'
     size_hint: 0.9, 0.7

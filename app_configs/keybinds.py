@@ -31,3 +31,10 @@ class Config(ConfigBase):
             lambda: root.mPlayer.seek_relative(60), modifier=['ctrl'])
         root.keybinder.add(
             'play_pause_toggle', '32', 'down', root.media_control.play_pause)
+
+        root.keybinder.add('toggle_terminal', '96', 'down',
+                           root.ids.terminal_widget.toggle_pos_multiplier)
+        root.keybinder.add('terminal_scroll_up', '280', 'down',
+                          root.ids.terminal_widget.scroll_up)
+        root.keybinder.add('terminal_scroll_down', '281', 'down',
+                        root.ids.terminal_widget.scroll_down)

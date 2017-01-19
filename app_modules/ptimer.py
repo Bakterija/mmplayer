@@ -6,10 +6,11 @@ class PTimer(object):
     time_log = []
 
     def add(self, name, ):
-        try:
+        if self.time_log:
             b = time() - self.starttime - self.time_log[-1][1]
-        except:
+        else:
             b = time() - self.starttime
+
         a = [
             name,
             time() - self.starttime, # time after init

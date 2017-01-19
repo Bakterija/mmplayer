@@ -1,8 +1,8 @@
-from controller import Media_Button
-from controller import MRV_Base
+from media_view_base import MediaButton
+from media_view_base import MediaRecycleviewBase
 
 
-class QueueViewClass(Media_Button):
+class QueueViewClass(MediaButton):
 
     def __init__(self, **kwargs):
         super(QueueViewClass, self).__init__(**kwargs)
@@ -13,7 +13,7 @@ class QueueViewClass(Media_Button):
             self.rv.controller.start_queue(self.index)
 
 
-class MediaQueueView(MRV_Base):
+class MediaQueueView(MediaRecycleviewBase):
     def __init__(self, controller, **kwargs):
         super(MediaQueueView, self).__init__(**kwargs)
         self.controller = controller

@@ -1,16 +1,15 @@
-#:import recc23 app_modules.media_controller.labelbutton.LabelButton
+#: import LabelButton app_modules.widgets_integrated.labelbutton.LabelButton
 
-<Media_Button>:
-    size_hint: 1, 1
+<MediaButton>:
     text: self.name
     pstate: 'default'
-    bg_color: [0.20, 0.20, 0.40, 1]
-    bg_hover: [0.5, 0.5, 0.5, 1]
-    bg_default: [0.20, 0.20, 0.40, 1]
-    bg_playing: [0.5, 0.15, 0.3, 1]
-    bg_disabled: [0.2, 0.2, 0.2, 1]
-    bg_error: [1, 0.3, 0.3, 1]
-    bg_folder: [0.2, 0.2, 0.2, 1]
+    bg_color: 0.20, 0.20, 0.40, 1
+    bg_hover: 0.5, 0.5, 0.5, 1
+    bg_default: 0.20, 0.20, 0.40, 1
+    bg_playing: 0.5, 0.15, 0.3, 1
+    bg_disabled: 0.2, 0.2, 0.2, 1
+    bg_error: 0.1, 0.05, 0.05, 1
+    bg_folder: 0.2, 0.2, 0.2, 1
     bg_colors: {'default': self.bg_default, 'playing': self.bg_playing, 'playing-stopped': self.bg_default, 'disabled': self.bg_disabled, 'error': self.bg_error, 'folder': self.bg_folder, 'hover': self.bg_hover}
     LabelButton:
         text: root.text
@@ -25,11 +24,11 @@
                 size: root.size
 
 
-<MRV_Base>:
+<MediaRecycleviewBase>:
     scroll_type: ['bars', 'content']
     scroll_wheel_distance: dp(114)
     bar_width: dp(10)
-    bar_color: .4, .4, .4, 1
+    bar_color: 0.4, 0.4, 0.4, 1
     bar_inactive_color: .4, .4, .4, .7
     bar_background: 0.1, 0.1, 0.1
     data: []

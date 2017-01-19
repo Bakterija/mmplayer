@@ -1,7 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Version: Beta 8
+# Version: Beta 9
 from __future__ import print_function
+from time import time
+starttime = time()
+from kivy.logger import Logger, LoggerHistory
+from kivy.compat import PY2
+if not PY2:
+    Logger.error('App: Python3 is not supported yet, exiting')
+    quit()
 from kivy import require as kivy_require
 kivy_require('1.9.2')
 from kivy.app import App
@@ -13,7 +20,6 @@ from kivy.core.window import Window
 from kivy.clock import Clock, mainthread
 from kivy.utils import platform
 from kivy.properties import StringProperty, ListProperty, ObjectProperty
-from kivy.logger import Logger, LoggerHistory
 from app_modules.service_com import serviceCom
 from app_modules.media_player.media_player_client import \
 Media_Player_Client as Media_Player
@@ -25,6 +31,7 @@ from kivy.config import Config as KivyConfig
 from kivy.lib import osc
 import traceback
 import sys
+print ('DONE IMPORTS', time() - starttime)
 
 if platform in ('windows','win', 'linux'):
     # Disabled for now
@@ -42,7 +49,6 @@ class Jotube(LayoutMethods, FloatLayout):
         super(Jotube, self).__init__(**kwargs)
         self.data_list = []
         self.service = None
-        Builder.load_file('app_modules/layouts/screen_manager.kv')
         Window.bind(on_dropfile=self.on_dropfile)
         self.app_configurator = AppConfigHandler(self)
         self.app_configurator.load_before()
@@ -189,6 +195,7 @@ class JotubeApp(App):
 if __name__ == "__main__":
     try:
         Builder.load_file('app_modules/layouts/pc_layout.kv')
+        Builder.load_file('app_modules/layouts/screen_manager.kv')
         app = JotubeApp()
         app.run()
     except Exception as e:

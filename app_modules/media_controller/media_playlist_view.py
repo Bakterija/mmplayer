@@ -1,8 +1,8 @@
-from controller import Media_Button
-from controller import MRV_Base
+from media_view_base import MediaButton
+from media_view_base import MediaRecycleviewBase
 
 
-class PlaylistViewClass(Media_Button):
+class PlaylistViewClass(MediaButton):
 
     def __init__(self, **kwargs):
         super(PlaylistViewClass, self).__init__(**kwargs)
@@ -16,7 +16,7 @@ class PlaylistViewClass(Media_Button):
             self.rv.controller.open_playlist(self.dictio)
 
 
-class MediaPlaylistView(MRV_Base):
+class MediaPlaylistView(MediaRecycleviewBase):
     def __init__(self, controller, **kwargs):
         super(MediaPlaylistView, self).__init__(**kwargs)
         self.controller = controller
