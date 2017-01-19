@@ -141,13 +141,13 @@ class Media_Player(object):
         except Exception as e:
             traceback.print_exc()
         self.starting = False
-        for x in self.modes['on_error']:
-            x('MediaPlayer: Could not play file {}'.format(name))
 
         self.sound = ErrorPlayer()
         self.cur_media = {'name': name, 'path': path}
         if self.gui_update:
             self.gui_update(**self.get_state_all())
+        for x in self.modes['on_error']:
+            x('MediaPlayer: Could not play file {}'.format(name))
         return False
 
     def on_stop(self,*arg):

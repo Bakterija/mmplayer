@@ -7,31 +7,24 @@ class Config(ConfigBase):
 
     @staticmethod
     def load_before(root_widget):
+        directories = []
         if platform == 'android':
-            d = os.path.dirname('/storage/emulated/0/github_bakterija/')
-            if not os.path.exists(d):
-                os.makedirs(d)
-            d = os.path.dirname('/storage/emulated/0/github_bakterija/jotube/')
-            if not os.path.exists(d):
-                os.makedirs(d)
-            d = os.path.dirname(
-                '/storage/emulated/0/github_bakterija/jotube/audio/')
-            if not os.path.exists(d):
-                os.makedirs(d)
-            d = os.path.dirname(
-                '/storage/emulated/0/github_bakterija/jotube/audio/thumbnails/')
-            if not os.path.exists(d):
-                os.makedirs(d)
-            d = os.path.dirname(
-                '/storage/emulated/0/github_bakterija/jotube/audio/')
+            directories = (
+                '/storage/emulated/0/github_bakterija/',
+                '/storage/emulated/0/github_bakterija/jotube/',
+                '/storage/emulated/0/github_bakterija/jotube/audio/',
+                '/storage/emulated/0/github_bakterija/jotube/audio/thumbnails/',
+                '/storage/emulated/0/github_bakterija/jotube/audio/'
+            )
+
         else:
-            d = os.path.dirname('media/thumbnails/')
-            if not os.path.exists(d):
-                os.makedirs(d)
-            d = os.path.dirname('media/playlists/')
+            directories = ('media/thumbnails/', 'media/playlists/')
+
+        for x in directories:
+            d = os.path.dirname(x)
             if not os.path.exists(d):
                 os.makedirs(d)
 
     @staticmethod
     def load_after(root_widget):
-        import sys
+        pass
