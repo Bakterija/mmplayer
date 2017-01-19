@@ -8,7 +8,7 @@
  - MediaPlayer switches to next in playlist when current can not be played
 
 ### Fixed
- - MediaPlayer doesn't crash when attempting to play file with unplayable extension
+ - MediaPlayer doesn't stop working after attempting to play file with unplayable extension
 
 ### Other
  - Added warning and exit for python3 in main.py
