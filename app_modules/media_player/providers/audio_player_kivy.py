@@ -23,9 +23,9 @@ class AudioPlayer(EventDispatcher):
 
     def play(self):
         self.sound.play()
+        self.state = 'play'
         if self.pause_seek:
             self.seek(self.pause_seek)
-        self.state = 'play'
 
     def pause(self):
         self.pause_seek = self.get_pos()
@@ -41,20 +41,17 @@ class AudioPlayer(EventDispatcher):
         self.state = 'stop'
 
     def seek(self, position):
-        self.is_seeking = True
-        self.seek_pos = position
-        self.sound.seek(position)
+        if self.length > 0:
+            if self.state in ('pause', 'stop'):
+                self.pause_seek = position
+            else:
+                self.sound.seek(position)
 
     def get_pos(self):
         if self.state == 'stop':
             return -1
         if self.state == 'pause':
             return self.pause_seek
-        if self.is_seeking:
-            if not self.sound.get_pos():
-                return self.seek_pos
-            else:
-                self.is_seeking = False
         if self.length == -1:
             self.length = self.sound.length
         return self.sound.get_pos()

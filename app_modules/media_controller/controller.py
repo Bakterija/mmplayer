@@ -72,7 +72,7 @@ class MediaController(Widget):
                 'mtype': x['mtype'], 'pstate': x['pstate']
             }
             self.queue.append(nm)
-        
+
         stat = self.mPlayer.start(0)
 
     def start_queue(self, index):

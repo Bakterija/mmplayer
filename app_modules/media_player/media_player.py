@@ -105,11 +105,10 @@ class Media_Player(object):
     def start(self, place, seek=0.0):
         if self.sound:
             try:
-                self.stop()
-            except:
-                pass
+                self.sound.unload()
+            except Exception as e:
+                print (e)
         try:
-            self.trying_seek = False
             place = int(place)
             self.playlist.set_current(place)
             index, name, path = self.playlist.get_current()
@@ -136,6 +135,7 @@ class Media_Player(object):
                         if player.is_video:
                             for x in self.modes['on_video']:
                                 x(self.sound)
+                    self.starting = False
                     return True
 
         except Exception as e:
