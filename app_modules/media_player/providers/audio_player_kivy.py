@@ -10,7 +10,6 @@ class AudioPlayer(EventDispatcher):
     volume = NumericProperty(1.)
     loop = BooleanProperty(False)
     is_video = False
-    is_seeking = False
     seek_pos = 0
     state = 'stop'
 

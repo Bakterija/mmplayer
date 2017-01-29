@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 # Version: Beta 9
 from __future__ import print_function
-from time import time
-starttime = time()
 from kivy.logger import Logger, LoggerHistory
 from kivy.compat import PY2
 if not PY2:
@@ -20,7 +18,6 @@ from kivy.core.window import Window
 from kivy.clock import Clock, mainthread
 from kivy.utils import platform
 from kivy.properties import StringProperty, ListProperty, ObjectProperty
-from app_modules.service_com import serviceCom
 from app_modules.media_player.media_player_client import \
 Media_Player_Client as Media_Player
 from app_modules.media_controller.controller import MediaController
@@ -28,15 +25,10 @@ from app_modules.media_controller.media_playlist_view import MediaPlaylistView
 from app_modules.media_controller.media_queue_view import MediaQueueView
 from app_configs import AppConfigHandler
 from kivy.config import Config as KivyConfig
-from kivy.lib import osc
 import traceback
 import sys
-print ('DONE IMPORTS', time() - starttime)
 
 if platform in ('windows','win', 'linux'):
-    # Disabled for now
-    # from multiprocessing import Process
-    # from service import main as PCservice
     from app_modules.layouts.pc_layout_methods import LayoutMethods
     KivyConfig.set( 'input', 'mouse', 'mouse,disable_multitouch')
     sys.dont_write_bytecode = True
@@ -48,7 +40,6 @@ class Jotube(LayoutMethods, FloatLayout):
     def __init__(self, **kwargs):
         super(Jotube, self).__init__(**kwargs)
         self.data_list = []
-        self.service = None
         Window.bind(on_dropfile=self.on_dropfile)
         self.app_configurator = AppConfigHandler(self)
         self.app_configurator.load_before()
@@ -94,12 +85,10 @@ class Jotube(LayoutMethods, FloatLayout):
         self.ids.sm_area.add_widget(self.manager)
 
         self.manager.current = 'media'
-        self.service = serviceCom(self)
 
         ## FIRST SCREEN MEDIA PLAYER - sc-media
         self.mPlayer = Media_Player()
         self.mPlayer.modes['on_error'].append(self.on_error)
-        self.mPlayer.set_osc_sender(self.service.send_message)
         self.media_control = MediaController(self.mPlayer)
         self.media_control.videoframe = self.manager.ids.video_screen
         self.media_control.videoframe_small = self.ids.video_small
@@ -161,35 +150,15 @@ class JotubeApp(App):
         pass
 
     def on_pause(self):
-        self.root_widget.service.SERVICEdisconnect()
-        self.root_widget.mPlayer.background_switch()
         return True
 
     def on_resume(self):
-        self.root_widget.service.SERVICEconnect()
+        pass
 
     def on_stop(self):
         settings = {'volume': self.root_widget.mPlayer.volume}
         self.root_widget.app_configurator.load_with_args(
             'user_settings', 'save', settings)
-
-        self.root_widget.mPlayer.stop()
-        self.stop_static(self)
-
-    @staticmethod
-    def stop_static(self):
-        try:
-            self.root_widget.service.stop()
-        except Exception as e:
-            try:
-                service = serviceCom(object)
-                service.stop()
-            except Exception as e:
-                print(e)
-        try:
-            osc.dontListen()
-        except Exception as e:
-            print(e)
 
 
 if __name__ == "__main__":
@@ -200,8 +169,3 @@ if __name__ == "__main__":
         app.run()
     except Exception as e:
         traceback.print_exc()
-        Logger.error('[App         ] Crashed, stopping processes')
-        try:
-            app.on_stop()
-        except:
-            JotubeApp.stop_static(None)
