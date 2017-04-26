@@ -13,10 +13,14 @@ from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from kivy.uix.recycleview.layout import LayoutSelectionBehavior
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
+from app_modules.behaviors.focus import FocusBehaviorCanvasKB
+from app_modules.widgets_standalone.app_recycleview import (
+    AppRecycleBox, AppRecycleView)
 from kivy.uix.behaviors import ButtonBehavior
 from .pc_sidebar_widgets import rvLabelButton, rvSection
 from kivy.clock import Clock
 from kivy.core.window import Window
+from app_modules import keys as kb
 import traceback
 
 
@@ -37,15 +41,22 @@ kv = '''
         Rectangle:
             pos: self.pos
             size: self.size
-    RecycleBoxLayout:
+    SelectableRecycleBox:
         id: rv_box
         orientation: 'vertical'
         size_hint: None, None
         height: self.minimum_height
         width: root.width - root.bar_width
-        default_size: None, None
         default_size_hint: 1, None
-        spacing: '2dp'
+        default_size: None, None
+
+<SideBarViewClass>:
+    canvas.after:
+        Color:
+            rgba: (0.6, 1, 0.6, 0.4) if self.selected else (1, 0, 0, 0)
+        Rectangle:
+            pos: self.pos
+            size: self.size
 '''
 
 class SideBarViewClass(RecycleDataViewBehavior, ButtonBehavior, StackLayout):
@@ -57,6 +68,10 @@ class SideBarViewClass(RecycleDataViewBehavior, ButtonBehavior, StackLayout):
     fsize = NumericProperty(int(dp(16)))
     wtype = StringProperty()
     children_initialised = False
+    selected = BooleanProperty(False)
+    selectable = BooleanProperty(False)
+    selected_last = BooleanProperty(False)
+
     def __init__(self, **kwargs):
         super(SideBarViewClass, self).__init__(**kwargs)
         size_hint_y = None
@@ -65,14 +80,20 @@ class SideBarViewClass(RecycleDataViewBehavior, ButtonBehavior, StackLayout):
         if self.wtype == 'text':
             self.lbl = rvLabelButton(text=self.text)
             self.add_widget(self.lbl)
+            self.selectable = True
             # self.lbl.bind(on_touch_down=self.try_pressing)
         elif self.wtype == 'section':
             self.lbl = rvSection(text=self.text)
             self.add_widget(self.lbl)
+            self.selectable = False
         elif self.wtype == 'separator':
             self.lbl = Label(text=self.text, size_hint=(1, None), height=cm(1))
             self.add_widget(self.lbl)
+            self.selectable = False
         setattr(self, 'height', self.lbl.height)
+
+    def apply_selection(self, value):
+        self.selected = value
 
     def on_text(self, *args):
         if self.children_initialised:
@@ -87,6 +108,7 @@ class SideBarViewClass(RecycleDataViewBehavior, ButtonBehavior, StackLayout):
             self.lbl.on_touch_move(*args)
 
     def refresh_view_attrs(self, rv, index, data):
+        self.index = index
         try:
             replace = False
             if self.wtype != data['wtype']:
@@ -106,9 +128,6 @@ class SideBarViewClass(RecycleDataViewBehavior, ButtonBehavior, StackLayout):
             super(SideBarViewClass, self).refresh_view_attrs(rv, index, data)
         except Exception as e:
             traceback.print_exc()
-
-    def apply_selection(self, rv, index, is_selected):
-        pass
 
     def do_func(self):
         self.func()
@@ -138,8 +157,9 @@ class SideBarViewClass(RecycleDataViewBehavior, ButtonBehavior, StackLayout):
                 return True
 
 
-class SideBarRecycleView(RecycleView):
+class SideBarRecycleView(FocusBehaviorCanvasKB, AppRecycleView):
     selected_child_sb = None
+
     def __init__(self, **kwargs):
         super(SideBarRecycleView, self).__init__(**kwargs)
         Clock.schedule_once(self.init_hovercolor, 0)
@@ -150,6 +170,16 @@ class SideBarRecycleView(RecycleView):
                 if x.text == 'Main':
                     x.try_pressing()
         # Clock.schedule_once(on_next_frame, 0)
+
+    def on_key_down(self, key, *args):
+        if key == kb.DOWN:
+            self.kb_hover = 1
+        elif key == kb.UP:
+            self.kb_hover = 0
+
+
+class SelectableRecycleBox(AppRecycleBox):
+    pass
 
 
 Builder.load_string(kv)

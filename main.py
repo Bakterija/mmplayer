@@ -24,6 +24,7 @@ from app_modules.media_controller.media_playlist_view import MediaPlaylistView
 from app_modules.media_controller.media_queue_view import MediaQueueView
 from app_configs import AppConfigHandler
 from kivy.config import Config as KivyConfig
+from app_modules.behaviors.focus import focus
 import traceback
 import sys
 
@@ -143,6 +144,7 @@ class JotubeApp(App):
 
     def build(self):
         self.root_widget = Jotube()
+        self.icon = 'data/icon.png'
         return self.root_widget
 
     def on_start(self):
@@ -153,6 +155,12 @@ class JotubeApp(App):
 
     def on_resume(self):
         pass
+
+    def kb_esc(self):
+        if focus.focusable_widgets and focus.current_focus:
+            focus.remove_focus()
+        else:
+            self.stop()
 
     def on_stop(self):
         settings = {'volume': str(self.root_widget.mPlayer.volume)}

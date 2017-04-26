@@ -1,7 +1,7 @@
-from app_modules.key_binder import key_binder as kbinder
+from app_modules.behaviors.focus import focus as focus_behavior
+from app_modules import key_binder as kbinder
 from .config_base import ConfigBase
 from kivy.app import App
-
 
 class Config(ConfigBase):
 
@@ -12,9 +12,10 @@ class Config(ConfigBase):
     @staticmethod
     def load_after(root):
         app = App.get_running_app()
-        kbinder.add(
-            'glb_escape', 27, 'down',
-            app.stop, category='globhandler')
+        # kbinder.log_keys = True
+
+        kbinder.add('quit', 27, 'down', app.kb_esc)
+        kbinder.add('focus_next', 9, 'down', focus_behavior.focus_next)
 
         kbinder.add(
             'vol_increase', '273', 'down',
