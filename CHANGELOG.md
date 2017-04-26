@@ -1,4 +1,11 @@
-## Beta 9 - 2016-jan-19
+## Beta 10 - 2017-jan-30
+
+### Other
+ - Removed old and unused service from App initialisation
+
+
+
+## Beta 9 - 2017-jan-19
 
 ### Added
  - New Terminal widget with text input field, openable with tilde key, can play source with "play {path}" or switch screen with "screen {screen name}"
@@ -19,7 +26,7 @@
 
 
 
-## Beta 8.1 - 2016-jan-16
+## Beta 8.1 - 2017-jan-16
 
 ### Fixed
  - AudioPlayer length shouldn't be set to 0 anymore while playing
@@ -27,7 +34,7 @@
 
 
 
-## Beta 8 - 2016-jan-16
+## Beta 8 - 2017-jan-16
 
 ### Added
  - Volume is saved between sessions
@@ -53,7 +60,7 @@
 
 
 
-## Beta 7.1 - 2016-jan-15
+## Beta 7.1 - 2017-jan-15
 
 ### Changed
  - Sped up animations in video screen 2 times
@@ -68,7 +75,7 @@
 
 
 
-## Beta 7 - 2016-jan-15
+## Beta 7 - 2017-jan-15
 
 ### Fixed
  - Audio Player pauses media properly instead of switching to next file

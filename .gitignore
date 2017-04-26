@@ -96,3 +96,5 @@ bin/
 *.sh
 *.spec
 *.json
+
+settings.ini
