@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Version: Beta 9
+# Version: Beta 11
 from __future__ import print_function
+from kivy.config import Config
+Config.set('kivy', 'exit_on_escape', 0)
 from kivy.logger import Logger, LoggerHistory
 from kivy.compat import PY2
-if not PY2:
-    Logger.error('App: Python3 is not supported yet, exiting')
-    quit()
 from kivy import require as kivy_require
 kivy_require('1.9.2')
 from kivy.app import App
@@ -156,7 +155,7 @@ class JotubeApp(App):
         pass
 
     def on_stop(self):
-        settings = {'volume': self.root_widget.mPlayer.volume}
+        settings = {'volume': str(self.root_widget.mPlayer.volume)}
         self.root_widget.app_configurator.load_with_args(
             'user_settings', 'save', settings)
 

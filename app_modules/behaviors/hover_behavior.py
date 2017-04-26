@@ -11,13 +11,13 @@ class HoverBehavior(Widget):
         super(HoverBehavior, self).__init__(**kwargs)
         Window.bind(mouse_pos=self.on_mouse_move)
 
-    def on_mouse_move(self, win, (posx, posy)):
+    def on_mouse_move(self, win, pos):
         if self.hovering == False:
-            if self.collide_point_window(posx, posy):
+            if self.collide_point_window(*pos):
                 self.hovering = True
                 self.on_enter()
         else:
-            if self.collide_point_window(posx, posy) == False:
+            if self.collide_point_window(*pos) == False:
                 self.hovering = False
                 self.on_leave()
 

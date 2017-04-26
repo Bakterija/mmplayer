@@ -1,3 +1,10 @@
+## Beta 11 - 2017-apr-26
+
+### Other
+ - Added python3 compatability
+
+
+
 ## Beta 10 - 2017-jan-30
 
 ### Other

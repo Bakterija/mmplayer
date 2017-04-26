@@ -104,8 +104,8 @@ class SliderProgressBar(ProgressBar):
             self.circle_size, self.circle_size))
         self.add_widget(self.circle)
 
-    def on_mouse_move(self, win, (posx, posy)):
-        if self.collide_point_window(posx, posy) or self.seeking_touch:
+    def on_mouse_move(self, win, pos):
+        if self.collide_point_window(*pos) or self.seeking_touch:
             if self.max == 0 or self.value == 0:
                 self.circle.pos = (self.x, self.y + self.height/2 - (
                     self.circle_size / 2))

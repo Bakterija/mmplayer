@@ -1,4 +1,4 @@
-from config_base import ConfigBase
+from .config_base import ConfigBase
 from kivy.utils import platform
 import os
 

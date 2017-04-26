@@ -1,6 +1,6 @@
 from __future__ import print_function
-from media_player import Media_Player
-from media_player import Playlist
+from .media_player import Media_Player
+from .media_player import Playlist
 from kivy.clock import Clock
 from time import sleep
 import traceback

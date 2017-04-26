@@ -11,7 +11,7 @@ from kivy.clock import Clock
 from kivy.metrics import cm
 
 def get_dict_item(dictio,item,default):
-    for k, v in dictio.iteritems():
+    for k, v in dictio.items():
         if k == item:
             return v
     return default

@@ -1,3 +1,4 @@
+from kivy.compat import PY2
 from sys import path
 from kivy.utils import platform
 import json
@@ -101,14 +102,18 @@ def get_playlists(sort='abc', platform_defaults=True):
         })
     return [places, playlists]
 
+def py2decode(string):
+    if PY2:
+        string = string.decode('utf-8')
+    return string
 
 def get_files(path, sort='abc'):
     templist = []
     for dirname, dirnames, filenames in os.walk(path):
         for filename in filenames:
             templist.append([
-                filename.decode('utf-8'),
-                os.path.join(dirname, filename).decode('utf-8')
+                py2decode(filename),
+                py2decode(os.path.join(dirname, filename))
                 ])
     if sort == 'abc':
         templist.sort()

@@ -1,5 +1,5 @@
-from media_view_base import MediaButton
-from media_view_base import MediaRecycleviewBase
+from .media_view_base import MediaButton
+from .media_view_base import MediaRecycleviewBase
 
 
 class PlaylistViewClass(MediaButton):

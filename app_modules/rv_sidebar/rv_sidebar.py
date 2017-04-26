@@ -14,7 +14,7 @@ from kivy.uix.recycleview.layout import LayoutSelectionBehavior
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from kivy.uix.behaviors import ButtonBehavior
-from pc_sidebar_widgets import rvLabelButton, rvSection
+from .pc_sidebar_widgets import rvLabelButton, rvSection
 from kivy.clock import Clock
 from kivy.core.window import Window
 import traceback

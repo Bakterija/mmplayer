@@ -2,8 +2,8 @@ from __future__ import print_function
 from kivy.clock import Clock
 from kivy.logger import Logger
 from time import sleep
-from providers import provider_list as providers
-from providers.error_player import ErrorPlayer
+from .providers import provider_list as providers
+from .providers.error_player import ErrorPlayer
 from kivy.utils import platform
 import traceback
 
@@ -46,13 +46,13 @@ class Playlist(object):
 
     def add(self, name, path, **kwargs):
         appending = {'name': name, 'path': path}
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             self.appending['key'] = value
         self.list.append(appending)
 
     def insert(self, index, name, path, **kwargs):
         appending = {'name': name, 'path': path}
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             self.appending['key'] = value
         self.list.insert(index, appending)
 

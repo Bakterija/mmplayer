@@ -1,6 +1,7 @@
 from __future__ import print_function
 from kivy.uix.video import Video as Video
 from kivy.properties import NumericProperty
+from kivy.compat import PY2
 
 
 class AppVideoPlayer(Video):
@@ -17,7 +18,7 @@ class AppVideoPlayer(Video):
         self.bind(on_stop = mplayer.on_stop)
 
     def load(self, path):
-        if type(path) == unicode:
+        if PY2 and type(path) == unicode:
             path = path.encode('utf-8')
         self.source = path
         self.state = 'play'

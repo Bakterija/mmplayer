@@ -67,7 +67,7 @@ class TerminalView(Label):
         self.on_size(self, self.size)
 
     def refresh_view_attrs(self, terminal, index, data):
-        for k, v in data.iteritems():
+        for k, v in data.items():
             setattr(self, k, v)
 
 

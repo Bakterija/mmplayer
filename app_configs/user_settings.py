@@ -1,7 +1,11 @@
-from config_base import ConfigBase
-import ConfigParser as configparser
+from .config_base import ConfigBase
 from kivy.utils import platform
 from kivy.logger import Logger
+from kivy.compat import PY2
+if PY2:
+    import ConfigParser as configparser
+else:
+    import configparser as configparser
 
 
 class Config(ConfigBase):
@@ -29,13 +33,20 @@ class Config(ConfigBase):
         self.load_configs(root)
 
     def load_configs(self, root):
-        for key, value in self.config.items('MAIN'):
-            self.loader_switch[key](value)
+        try:
+            for key, value in self.config.items('MAIN'):
+                self.loader_switch[key](value)
+        except configparser.NoSectionError:
+            return
 
     def load_with_args(self, *args, **kwargs):
         if args[0] == 'save':
-            for key, value in args[1].iteritems():
-                self.config.set('MAIN', key, value)
+            try:
+                for key, value in args[1].items():
+                    self.config.set('MAIN', key, value)
+            except configparser.NoSectionError:
+                self.config.add_section('MAIN')
+                self.load_with_args(*args)
 
-            with open(self.confpath, 'wb') as configfile:
+            with open(self.confpath, 'w') as configfile:
                 self.config.write(configfile)

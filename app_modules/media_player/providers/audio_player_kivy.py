@@ -1,6 +1,7 @@
 from kivy.core.audio import SoundLoader
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty
 from kivy.event import EventDispatcher
+from kivy.compat import PY2
 
 
 class AudioPlayer(EventDispatcher):
@@ -56,7 +57,7 @@ class AudioPlayer(EventDispatcher):
         return self.sound.get_pos()
 
     def load(self, path):
-        if type(path) == unicode:
+        if PY2 and type(path) == unicode:
             path = path.encode('utf-8')
         self.sound = SoundLoader.load(path)
         self.sound.bind(on_stop= self.on_stop)
