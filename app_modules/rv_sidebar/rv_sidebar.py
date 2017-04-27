@@ -53,7 +53,7 @@ kv = '''
 '''
 
 class SideBarViewClass(RecycleDataViewBehavior, ButtonBehavior, StackLayout):
-    index = None  # stores our index
+    index = None
     text = StringProperty()
     func = None
     func2 = None
@@ -184,6 +184,7 @@ class SideBarRecycleView(FocusBehaviorCanvas, AppRecycleView):
     def on_kbhover_index(self, _, new_index):
         for x in self.children[0].children:
             x.update_kbhover(new_index)
+        self.scroll_to_index(new_index)
 
     def on_selected_index(self, _, new_index):
         for x in self.children[0].children:

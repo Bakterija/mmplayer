@@ -1,4 +1,9 @@
 from .config_base import ConfigBase
+from kivy.metrics import cm
+
+WIDTH_SECTION = cm(0.6)
+WIDTH_SEPARATOR = cm(0.8)
+WIDTH_TEXT = cm(0.8)
 
 
 class Config(ConfigBase):
@@ -7,7 +12,7 @@ class Config(ConfigBase):
 
     def set_defaults(self, root):
         self.default_list = [
-            {'text': 'SCREENS', 'wtype': 'section'},
+            self.get_section('SCREENS'),
             self.get_button(
                 'Main', lambda: root.switch_screen('media'), None),
             self.get_button(
@@ -16,7 +21,7 @@ class Config(ConfigBase):
                 'Video', lambda: root.switch_screen('video'), None),
             self.get_button(
                 'Browser', lambda: root.switch_screen('browser'), None),
-            {'text': '', 'wtype': 'separator'}
+            self.get_separator()
         ]
 
     def load_before(self, root_widget):
@@ -29,22 +34,25 @@ class Config(ConfigBase):
     def get_button(self, name, left_click, right_click):
         return {
             'text': name, 'wtype': 'text', 'can_select': True,
-            'func': left_click, 'func2': right_click
+            'func': left_click, 'func2': right_click, 'height': WIDTH_TEXT
         }
 
+    def get_section(self, name):
+        return {'text': name, 'wtype': 'section', 'height': WIDTH_SECTION}
+
+    def get_separator(self):
+        return {'text': '', 'wtype': 'separator', 'height': WIDTH_SEPARATOR}
+
     def get_playlist_button(self, item):
-        return {
-            'text': item['name'],
-            'wtype': 'text',
-            'can_select': True,
-            'func': lambda item=item: {
+        return self.get_button(
+            item['name'],
+            lambda item=item: {
                 self.root.media_control.open_playlist(item),
                 self.root.switch_screen("media")
             },
-            'func2': lambda item=item: {
+            lambda item=item: {
                 self.root.media_control.playlist_cmenu_popup(item)
-            }
-        }
+            })
 
     def load_with_args(self, *args, **kwargs):
         mgui_widget = args[0]
@@ -52,7 +60,7 @@ class Config(ConfigBase):
 
         new_list = self.default_list
 
-        new_list.append({'text': 'PLACES', 'wtype': 'section'})
+        new_list.append(self.get_section('PLACES'))
         nm = 'places'
 
         for section in iter(playlists):
@@ -63,14 +71,12 @@ class Config(ConfigBase):
                     new_list.append(self.get_playlist_button(item))
                 else:
                     nm = item['section']
-                    new_list.append(
-                        {'text': '', 'wtype': 'separator'})
+                    new_list.append(self.get_separator())
 
-                    new_list.append(
-                        {'text': item['section'].upper(), 'wtype': 'section'})
+                    new_list.append(self.get_section(item['section'].upper()))
 
                     new_list.append(self.get_playlist_button(item))
 
-        new_list.append({'text': '', 'wtype': 'separator'})
+        new_list.append(self.get_separator())
 
         self.root.sidebar_items = new_list

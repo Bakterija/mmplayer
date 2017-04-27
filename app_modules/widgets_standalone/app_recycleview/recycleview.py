@@ -13,20 +13,25 @@ class AppRecycleView(RecycleView):
         self.data = value
 
     def page_down(self):
-        scroll = self.convert_distance_to_scroll(0, self.height)[1] * 0.9
+        scroll = RecycleView.convert_distance_to_scroll(
+            self, 0, self.height)[1] * 0.9
         self.scroll_y = max(self.scroll_y - scroll, 0.0)
         self._update_effect_bounds()
 
     def page_up(self):
-        scroll = self.convert_distance_to_scroll(0, self.height)[1] * 0.9
+        scroll = RecycleView.convert_distance_to_scroll(
+            self, 0, self.height)[1] * 0.9
         self.scroll_y = min(self.scroll_y + scroll, 1.0)
         self._update_effect_bounds()
 
     def scroll_to_index(self, index):
         box = self.children[0]
-        if not box.default_size[1]:
-            return
-        pos_index = (box.default_size[1] + box.spacing) * index
+        if box.default_size[1]:
+            pos_index = (box.default_size[1] + box.spacing) * index
+        else:
+            pos_index = 0
+            for x in self.data[:index]:
+                pos_index += x['height'] + box.spacing
         scroll = self.convert_distance_to_scroll(
             0, pos_index - (self.height * 0.5))[1]
         if scroll > 1.0:
@@ -37,12 +42,18 @@ class AppRecycleView(RecycleView):
 
     def convert_distance_to_scroll(self, dx, dy):
         box = self.children[0]
-        wheight = box.default_size[1] + box.spacing
+        if box.default_size[1]:
+            wheight = box.default_size[1] + box.spacing
+            vp_height = len(self.data) * wheight
+        else:
+            vp_height = 0
+            for x in self.data:
+                vp_height += x['height']
 
         if not self._viewport:
             return 0, 0
         vp = self._viewport
-        vp_height = len(self.data) * wheight
+
         if vp.width > self.width:
             sw = vp.width - self.width
             sx = dx / float(sw)
