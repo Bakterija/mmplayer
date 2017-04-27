@@ -10,7 +10,6 @@
 #: import ContextMenu app_modules.other.garden_contextmenu.ContextMenu
 #: import ContextMenuTextItem app_modules.other.garden_contextmenu.ContextMenuTextItem
 #: import TerminalWidget app_modules.widgets_standalone.terminal_widget.TerminalWidget
-#: include app_modules/layouts/globals.kv
 
 <LabelButton>:
     size_hint: 1, None
@@ -25,7 +24,6 @@
 
 <Jotube>:
     side_bar_width: cm(4)
-    side_bar_color: [0.1, 0.1, 0.1]
     upper_bar_height: int(cm(1))
     lower_bar_height: int(cm(1.5))
     lower_bar_offset_y: 0
@@ -54,7 +52,7 @@
         resizable_border_offset: dp(10)
         canvas.before:
             Color:
-                rgb: root.side_bar_color
+                rgb: side_bar_color
             Rectangle:
                 size: self.size
                 pos: self.pos
@@ -84,7 +82,7 @@
         pos: 0, root.height - root.upper_bar_height + root.upper_bar_offset_y
         canvas:
             Color:
-                rgb: root.side_bar_color
+                rgb: side_bar_color
             Rectangle:
                 size: self.size
                 pos: self.pos

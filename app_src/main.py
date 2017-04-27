@@ -10,6 +10,7 @@ try:
     sys.path.append(dirname(__file__))
 except:
     pass
+import global_vars
 from time import time
 from kivy.config import Config
 Config.set('kivy', 'exit_on_escape', 0)

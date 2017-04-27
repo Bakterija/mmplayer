@@ -26,6 +26,8 @@ def __set_app_globals__():
     logview_height = int(cm(2.2))
     scrollview_bar_width = int(cm(0.6))
 
+    side_bar_color = (0.1, 0.1, 0.1, 1)
+
     globals().update(locals())
     for attr, value in locals().items():
         Builder.load_string('#: set %s %s' % (attr, value))
