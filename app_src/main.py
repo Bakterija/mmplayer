@@ -2,6 +2,14 @@
 # -*- coding: utf-8 -*-
 # Version: Beta 11
 from __future__ import print_function
+from os import chdir
+from os.path import dirname
+import sys
+try:
+    chdir(dirname(__file__))
+    sys.path.append(dirname(__file__))
+except:
+    pass
 from time import time
 from kivy.config import Config
 Config.set('kivy', 'exit_on_escape', 0)
@@ -169,7 +177,7 @@ class JotubeApp(App):
             'user_settings', 'save', settings)
 
 
-if __name__ == "__main__":
+def main_loop():
     try:
         Builder.load_file('app_modules/layouts/pc_layout.kv')
         Builder.load_file('app_modules/layouts/screen_manager.kv')
@@ -177,3 +185,6 @@ if __name__ == "__main__":
         app.run()
     except Exception as e:
         traceback.print_exc()
+
+if __name__ == "__main__":
+    main_loop()

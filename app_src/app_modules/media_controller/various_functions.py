@@ -9,7 +9,7 @@ ignored_dirs = []
 home_dir = os.path.expanduser("~")+'/'
 platformfolders = {}
 if platform == 'android':
-    audio_path = '/storage/emulated/0/github_bakterija/jotube/audio/'
+    AUDIO_PATH = '/storage/emulated/0/github_bakterija/jotube/audio/'
     syspath = path[4]
     platformfolders = [
         ['Movies', '/storage/emulated/0/Movies'],
@@ -17,7 +17,7 @@ if platform == 'android':
 else:
     syspath = path[0]
     if platform in ('linux', 'win'):
-        audio_path = syspath+'/media/'
+        AUDIO_PATH = 'media/'
         platformfolders = [
             ['Downloads', home_dir+'Downloads/'],
             ['Music', home_dir+'Music/'],
@@ -36,7 +36,7 @@ def save_json(path, dictio):
 
 
 def save_playlists(dictio):
-    save_json('%splaylist.json' % (audio_path), dictio)
+    save_json('%splaylist.json' % (AUDIO_PATH), dictio)
 
 
 def save_playlist(path, dictio):
@@ -53,7 +53,7 @@ def save_playlist(path, dictio):
 
 def create_playlist(name):
     dictio = {'items':[]}
-    save_json('%s/playlists/%s.json' % (audio_path, name), dictio)
+    save_json('%s/playlists/%s.json' % (AUDIO_PATH, name), dictio)
 
 
 def remove_playlist(name, path, section):
@@ -90,7 +90,7 @@ def get_playlists(sort='abc', platform_defaults=True):
                     'method':'folder_loader',
                     'section':'places'
                 })
-    for name, path in get_files(audio_path+'/playlists/', sort):
+    for name, path in get_files(AUDIO_PATH+'/playlists/', sort):
         if name[-5:] == '.json':
             name = name[:-5]
         playlists.append({

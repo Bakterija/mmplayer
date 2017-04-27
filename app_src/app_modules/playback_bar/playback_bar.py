@@ -99,7 +99,7 @@ class SliderProgressBar(ProgressBar):
         Clock.schedule_once(self.after_init, 0)
 
     def after_init(self, *args):
-        circlesource = path[0]+'/app_modules/playback_bar/circle.png'
+        circlesource = 'data/circle.png'
         self.circle = Image(source=circlesource, pos=(-999,-999), size=(
             self.circle_size, self.circle_size))
         self.add_widget(self.circle)
