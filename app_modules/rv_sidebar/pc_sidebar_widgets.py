@@ -9,16 +9,19 @@ from kivy.properties import BooleanProperty, NumericProperty
 
 kv22 = """
 <rvLabelButton>:
-    hovercolors: [1, 1, 1, 0], [0.5, 0.2, 0.2, 1], [0.6, 1, 0.6, 0.3], [0.7, 0.2, 0.2, 1]
+    col_canvas_default: [1, 1, 1, 0]
+    col_canvas_hover: [0.5, 0.2, 0.2, 1]
+    col_canvas_selected: [0.6, 1, 0.6, 0.3]
+    col_canvas_hover_selected: [0.7, 0.2, 0.2, 1]
     text_size: self.size
     height: cm(0.8)
     font_size: dp(16)
     canvas.before:
         Color:
-            rgba: self.hovercolors[self.hovering]
+            rgba: self.background_color
         Rectangle:
             pos: self.pos
-            size: self.width*1, self.height
+            size: self.width, self.height
 
 <rvSection>:
     height: cm(0.6)
@@ -41,29 +44,42 @@ def default_setter(widget):
         setattr(widget, x[0], x[1])
 
 class rvLabelButton(ButtonBehavior, Label):
-    hovering = NumericProperty(0)
-    selected = NumericProperty(0)
+    background_color = ListProperty([0.2, 0.2, 0.2, 1])
+    hovering = BooleanProperty()
+    selected = BooleanProperty()
+
     def __init__(self, **kwargs):
         super(rvLabelButton, self).__init__(**kwargs)
         self.size_hint_y = None
         default_setter(self)
 
+    def on_hovering(self, _, new_hovering):
+        if new_hovering:
+            if self.selected:
+                self.background_color = self.col_canvas_hover_selected
+            else:
+                self.background_color = self.col_canvas_hover
+        elif self.selected:
+            self.background_color = self.col_canvas_selected
+        else:
+            self.background_color = self.col_canvas_default
+
+    def on_selected(self, _, new_selected):
+        if new_selected:
+            if self.hovering:
+                self.background_color = self.col_canvas_hover_selected
+            else:
+                self.background_color = self.col_canvas_selected
+        elif self.hovering:
+            self.background_color = self.col_canvas_hover
+        else:
+            self.background_color = self.col_canvas_default
+
     def on_mouse_move(self, posx, posy):
         if self.collide_point_window(posx, posy):
-            self.hovering = self.selected + 1
+            self.hovering = True
         else:
-            self.hovering = self.selected + 0
-
-    def on_select(self, *args):
-        try:
-            if self.selected:
-                self.selected = 0
-                self.hovering = self.selected + 0
-            else:
-                self.selected = 2
-                self.hovering = self.selected + 1
-        except Exception as e:
-            print(e)
+            self.hovering = False
 
     def collide_point_window(self, x, y):
         sx, sy = self.to_window(self.x, self.y)
@@ -71,7 +87,7 @@ class rvLabelButton(ButtonBehavior, Label):
 
 
 class rvSection(ButtonBehavior, Label):
-    background_color = ListProperty([1,1,1])
+
     def __init__(self, **kwargs):
         super(rvSection, self).__init__(**kwargs)
         self.size_hint_y = None

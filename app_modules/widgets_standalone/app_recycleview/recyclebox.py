@@ -11,14 +11,14 @@ class AppRecycleBox(RecycleBoxLayout):
 
     def __init__(self, **kwargs):
         super(AppRecycleBox, self).__init__(**kwargs)
-        key_binder.add('arrow_up', 273, 'down', self.on_arrow_up)
-        key_binder.add('arrow_down', 274, 'down', self.on_arrow_down)
-        key_binder.add(
-            'select_all', 97, 'down', self.select_all, modifier=['ctrl'])
-        key_binder.add(
-            'deselect_all', 32, 'down', self.deselect_all, modifier=['ctrl'])
-        key_binder.add(
-            'context_menu', 1073741942, 'down', self.open_context_menu)
+        # key_binder.add('arrow_up', 273, 'down', self.on_arrow_up)
+        # key_binder.add('arrow_down', 274, 'down', self.on_arrow_down)
+        # key_binder.add(
+        #     'select_all', 97, 'down', self.select_all, modifier=['ctrl'])
+        # key_binder.add(
+        #     'deselect_all', 32, 'down', self.deselect_all, modifier=['ctrl'])
+        # key_binder.add(
+        #     'context_menu', 1073741942, 'down', self.open_context_menu)
         self.selected_widgets = set()
 
     def on_data_update_sel(self, len_old, len_new):

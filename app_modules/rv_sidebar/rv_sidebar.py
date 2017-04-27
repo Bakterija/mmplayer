@@ -14,6 +14,7 @@ from kivy.uix.recycleview.layout import LayoutSelectionBehavior
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from app_modules.behaviors.focus import FocusBehaviorCanvasKB
+from app_modules.behaviors.focus import FocusBehaviorCanvas
 from app_modules.widgets_standalone.app_recycleview import (
     AppRecycleBox, AppRecycleView)
 from kivy.uix.behaviors import ButtonBehavior
@@ -49,28 +50,16 @@ kv = '''
         width: root.width - root.bar_width
         default_size_hint: 1, None
         default_size: None, None
-
-<SideBarViewClass>:
-    canvas.after:
-        Color:
-            rgba: (0.6, 1, 0.6, 0.4) if self.selected else (1, 0, 0, 0)
-        Rectangle:
-            pos: self.pos
-            size: self.size
 '''
 
 class SideBarViewClass(RecycleDataViewBehavior, ButtonBehavior, StackLayout):
     index = None  # stores our index
-    bg_colors = DictProperty()
     text = StringProperty()
     func = None
     func2 = None
     fsize = NumericProperty(int(dp(16)))
     wtype = StringProperty()
     children_initialised = False
-    selected = BooleanProperty(False)
-    selectable = BooleanProperty(False)
-    selected_last = BooleanProperty(False)
 
     def __init__(self, **kwargs):
         super(SideBarViewClass, self).__init__(**kwargs)
@@ -80,20 +69,25 @@ class SideBarViewClass(RecycleDataViewBehavior, ButtonBehavior, StackLayout):
         if self.wtype == 'text':
             self.lbl = rvLabelButton(text=self.text)
             self.add_widget(self.lbl)
-            self.selectable = True
-            # self.lbl.bind(on_touch_down=self.try_pressing)
         elif self.wtype == 'section':
             self.lbl = rvSection(text=self.text)
             self.add_widget(self.lbl)
-            self.selectable = False
         elif self.wtype == 'separator':
             self.lbl = Label(text=self.text, size_hint=(1, None), height=cm(1))
             self.add_widget(self.lbl)
-            self.selectable = False
         setattr(self, 'height', self.lbl.height)
 
-    def apply_selection(self, value):
-        self.selected = value
+    def update_kbhover(self, new_index):
+        if self.index == new_index:
+            self.lbl.hovering = True
+        else:
+            self.lbl.hovering = False
+
+    def update_selection(self, new_index):
+        if self.index == new_index:
+            self.lbl.selected = True
+        else:
+            self.lbl.selected = False
 
     def on_text(self, *args):
         if self.children_initialised:
@@ -115,16 +109,17 @@ class SideBarViewClass(RecycleDataViewBehavior, ButtonBehavior, StackLayout):
                 replace = True
             for x in data:
                 setattr(self, x, data[x])
-            if self.children_initialised == False:
+            if not self.children_initialised:
                 self.init_children()
                 self.rv = rv
                 self.bind(text=self.on_text)
                 Window.bind(mouse_pos=self.on_mouse_move)
-                # Window.bind(on_touch_move=self.on_touch_move)
                 self.children_initialised = True
             elif replace == True:
                 self.remove_widget(self.lbl)
                 self.init_children()
+            self.update_kbhover(rv.kbhover_index)
+            self.update_selection(rv.selected_index)
             super(SideBarViewClass, self).refresh_view_attrs(rv, index, data)
         except Exception as e:
             traceback.print_exc()
@@ -132,10 +127,8 @@ class SideBarViewClass(RecycleDataViewBehavior, ButtonBehavior, StackLayout):
     def do_func(self):
         self.func()
         if self.can_select:
-            if self.rv.selected_child_sb:
-                self.rv.selected_child_sb.on_select()
-            self.rv.selected_child_sb = self.lbl
-            self.lbl.on_select()
+            self.rv.selected_index = self.index
+            self.lbl.selected = True
 
     def on_left_click(self):
         self.do_func()
@@ -157,28 +150,52 @@ class SideBarViewClass(RecycleDataViewBehavior, ButtonBehavior, StackLayout):
                 return True
 
 
-class SideBarRecycleView(FocusBehaviorCanvasKB, AppRecycleView):
-    selected_child_sb = None
+class SideBarRecycleView(FocusBehaviorCanvas, AppRecycleView):
+    kbhover_index = NumericProperty()
+    selected_index = NumericProperty()
 
     def __init__(self, **kwargs):
         super(SideBarRecycleView, self).__init__(**kwargs)
-        Clock.schedule_once(self.init_hovercolor, 0)
-
-    def init_hovercolor(self, *args):
-        def on_next_frame(*args):
-            for x in self.children[0].children:
-                if x.text == 'Main':
-                    x.try_pressing()
-        # Clock.schedule_once(on_next_frame, 0)
+        self.kb_switch = {
+            kb.DOWN: self.set_kbhover_next,
+            kb.UP: self.set_kbhover_previous,
+            kb.RETURN: self.kb_func_visible_hover,
+            kb.PAGE_UP: self.page_up,
+            kb.PAGE_DOWN: self.page_down,
+        }
 
     def on_key_down(self, key, *args):
-        if key == kb.DOWN:
-            self.kb_hover = 1
-        elif key == kb.UP:
-            self.kb_hover = 0
+        if key in self.kb_switch:
+            self.kb_switch[key]()
+
+    def set_kbhover_previous(self):
+        for i in reversed(range(self.kbhover_index)):
+            if self.data[i]['wtype'] == 'text':
+                self.kbhover_index = i
+                break
+
+    def set_kbhover_next(self):
+        len_data = len(self.data)
+        for i in range(self.kbhover_index + 1, len_data):
+            if self.data[i]['wtype'] == 'text':
+                self.kbhover_index = i
+                break
+
+    def on_kbhover_index(self, _, new_index):
+        for x in self.children[0].children:
+            x.update_kbhover(new_index)
+
+    def on_selected_index(self, _, new_index):
+        for x in self.children[0].children:
+            x.update_selection(new_index)
+
+    def kb_func_visible_hover(self):
+        for x in self.children[0].children:
+            if x.index == self.kbhover_index:
+                x.do_func()
 
 
-class SelectableRecycleBox(AppRecycleBox):
+class SelectableRecycleBox(RecycleBoxLayout):
     pass
 
 

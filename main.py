@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # Version: Beta 11
 from __future__ import print_function
+from time import time
 from kivy.config import Config
 Config.set('kivy', 'exit_on_escape', 0)
 from kivy.logger import Logger, LoggerHistory

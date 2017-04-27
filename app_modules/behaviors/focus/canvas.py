@@ -14,7 +14,7 @@ class FocusBehaviorCanvasKB(FocusBehavior):
 
 Builder.load_string('''
 <FocusBehaviorCanvas>:
-    canvas.before:
+    canvas.after:
         Color:
             rgba: self.border_color if self.focus else [0, 0, 0, 0]
         Line:
