@@ -27,23 +27,8 @@ import traceback
 
 kv = '''
 <SideBarRecycleView>:
-    id: rv
-    size_hint: 1, None
-    height: self.parent.height
-    scroll_type: ['bars', 'content']
-    scroll_wheel_distance: dp(114)
-    bar_width: dp(10)
     viewclass: 'SideBarViewClass'
-    bar_color: .4, .4, .4, 1
-    bar_inactive_color: .4, .4, .4, .7
-    canvas.before:
-        Color:
-            rgb: 0.1, 0.1, 0.1
-        Rectangle:
-            pos: self.pos
-            size: self.size
     SelectableRecycleBox:
-        id: rv_box
         orientation: 'vertical'
         size_hint: None, None
         height: self.minimum_height
@@ -73,7 +58,7 @@ class SideBarViewClass(RecycleDataViewBehavior, ButtonBehavior, StackLayout):
             self.lbl = rvSection(text=self.text)
             self.add_widget(self.lbl)
         elif self.wtype == 'separator':
-            self.lbl = Label(text=self.text, size_hint=(1, None), height=cm(1))
+            self.lbl = Label(text=self.text)
             self.add_widget(self.lbl)
         setattr(self, 'height', self.lbl.height)
 
@@ -96,10 +81,6 @@ class SideBarViewClass(RecycleDataViewBehavior, ButtonBehavior, StackLayout):
     def on_mouse_move(self, win, pos):
         if self.wtype == 'text':
             self.lbl.on_mouse_move(int(pos[0]), int(pos[1]))
-
-    def on_touch_move(self, *args):
-        if self.wtype == 'text':
-            self.lbl.on_touch_move(*args)
 
     def refresh_view_attrs(self, rv, index, data):
         self.index = index
@@ -137,7 +118,7 @@ class SideBarViewClass(RecycleDataViewBehavior, ButtonBehavior, StackLayout):
         if self.func2:
             self.func2()
 
-    def on_touch_up(self, touch):
+    def on_touch_down(self, touch):
         if self.wtype == 'text':
             if self.collide_point(touch.x, touch.y):
                 if touch.device == 'mouse':

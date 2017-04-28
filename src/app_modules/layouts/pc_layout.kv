@@ -11,6 +11,21 @@
 #: import ContextMenuTextItem app_modules.other.garden_contextmenu.ContextMenuTextItem
 #: import TerminalWidget app_modules.widgets_standalone.terminal_widget.TerminalWidget
 
+<ScrollView>:
+    scroll_type: ['bars', 'content']
+    bar_width: scrollbar_width
+    scroll_wheel_distance: scroll_wheel_distance
+    bar_color: scrollbar_color
+    bar_inactive_color: scrollbar_inactive_color
+
+<RecycleView>:
+    canvas.before:
+        Color:
+            rgba: scrollbar_background
+        Rectangle:
+            pos: self.right - scrollbar_width, self.pos[1]
+            size: scrollbar_width, self.height
+
 <LabelButton>:
     size_hint: 1, None
     height: cm(13)
@@ -31,13 +46,18 @@
     upper_bar_offset_y: 0
     sm_area_width: self.width - sidebar.width
     sm_area_height: self.height - self.upper_bar_height - self.lower_bar_height
-    border_color: 0.4, 0.4, 0.4
 
     BoxLayout:
         id: sm_area
         size_hint: None, None
         size: 100, 100
         pos: 100, 100
+        canvas.before:
+            Color:
+                rgba: app_background
+            Rectangle:
+                size: self.size
+                pos: self.pos
 
     ResizableBoxLayout:
         id: sidebar
@@ -57,12 +77,12 @@
                 size: self.size
                 pos: self.pos
         SideBarRecycleView:
-            height: self.parent.height - cm(1)
+            height: self.parent.height - button_height
             data: root.sidebar_items
         Button:
             text: 'Add playlist'
             size_hint_y: None
-            height: cm(1)
+            height: button_height
             text_size: self.width * 0.8, 20
             background_color: 0.6, 0.6, 0.6, 0.7
             on_release: root.mgui_add_playlist()
@@ -90,7 +110,7 @@
     Widget:
         canvas.after:
             Color:
-                rgb: root.border_color
+                rgb: border_color0
             Line:
                 points: upper_bar.pos[0], upper_bar.pos[1], upper_bar.width, upper_bar.pos[1]
             Line:
@@ -100,10 +120,10 @@
 
     SmallVideo:
         id: video_small
-        pos: root.width - self.offset_x, root.lower_bar_height + cm(1)
+        pos: root.width - self.offset_x, root.lower_bar_height + button_height
         size_hint: None, None
         size: root.width * 0.25, root.height * 0.25
-        offset_x_in: self.width + cm(1)
+        offset_x_in: self.width + button_height
         canvas.before:
             Color:
                 rgba: 0.1, 0.1, 0.1, 0.8

@@ -20,6 +20,7 @@ from .fileadder_dialog import FileAdderDialog
 from app_modules.widgets_integrated.section import rvSection
 from . import various_functions as various
 import traceback
+import global_vars as gvars
 
 
 class MediaController(Widget):
@@ -219,11 +220,12 @@ class MediaController(Widget):
             self.create_playlist(inp.text)
             frame.dismiss()
         try:
-            frame = Popup(title='Type playlist name', size_hint=(1,None),height=cm(4),
-                          content=StackLayout(size_hint=(1,1)))
-            inp = TextInput(multiline=False, on_text_validate= validate, size_hint=(1, None), height=cm(1))
-            cancel = Button(text='Cancel', on_press=frame.dismiss, size_hint=(0.5, None), height=cm(1))
-            ok = Button(text='Create', on_press=validate, size_hint=(0.5, None), height=cm(1))
+            frame = Popup(
+                title='Type playlist name', size_hint=(1,None), height=cm(4),
+                content=StackLayout())
+            inp = TextInput(multiline=False, on_text_validate= validate, size_hint=(1, None), height=gvars.button_height)
+            cancel = Button(text='Cancel', on_press=frame.dismiss, size_hint=(0.5, None), height=gvars.button_height)
+            ok = Button(text='Create', on_press=validate, size_hint=(0.5, None), height=gvars.button_height)
             inp.focus = True
             for x in (inp, cancel, ok):
                 frame.content.add_widget(x)
@@ -336,7 +338,7 @@ class MediaController(Widget):
         section = rvSection(text='CMENU')
         remove = Button(
             text='Remove playlist', on_press=lambda x: validate(x),
-            size_hint=(1, None), height=cm(1))
+            size_hint=(1, None), height=gvars.button_height)
         for x in (section, remove):
             frame.add_widget(x)
         frame.bind(on_touch_up=lambda *args: remove_windowpopup())

@@ -12,7 +12,7 @@ kv = '''
 <TerminalWidget>:
     orientation: 'vertical'
     size_hint: None, None
-    input_height: cm(0.8)
+    input_height: int(cm(0.8))
     anim_speed: 0.2
     canvas:
         Color:

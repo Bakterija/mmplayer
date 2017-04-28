@@ -14,7 +14,7 @@ kv22 = """
     col_canvas_selected: [0.6, 1, 0.6, 0.3]
     col_canvas_hover_selected: [0.7, 0.2, 0.2, 1]
     text_size: self.size
-    height: cm(0.8)
+    height: int(cm(0.8))
     font_size: dp(16)
     canvas.before:
         Color:
@@ -24,7 +24,7 @@ kv22 = """
             size: self.width, self.height
 
 <rvSection>:
-    height: cm(0.6)
+    height: int(cm(0.6))
     font_size: dp(14)
     background_color: 0.2, 0.2, 0.2
     text_size: self.size

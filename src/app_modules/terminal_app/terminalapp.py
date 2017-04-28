@@ -59,7 +59,7 @@ kv = '''
         width: self.parent.width
         default_size: None, None
         default_size_hint: 1, None
-        spacing: '2dp'
+        spacing: 1
 '''
 
 class TerminalViewClass(MultiLineLabel):

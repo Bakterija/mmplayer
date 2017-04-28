@@ -26,7 +26,7 @@ kv = '''
         BackgroundLabel:
             id: filecounter
             size_hint_y: None
-            height: cm(0.5)
+            height: button_height05
             background_color: 0.2, 0.2, 0.3, 1
             text: 'Adding files'
 
@@ -43,12 +43,12 @@ kv = '''
 
         Widget:
             size_hint_y: None
-            height: cm(0.5)
+            height: button_height05
 
         Label:
             id: spinlabel
             size_hint: None, None
-            height: cm(1)
+            height: button_height
             width: cm(3)
             text_size: self.size[0], None
             text: 'Select playlist'
@@ -56,13 +56,13 @@ kv = '''
             id: playlist_spinner
             size_hint: None, None
             width: content.width - spinlabel.width
-            height: cm(1)
+            height: button_height
             text: 'Current'
 
         Label:
             id: spinlabel2
             size_hint: None, None
-            height: cm(1)
+            height: button_height
             width: cm(3)
             text_size: self.size[0], None
             text: 'Select index'
@@ -70,23 +70,23 @@ kv = '''
             id: playlist_spinner2
             size_hint: None, None
             width: content.width - spinlabel2.width
-            height: cm(1)
+            height: button_height
             text: 'Next'
             values: 'Beginning', 'Next', 'End'
 
         Widget:
             size_hint_y: None
-            height: cm(0.5)
+            height: button_height05
 
         Button:
             size_hint: 0.5, None
-            height: cm(1)
+            height: button_height
             text: 'Cancel'
             on_release: root.dismiss()
         Button:
             id: addbtn
             size_hint: 0.5, None
-            height: cm(1)
+            height: button_height
             text: 'Add'
 '''
 

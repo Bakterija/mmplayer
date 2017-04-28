@@ -22,11 +22,21 @@ def __set_app_globals__():
     col_black = (0.1, 0.1, 0.1, 1)
     col_red = (0.8, 0.2, 0.2, 1)
 
-    logview_font_size = int(cm(0.4))
-    logview_height = int(cm(2.2))
-    scrollview_bar_width = int(cm(0.6))
+    col_ncolbg = (0.09, 0.09, 0.1, 1)
 
-    side_bar_color = (0.1, 0.1, 0.1, 1)
+    rv_default_height = int(cm(1))
+    scrollbar_width = int(cm(0.6))
+    default_spacing = 1
+    button_height = int(cm(1))
+    button_height05 = int(cm(1) * 0.5)
+    scroll_wheel_distance = (rv_default_height + default_spacing) * 2
+
+    app_background = (0.10, 0.10, 0.10, 1)
+    border_color0 = (0.32, 0.32, 0.32)
+    side_bar_color = app_background
+    scrollbar_color = (0.4, 0.4, 0.4, 1)
+    scrollbar_inactive_color = (.4, .4, .4, .7)
+    scrollbar_background = col_ncolbg
 
     globals().update(locals())
     for attr, value in locals().items():

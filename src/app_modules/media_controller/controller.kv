@@ -25,25 +25,12 @@
 
 
 <MediaRecycleviewBase>:
-    scroll_type: ['bars', 'content']
-    scroll_wheel_distance: dp(114)
-    bar_width: dp(10)
-    bar_color: 0.4, 0.4, 0.4, 1
-    bar_inactive_color: .4, .4, .4, .7
-    bar_background: 0.1, 0.1, 0.1
-    data: []
-    canvas.before:
-        Color:
-            rgb: self.bar_background
-        Rectangle:
-            pos: self.pos[0] + self.width - self.bar_width, self.pos[1]
-            size: self.bar_width, self.height
     RecycleBoxLayout:
         id: rvbox
         orientation: 'vertical'
         size_hint: None, None
         height: self.minimum_height
         width: self.parent.width - self.parent.bar_width
-        default_size: None, cm(1)
+        default_size: None, rv_default_height
         default_size_hint: 1, None
-        spacing: '2dp'
+        spacing: default_spacing
