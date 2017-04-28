@@ -16,6 +16,8 @@ kv22 = """
     text_size: self.size
     height: int(cm(0.8))
     font_size: int(self.height * 0.5)
+    shorten: True
+    shorten_from: 'right'
     canvas.before:
         Color:
             rgba: self.background_color
