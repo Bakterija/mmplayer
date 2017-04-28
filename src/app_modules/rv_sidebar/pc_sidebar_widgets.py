@@ -23,7 +23,7 @@ kv22 = """
             rgba: self.background_color
         Rectangle:
             pos: self.pos
-            size: self.width, self.height
+            size: self.size
 
 <rvSection>:
     height: int(cm(0.6))
