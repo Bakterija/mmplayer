@@ -27,8 +27,7 @@ from kivy.core.window import Window
 from kivy.clock import Clock, mainthread
 from kivy.utils import platform
 from kivy.properties import StringProperty, ListProperty, ObjectProperty
-from app_modules.media_player.media_player_client import \
-Media_Player_Client as Media_Player
+from app_modules.media_player import MediaPlayerClient as Media_Player
 from app_modules.media_controller.controller import MediaController
 from app_modules.media_controller.media_playlist_view import MediaPlaylistView
 from app_modules.media_controller.media_queue_view import MediaQueueView

@@ -1,6 +1,6 @@
 from __future__ import print_function
-from video_player_kivy import VideoPlayer
-from audio_player_kivy import AudioPlayer
+from .video_player_kivy import AppVideoPlayer
+from .audio_player_kivy import AudioPlayer
 from kivy.utils import platform
 import traceback
 if platform == 'android':

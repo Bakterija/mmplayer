@@ -61,7 +61,7 @@ class Playlist(object):
         self.list = []
 
 
-class Media_Player(object):
+class MediaPlayer(object):
     '''The audio/video player class of the application.
     Does not use any kivy GUI widgets on purpose, to make it possible to
     us it inside another GUI, in a terminal or as a service'''

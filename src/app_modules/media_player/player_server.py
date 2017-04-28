@@ -1,14 +1,14 @@
 from __future__ import print_function
-from media_player import Media_Player
+from .providers import default_providers
+from .player import MediaPlayer
 from kivy.utils import platform
 from time import sleep
 import traceback
-import default_providers
 
 
-class Media_Player_Server(Media_Player):
+class MediaPlayerServer(MediaPlayer):
     def __init__(self):
-        super(Media_Player_Server, self).__init__()
+        super(MediaPlayerServer, self).__init__()
         self.osc_sender = None
         self.server_active = True
         self.mstring = 'audioSV:'

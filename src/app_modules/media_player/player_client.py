@@ -1,13 +1,13 @@
 from __future__ import print_function
-from .media_player import Media_Player
-from .media_player import Playlist
+from .player import MediaPlayer
+from .player import Playlist
 from kivy.clock import Clock
 from time import sleep
 import traceback
 
 
-class Playlist_Client(Playlist):
-    '''A playlist which is synchronized with service Media_Player'''
+class PlaylistClient(Playlist):
+    '''A playlist which is synchronized with service MediaPlayer'''
 
     def __init__(self,osc_sender):
         super(Playlist_Client, self).__init__()
@@ -74,9 +74,9 @@ class OSC_Media_Interface(object):
         self.kwargs.update()
 
 
-class Media_Player_Client(Media_Player):
+class MediaPlayerClient(MediaPlayer):
     def __init__(self):
-        super(Media_Player_Client, self).__init__()
+        super(MediaPlayerClient, self).__init__()
         self.osc_sender = None
         self.oscPlayer = False
         # self.add_provider('audio',['Kivy-Server',start_audio_kivy_server])
@@ -109,7 +109,7 @@ class Media_Player_Client(Media_Player):
         try:
             seek = float(seek)
             self.oscPlayer = False
-            playing = super(Media_Player_Client, self).start(place)
+            playing = super(MediaPlayerClient, self).start(place)
             if self.oscPlayer == False:
                 if seek:
                     Clock.schedule_once(lambda x: self.try_seeking(seek), 1)
@@ -143,7 +143,7 @@ class Media_Player_Client(Media_Player):
             self.paused = True
             self.osc_sender(self.mstring+'Pause:')
         else:
-            super(Media_Player_Client, self).pause()
+            super(MediaPlayerClient, self).pause()
 
 def start_audio_kivy_server(self,place):
     index, name, path = self.playlist.get_current()
