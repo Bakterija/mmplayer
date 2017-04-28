@@ -1,6 +1,7 @@
 from kivy.properties import StringProperty, DictProperty, ListProperty
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from app_modules.behaviors.hover_behavior import HoverBehavior
+from app_modules.behaviors.focus import FocusBehaviorCanvas
 from kivy.uix.recycleview import RecycleView
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.stacklayout import StackLayout
@@ -9,7 +10,8 @@ from kivy.utils import platform
 from kivy.metrics import cm
 
 
-class MediaButton(HoverBehavior, RecycleDataViewBehavior, ButtonBehavior, StackLayout):
+class MediaButton(HoverBehavior, RecycleDataViewBehavior,
+                  ButtonBehavior, StackLayout):
     index = None
     rv = None
     bg_colors = DictProperty()
@@ -51,7 +53,7 @@ class MediaButton(HoverBehavior, RecycleDataViewBehavior, ButtonBehavior, StackL
             self.set_bg_color()
 
 
-class MediaRecycleviewBase(RecycleView):
+class MediaRecycleviewBase(FocusBehaviorCanvas, RecycleView):
     pass
 
 
