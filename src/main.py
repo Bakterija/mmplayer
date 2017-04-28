@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Version: Beta 11
 from __future__ import print_function
+__VERSION__ = 11
 from os import chdir
 from os.path import dirname
 import sys
