@@ -1,5 +1,8 @@
 from kivy.properties import StringProperty, DictProperty, ListProperty
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
+from app_modules.widgets_standalone.app_recycleview import AppRecycleView
+from app_modules.widgets_standalone.app_recycleview import AppRecycleBoxLayout
+from app_modules.widgets_standalone.app_recycleview import AppRecycleViewClass
 from app_modules.behaviors.hover_behavior import HoverBehavior
 from app_modules.behaviors.focus import FocusBehaviorCanvas
 from kivy.uix.recycleview import RecycleView
@@ -8,9 +11,10 @@ from kivy.uix.stacklayout import StackLayout
 from kivy.lang import Builder
 from kivy.utils import platform
 from kivy.metrics import cm
+from app_modules import keys
 
 
-class MediaButton(HoverBehavior, RecycleDataViewBehavior,
+class MediaButton(HoverBehavior, AppRecycleViewClass, RecycleDataViewBehavior,
                   ButtonBehavior, StackLayout):
     index = None
     rv = None
@@ -22,9 +26,6 @@ class MediaButton(HoverBehavior, RecycleDataViewBehavior,
     path = StringProperty()
     bg_color = ListProperty()
 
-    def __init__(self, **kwargs):
-        super(MediaButton, self).__init__(**kwargs)
-
     def refresh_view_attrs(self, rv, index, data):
         super(MediaButton, self).refresh_view_attrs(rv, index, data)
         self.index = index
@@ -34,7 +35,7 @@ class MediaButton(HoverBehavior, RecycleDataViewBehavior,
             self.rv = rv
 
     def set_bg_color(self, *args):
-        if self.hovering == True and self.pstate != 'playing':
+        if self.hovering and self.pstate != 'playing':
             self.bg_color = self.bg_colors['hover']
         else:
             if self.mtype == 'media':
@@ -52,9 +53,44 @@ class MediaButton(HoverBehavior, RecycleDataViewBehavior,
         if self.pstate != 'playing':
             self.set_bg_color()
 
+    def on_selected(self, _, value):
+        if value:
+            self.hovering = True
+        else:
+            self.hovering = False
+        self.set_bg_color()
 
-class MediaRecycleviewBase(FocusBehaviorCanvas, RecycleView):
-    pass
+class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
+
+    def on_kb_return(self):
+        box = self.children[0]
+        if box.sel_last:
+            for x in box.children:
+                if x.index == box.sel_first:
+                    x.on_release()
+
+    def on_key_down(self, key, modifier):
+        box = self.children[0]
+        if not modifier:
+            if key == keys.UP:
+                box.on_arrow_up()
+            elif key == keys.DOWN:
+                box.on_arrow_down()
+            elif key == keys.RETURN:
+                self.on_kb_return()
+            elif key == keys.ENTER:
+                self.on_kb_return()
+            elif key == 1073741942:
+                box.open_context_menu()
+            elif key == keys.PAGE_UP:
+                self.page_up()
+            elif key == keys.PAGE_DOWN:
+                self.page_down()
+        elif modifier == ['ctrl']:
+            if key == 97:
+                self.select_all()
+            elif key == 32:
+                box.deselect_all()
 
 
 if platform == 'android':

@@ -16,7 +16,7 @@ from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from app_modules.behaviors.focus import FocusBehaviorCanvasKB
 from app_modules.behaviors.focus import FocusBehaviorCanvas
 from app_modules.widgets_standalone.app_recycleview import (
-    AppRecycleBox, AppRecycleView)
+    AppRecycleBoxLayout, AppRecycleView)
 from kivy.uix.behaviors import ButtonBehavior
 from .pc_sidebar_widgets import rvLabelButton, rvSection
 from kivy.clock import Clock
@@ -40,11 +40,10 @@ kv = '''
 class SideBarViewClass(RecycleDataViewBehavior, ButtonBehavior, StackLayout):
     index = None
     text = StringProperty()
-    func = None
-    func2 = None
-    fsize = NumericProperty(int(dp(16)))
     wtype = StringProperty()
     children_initialised = False
+    func = None
+    func2 = None
 
     def __init__(self, **kwargs):
         super(SideBarViewClass, self).__init__(**kwargs)

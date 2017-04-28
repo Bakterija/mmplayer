@@ -5,14 +5,46 @@ from kivy.core.window import Window
 
 focusable_widgets = []
 current_focus = None
+ctrl_held = False
+alt_held = False
+shift_held = False
+modifier = []
+
+def update_modifier():
+    global ctrl_held, alt_held, shift_held, modifier
+    modifier = []
+    if ctrl_held:
+        modifier.append('ctrl')
+    if alt_held:
+        modifier.append('alt')
+    if shift_held:
+        modifier.append('shift')
 
 def on_key_up(window, key, *args):
+    global ctrl_held, alt_held, shift_held
+    if key in (308, 1073741824):
+        alt_held = False
+    elif key in (305, 306):
+        ctrl_held = False
+    elif key in (304, 303):
+        shift_held = False
+
     if current_focus:
-        current_focus.on_key_up(key, *args)
+        update_modifier()
+        current_focus.on_key_up(key, modifier)
 
 def on_key_down(window, key, *args):
+    global ctrl_held, alt_held, shift_held
+    if key in (308, 1073741824):
+        alt_held = True
+    elif key in (305, 306):
+        ctrl_held = True
+    elif key in (304, 303):
+        shift_held = True
+
     if current_focus:
-        current_focus.on_key_down(key, *args)
+        update_modifier()
+        current_focus.on_key_down(key, modifier)
 
 def on_mouse_move(window, pos):
     if current_focus and current_focus.remove_focus_on_touch:

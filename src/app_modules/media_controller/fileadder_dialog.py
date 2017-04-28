@@ -13,9 +13,10 @@ from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from kivy.properties import StringProperty
 from kivy.metrics import cm
 from kivy.lang import Builder
+from kivy.compat import PY2
 import os
 
-
+# TODO FIX FILEADDER FOR PYTHON3
 kv = '''
 #: import aa1 app_modules.widgets_standalone.background_label.BackgroundLabel
 <FileAdderDialog>:
@@ -99,7 +100,7 @@ class FileAdderDialog(Popup):
 
     def add_file(self, path):
         name = os.path.split(path)[1]
-        self.ids.file_list.data.append({'text':name, 'path':path})
+        self.ids.file_list.data.append({'text': name, 'path': path})
         self.ids.filecounter.text = '%s files' % (len(self.ids.file_list.data))
 
     def accept_files(self, func):
