@@ -98,3 +98,4 @@ bin/
 *.json
 
 settings.ini
+*.hide
