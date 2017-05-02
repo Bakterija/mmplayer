@@ -1,4 +1,7 @@
 #: import VideoFrame app_modules.media_controller.videoframe.VideoFrame
+#: import MediaPlaylistView app_modules.media_controller.media_playlist_view.MediaPlaylistView
+#: import MediaQueueView app_modules.media_controller.media_queue_view.MediaQueueView
+#: import FilterInputBox app_modules.filter_input.FilterInputBox
 
 <Jotube_SM>:
 
@@ -6,7 +9,16 @@
         id: media_screen
         name: 'media'
         StackLayout:
+            id: mstack0
+            size_hint_y: None
+            height: button_height
+            y: root.height - button_height
+            FilterInputBox
+
+        StackLayout:
             id: media_stack
+            size_hint_y: None
+            height: root.height - button_height
 
     Screen:
         id: queue_screen

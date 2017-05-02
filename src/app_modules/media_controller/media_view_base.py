@@ -12,6 +12,7 @@ from kivy.lang import Builder
 from kivy.utils import platform
 from kivy.metrics import cm
 from app_modules import keys
+from kivy.clock import Clock
 
 
 class MediaButton(HoverBehavior, AppRecycleViewClass, RecycleDataViewBehavior,
@@ -92,6 +93,16 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
             elif key == 32:
                 box.deselect_all()
 
+        # Clock.schedule_once(self.int_scroll_test, 0.1)
+
+    def int_scroll_test(self, a):
+        box = self.children[0]
+        skrol0 = 1.0 - self.scroll_y
+        wheight = box.default_size[1] + box.spacing
+        dist = int((len(self.data) * wheight) * skrol0)
+
+        skrol = 1.0 - self.convert_distance_to_scroll(0, dist)[1]
+        self.scroll_y = skrol
 
 if platform == 'android':
     Builder.load_file('app_modules/media_controller/controller.kv')
