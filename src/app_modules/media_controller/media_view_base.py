@@ -64,7 +64,7 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
 
     def on_kb_return(self):
         box = self.children[0]
-        if box.sel_last:
+        if box.sel_first != -1:
             for x in box.children:
                 if x.index == box.sel_first:
                     x.on_release()
