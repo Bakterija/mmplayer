@@ -19,7 +19,7 @@ import kivy.uix.filechooser as filechooser
 from .fileadder_dialog import FileAdderDialog
 from app_modules.widgets_integrated.section import rvSection
 from . import various_functions as various
-from . import playlists
+from . import playlist_loader
 import traceback
 import global_vars as gvars
 
@@ -33,7 +33,7 @@ class MediaController(Widget):
     cur_viewed_playlist = ListProperty(['', '', None])
     '''ListProperty of [section, name, instance]'''
 
-    queue = ListProperty()
+    cur_queue = ListProperty()
 
     playing_name = StringProperty()
     playing_path = StringProperty()
@@ -65,26 +65,15 @@ class MediaController(Widget):
     def attach_queue_view(self, widget):
         self.view_queue = widget
         widget.mcontrol = self
+        self.bind(cur_queue=widget.set_queue)
 
     def start_playlist(self, name, path, index, btn):
         '''Triggered when user touches a MediaButton in playlist'''
         self.mplayer.reset()
         self.cur_played_playlist = self.cur_viewed_playlist
-        self.mplayer.queue = self.cur_played_playlist[2].media[index:]
-        # self.mplayer.playlist.add(name, path)
-        # x = self.rv_playlist.data[index]
-        # self.queue.append({
-        #     'text': x['name'], 'name': x['name'], 'path': x['path'],
-        #     'mtype': x['mtype'], 'pstate': x['pstate']
-        # })
-        # for x in self.rv_playlist.data[index+1:]:
-        #     self.mplayer.playlist.add(x['name'],x['path'])
-        #     nm = {
-        #         'text': x['name'], 'name': x['name'], 'path': x['path'],
-        #         'mtype': x['mtype'], 'pstate': x['pstate']
-        #     }
-        #     self.queue.append(nm)
-        #
+        self.cur_queue = self.cur_played_playlist[2].media[index:]
+        # self.cur_played_playlist[2].media[index]['state'] = 'playing'
+        self.mplayer.queue = self.cur_queue
         stat = self.mplayer.start(0)
 
     def start_queue(self, index):
@@ -365,31 +354,12 @@ class MediaController(Widget):
             self.reset_playlists()
 
     def reset_playlists(self):
-        files = []
-        self.playlists = playlists.load_from_directory('media/playlists/')
-
-        # self.playlists = various.get_playlists()
-        # np = various.get_playlists()
-        # for x in np: print (x)
-        # for section in self.playlists:
-        #     for item in section:
-        #         nm = {
-        #             'text': item['name'], 'name': item['name'],
-        #             'path': item['path'],
-        #             'mtype': 'folder', 'pstate': 'default',
-        #             'dictio': item, 'section': item['section'],
-        #         }
-        #         files.append(nm)
-        # self.active_playlist = {
-        #     'section': '',
-        #     'files': files,
-        #     'name': '',
-        #     'path': ''
-        # }
-
-
-        # if self.rv_playlist:
-        #     self.rv_playlist.on_playlist(self.active_playlist)
+        self.playlist_ids = {}
+        self.playlists = playlist_loader.load_from_directory(
+            'media/playlists/')
+        for section, playlists in self.playlists.items():
+            for x in playlists:
+                self.playlist_ids[x.id] = x
 
     def open_playlist(self, target):
         found = None

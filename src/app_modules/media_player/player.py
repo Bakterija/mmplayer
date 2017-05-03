@@ -46,6 +46,7 @@ class MediaPlayer(object):
             self.gui_update(**self.get_state_all())
 
     def start(self, index, seek=0.0):
+        self.on_start(index)
         index = int(index)
         if self.player:
             try:
@@ -63,15 +64,13 @@ class MediaPlayer(object):
                     self.player = player
                     self.player.load(self.cur_media['path'])
                     self.player.volume = self.volume
-                    self.player.play()
+                    self.play()
 
                     if seek:
                         self.seek(seek)
 
                     if self.gui_update:
                         # self.gui_update(**self.get_state_all())
-                        for x in self.callbacks['on_start']:
-                            x()
 
                         if player.is_video:
                             for x in self.callbacks['on_video']:
@@ -104,32 +103,26 @@ class MediaPlayer(object):
                 x(self, self.get_mediaPos())
 
     def next(self, *arg):
-        index, name, path = self.playlist.get_next()
-        if index:
-            self.start(str(index))
-            for x in self.callbacks['on_next']:
-                x()
+        if not self.queue:
+            return self.on_error('Empty playlist')
+
+        new_index = self.cur_index + 1
+        if new_index < len(self.queue):
+            new_media = self.queue[new_index]
+            self.start(new_index)
+            self.on_next()
         else:
-            if self.playlist.list:
-                if self.callbacks['loop'] == 'playlist':
-                    self.playlist.current = 0
-                    self.start('0')
-                else:
-                    for x in self.callbacks['on_error']:
-                        x('Done playing')
-            else:
-                for x in self.callbacks['on_error']:
-                    x('Playlist is empty')
+            self.on_error('Done playing')
 
     def previous(self, *arg):
-        index, name, path = self.playlist.get_previous()
-        if index:
-            name = self.start(str(index))
-            for x in self.callbacks['on_previous']:
-                x()
-        else:
-            for x in self.callbacks['on_error']:
-                x('Playlist is empty')
+        if not self.queue:
+            return self.on_error('Empty playlist')
+
+        if self.cur_index > 0:
+            new_index -= 1
+            new_media = self.queue[new_index]
+            self.start(new_index)
+            self.on_previous()
 
     def seek(self, value):
         if self.player:
@@ -189,6 +182,23 @@ class MediaPlayer(object):
     #         m2, s2 = divmod(int(soundlen), 60)
     #         s = str(m).zfill(2)+':'+str(s).zfill(2)+'/'+str(m2).zfill(2)+':'+str(s2).zfill(2)
     #         return s, seconds, soundlen
+
+    def on_start(self, index):
+        for x in self.callbacks['on_start']:
+            x()
+        print("ONSTART", index)
+
+    def on_next(self):
+        for x in self.callbacks['on_next']:
+            x()
+
+    def on_previous(self):
+        for x in self.callbacks['on_previous']:
+            x()
+
+    def on_error(self, reason):
+        for x in self.callbacks['on_error']:
+            x(reason)
 
     def bind(self, **kwargs):
         for k, v in kwargs.items():

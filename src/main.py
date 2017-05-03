@@ -90,6 +90,15 @@ class Jotube(LayoutMethods, FloatLayout):
     def set_mplayer_volume(self, value):
         mplayer.set_volume(value)
 
+    def mplayer_seek_relative(self, value):
+        mplayer.seek_relative(value)
+
+    def mplayer_next(self):
+        mplayer.next()
+
+    def mplayer_previous(self):
+        mplayer.previous()
+
     def init_widgets(self, *args):
         self.manager = Jotube_SM()
         # self.manager = Jotube_SM(transition=NoTransition())

@@ -5,13 +5,21 @@ from kivy.logger import Logger
 import os
 
 HOME_DIR = os.path.expanduser("~")+'/'
+next_id = 0
 
 
 class BasePlaylist(EventDispatcher):
+    id = None
     name = StringProperty()
     path = StringProperty()
     playlist_type = StringProperty()
     media = ListProperty()
+
+    def __init__(self, **kwargs):
+        global next_id
+        super(BasePlaylist, self).__init__(**kwargs)
+        self.id = next_id
+        next_id += 1
 
     def update(self):
         pass

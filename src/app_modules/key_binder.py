@@ -1,5 +1,6 @@
 from kivy.core.window import Window
 from kivy.logger import Logger
+from time import time
 
 keybinds = {}
 ctrl_held = False
@@ -9,6 +10,8 @@ log_keys = False
 active = True
 disabled_categories = set()
 ignore_warnings = False
+last_time = time()
+interval = 0.0
 
 def start():
     global active
@@ -60,8 +63,9 @@ def remove(name):
         raise e
 
 def on_key_down(win, key, *args):
-    global ctrl_held, alt_held, shift_held
-    if not active:
+    global ctrl_held, alt_held, shift_held, last_time
+
+    if not active or time() < last_time + interval:
         return
 
     try:
@@ -86,6 +90,7 @@ def on_key_down(win, key, *args):
             if v['state'] in ('down', 'any', 'all'):
                 if not v['modifier'] or v['modifier'] == modifier:
                     v['callback']()
+    last_time = time()
 
 def on_key_up(win, key, *args):
     global ctrl_held, alt_held, shift_held
