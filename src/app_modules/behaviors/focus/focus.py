@@ -2,6 +2,7 @@ from kivy.properties import BooleanProperty
 from kivy.event import EventDispatcher
 from kivy.uix.widget import Widget
 from kivy.core.window import Window
+from kivy.logger import Logger
 
 focusable_widgets = []
 current_focus = None

@@ -26,7 +26,12 @@ import global_vars as gvars
 
 class MediaController(Widget):
     playlists = DictProperty()
-    cur_playlist = DictProperty()
+
+    cur_played_playlist = ListProperty(['', '', None])
+    '''ListProperty of [section, name, instance]'''
+
+    cur_viewed_playlist = ListProperty(['', '', None])
+    '''ListProperty of [section, name, instance]'''
 
     queue = ListProperty()
 
@@ -45,73 +50,76 @@ class MediaController(Widget):
 
     def __init__(self, mplayer, **kwargs):
         super(MediaController, self).__init__(**kwargs)
-        self.mPlayer = mplayer
-        self.mPlayer.set_gui_update_callback(self.gui_update)
-        self.mPlayer.bind(on_video=self.video_show)
+        self.mplayer = mplayer
+        self.mplayer.set_gui_update_callback(self.gui_update)
+        self.mplayer.bind(on_video=self.video_show)
         self.skip_seek, self.seek_lock = 0, 0
         self.reset_playlists()
         Clock.schedule_interval(self.update_seek, 0.2)
 
     def attach_playlist_view(self, widget):
         self.view_playlist = widget
-        widget.controller = self
+        widget.mcontrol = self
+        self.bind(cur_viewed_playlist=widget.set_viewed_playlist)
 
     def attach_queue_view(self, widget):
         self.view_queue = widget
-        widget.controller = self
+        widget.mcontrol = self
 
     def start_playlist(self, name, path, index, btn):
         '''Triggered when user touches a MediaButton in playlist'''
-        self.mPlayer.reset()
-        self.mPlayer.playlist.add(name, path)
-        x = self.rv_playlist.data[index]
-        self.queue.append({
-            'text': x['name'], 'name': x['name'], 'path': x['path'],
-            'mtype': x['mtype'], 'pstate': x['pstate']
-        })
-        for x in self.rv_playlist.data[index+1:]:
-            self.mPlayer.playlist.add(x['name'],x['path'])
-            nm = {
-                'text': x['name'], 'name': x['name'], 'path': x['path'],
-                'mtype': x['mtype'], 'pstate': x['pstate']
-            }
-            self.queue.append(nm)
-
-        stat = self.mPlayer.start(0)
+        self.mplayer.reset()
+        self.cur_played_playlist = self.cur_viewed_playlist
+        self.mplayer.queue = self.cur_played_playlist[2].media[index:]
+        # self.mplayer.playlist.add(name, path)
+        # x = self.rv_playlist.data[index]
+        # self.queue.append({
+        #     'text': x['name'], 'name': x['name'], 'path': x['path'],
+        #     'mtype': x['mtype'], 'pstate': x['pstate']
+        # })
+        # for x in self.rv_playlist.data[index+1:]:
+        #     self.mplayer.playlist.add(x['name'],x['path'])
+        #     nm = {
+        #         'text': x['name'], 'name': x['name'], 'path': x['path'],
+        #         'mtype': x['mtype'], 'pstate': x['pstate']
+        #     }
+        #     self.queue.append(nm)
+        #
+        stat = self.mplayer.start(0)
 
     def start_queue(self, index):
         '''Triggered when user touches a MediaButton in queue'''
-        stat = self.mPlayer.start(str(index))
+        stat = self.mplayer.start(str(index))
 
     def insert_queue(self, name, path, index):
-        current = self.mPlayer.playlist.get_current()
+        current = self.mplayer.playlist.get_current()
         if index == 'Next':
             if current is None:
                 index = 0
             else:
                 index = current[0] + 1
         elif index == 'End':
-            index = len(self.mPlayer.playlist.list) + 1
+            index = len(self.mplayer.playlist.list) + 1
         elif index == 'Beginning':
             index = 0
-        self.mPlayer.playlist.insert(index, name, path)
+        self.mplayer.playlist.insert(index, name, path)
         self.queue.insert(index, {
             'text': name, 'name': name, 'path': path,
             'mtype': 'media', 'pstate': 'default'
         })
 
     def play_pause(self):
-        state = self.mPlayer.get_state()
+        state = self.mplayer.get_state()
         if state in ('pause', 'stop'):
-            self.mPlayer.play()
+            self.mplayer.play()
         else:
-            self.mPlayer.pause()
+            self.mplayer.pause()
 
     def play_next(self):
-        self.mPlayer.next()
+        self.mplayer.next()
 
     def play_previous(self):
-        self.mPlayer.previous()
+        self.mplayer.previous()
 
     def set_media_labels(self, string):
         def resizer_clock(*arg):
@@ -169,8 +177,8 @@ class MediaController(Widget):
             self.refresh_rview_queue()
 
     def update_seek(self, *arg):
-        pos = self.mPlayer.get_mediaPos()
-        dur = self.mPlayer.get_mediaDur()
+        pos = self.mplayer.get_mediaPos()
+        dur = self.mplayer.get_mediaDur()
         if pos == -1:
             self.playing_seek_value = 0
         else:
@@ -191,7 +199,7 @@ class MediaController(Widget):
         else:
             self.videoframe_small.add_widget(widget)
             self.videoframe_small.animate_in()
-        self.mPlayer.bind(on_start=self.video_hide)
+        self.mplayer.bind(on_start=self.video_hide)
         self.playing_video = True
 
     def video_hide(self):
@@ -200,7 +208,7 @@ class MediaController(Widget):
         if self.videoframe_small:
             self.videoframe_small.clear_widgets()
             self.videoframe_small.animate_out()
-        self.mPlayer.unbind(on_start=self.video_hide)
+        self.mplayer.unbind(on_start=self.video_hide)
         self.playing_video = False
 
     def on_videoframe_is_visible(self, obj, val):
@@ -384,46 +392,11 @@ class MediaController(Widget):
         #     self.rv_playlist.on_playlist(self.active_playlist)
 
     def open_playlist(self, target):
-        try:
-            files = []
-            if target['method'] == 'folder_loader':
-                files2 = various.get_files(target['path'])
-                for name, path in files2:
-                    files.append({
-                        'text': name, 'name': name,
-                        'path': path,
-                        'mtype': 'media', 'pstate': 'default'
-                    })
-            elif target['method'] == 'json_loader':
-                files2 = various.json_loader(target['path'])
-                if files2:
-                    for v in files2['items']:
-                        files.append({
-                            'text': v['name'], 'name': v['name'],
-                            'path': v['path'],
-                            'mtype': 'media', 'pstate': 'default'
-                        })
+        found = None
+        for section, playlists in self.playlists.items():
+            for instance in playlists:
+                if target['instance'] == instance:
+                    found = instance
+                    break
 
-            #Empty
-            if not files2:
-                files.append({
-                    'text': 'Playlist is empty', 'name': '',
-                    'path': '',
-                    'mtype': 'disabled', 'pstate': 'default'
-                })
-
-            self.active_playlist = {
-                'section': target['section'],
-                'files': files,
-                'name': target['name'],
-                'path': target['path']
-            }
-
-            self.refresh_rview_playlist()
-            if self.rv_playlist:
-                self.rv_playlist.on_playlist(self.active_playlist)
-            self.mPlayer.do_gui_update()
-        except IOError:
-            self.reset_playlists()
-        except Exception as e:
-            traceback.print_exc()
+        self.cur_viewed_playlist = [section, instance.name, instance]

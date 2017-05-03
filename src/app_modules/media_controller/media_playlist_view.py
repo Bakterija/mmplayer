@@ -1,5 +1,6 @@
 from .media_view_base import MediaButton
 from .media_view_base import MediaRecycleviewBase
+from kivy.logger import Logger
 
 
 class PlaylistViewClass(MediaButton):
@@ -10,19 +11,17 @@ class PlaylistViewClass(MediaButton):
 
     def on_release(self, *args):
         if self.mtype == 'media':
-            self.rv.controller.start_playlist(
+            self.rv.mcontrol.start_playlist(
                 self.name, self.path, self.index, self)
         elif self.mtype == 'folder':
-            self.rv.controller.open_playlist(self.dictio)
+            self.rv.mcontrol.open_playlist(self.dictio)
 
 
 class MediaPlaylistView(MediaRecycleviewBase):
-    def __init__(self, controller, **kwargs):
+    def __init__(self, **kwargs):
         super(MediaPlaylistView, self).__init__(**kwargs)
-        self.controller = controller
         self.viewclass = 'PlaylistViewClass'
-        self.data = []
-        self.controller.rv_playlist = self
 
-    def on_playlist(self, active_playlist):
-        self.data = active_playlist['files']
+    def set_viewed_playlist(self, mcontrol, new_playlist):
+        self.playlist_instance = new_playlist[2]
+        self.set_data(new_playlist[2].media)

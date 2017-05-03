@@ -7,9 +7,8 @@ class FolderLoaderPlaylist(BasePlaylist):
     def load(self, path, data):
         super(FolderLoaderPlaylist, self).load(path, data)
         self.load_path = self.strreplace(data['path'])
-        folder_files = self.get_files(self.load_path)
-
-        # print(self.load_path, folder_files)
+        self.update()
 
     def update(self):
-        pass
+        folder_files = self.get_files(self.load_path)
+        self.media = folder_files

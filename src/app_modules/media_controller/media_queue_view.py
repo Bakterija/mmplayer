@@ -10,16 +10,13 @@ class QueueViewClass(MediaButton):
 
     def on_release(self, *args):
         if self.mtype == 'media':
-            self.rv.controller.start_queue(self.index)
+            self.rv.mcontrol.start_queue(self.index)
 
 
 class MediaQueueView(MediaRecycleviewBase):
-    def __init__(self, controller, **kwargs):
+    def __init__(self, **kwargs):
         super(MediaQueueView, self).__init__(**kwargs)
-        self.controller = controller
         self.viewclass = 'QueueViewClass'
-        self.controller.rv_queue = self
-        controller.bind(queue=self.on_queue)
 
     def on_queue(self, obj, data):
         self.data = data

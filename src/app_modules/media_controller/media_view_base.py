@@ -20,9 +20,8 @@ class MediaButton(HoverBehavior, AppRecycleViewClass, RecycleDataViewBehavior,
     index = None
     rv = None
     bg_colors = DictProperty()
-    pstate = StringProperty()
-    mtype = StringProperty()
-    text = StringProperty()
+    state = StringProperty('default')
+    mtype = StringProperty('media')
     name = StringProperty()
     path = StringProperty()
     bg_color = ListProperty()
@@ -36,22 +35,22 @@ class MediaButton(HoverBehavior, AppRecycleViewClass, RecycleDataViewBehavior,
             self.rv = rv
 
     def set_bg_color(self, *args):
-        if self.hovering and self.pstate != 'playing':
+        if self.hovering and self.state != 'playing':
             self.bg_color = self.bg_colors['hover']
         else:
             if self.mtype == 'media':
-                self.bg_color = self.bg_colors[self.pstate]
+                self.bg_color = self.bg_colors[self.state]
             elif self.mtype == 'folder':
                 self.bg_color = self.bg_colors['folder']
             elif self.mtype == 'disabled':
                 self.bg_color = self.bg_colors['folder']
 
     def on_enter(self, *args):
-        if self.pstate != 'playing':
+        if self.state != 'playing':
             self.set_bg_color()
 
     def on_leave(self, *args):
-        if self.pstate != 'playing':
+        if self.state != 'playing':
             self.set_bg_color()
 
     def on_selected(self, _, value):
@@ -62,8 +61,6 @@ class MediaButton(HoverBehavior, AppRecycleViewClass, RecycleDataViewBehavior,
         self.set_bg_color()
 
 class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
-    controller = None
-
     def on_kb_return(self):
         box = self.children[0]
         if box.sel_first != -1:
@@ -104,7 +101,7 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
 
         skrol = 1.0 - self.convert_distance_to_scroll(0, dist)[1]
         self.scroll_y = skrol
-        
+
 
 if platform == 'android':
     Builder.load_file('app_modules/media_controller/controller.kv')

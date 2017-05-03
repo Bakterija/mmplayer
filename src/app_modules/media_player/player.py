@@ -45,33 +45,31 @@ class MediaPlayer(object):
         if self.gui_update:
             self.gui_update(**self.get_state_all())
 
-    def start(self, place, seek=0.0):
+    def start(self, index, seek=0.0):
+        index = int(index)
         if self.player:
             try:
                 self.player.unload()
             except Exception as e:
                 print (e)
         try:
-            place = int(place)
-            self.playlist.set_current(place)
-            index, name, path = self.playlist.get_current()
+            self.cur_index = index
+            self.cur_media = self.queue[index]
             self.starting = True
 
-
             for x in providers:
-                player = x.try_loading(self, path)
+                player = x.try_loading(self, self.cur_media['path'])
                 if player:
                     self.player = player
-                    self.player.load(path)
+                    self.player.load(self.cur_media['path'])
                     self.player.volume = self.volume
                     self.player.play()
-                    self.cur_media = {'name': name, 'path': path}
 
                     if seek:
                         self.seek(seek)
 
                     if self.gui_update:
-                        self.gui_update(**self.get_state_all())
+                        # self.gui_update(**self.get_state_all())
                         for x in self.callbacks['on_start']:
                             x()
 
@@ -83,6 +81,7 @@ class MediaPlayer(object):
 
         except Exception as e:
             traceback.print_exc()
+            return
         self.starting = False
 
         self.player = ErrorPlayer()

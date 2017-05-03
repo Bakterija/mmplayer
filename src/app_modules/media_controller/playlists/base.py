@@ -1,6 +1,7 @@
 from kivy.event import EventDispatcher
 from kivy.properties import StringProperty, ListProperty
 from kivy.compat import PY2
+from kivy.logger import Logger
 import os
 
 HOME_DIR = os.path.expanduser("~")+'/'
@@ -34,21 +35,21 @@ class BasePlaylist(EventDispatcher):
     def get_files(self, path, sort='abc'):
         templist = []
         for dirname, dirnames, filenames in os.walk(path):
-            for filename in filenames:
-                file_path = os.path.join(dirname, filename)
-                file_name, file_ext = os.path.splitext(file_path)
-                templist.append((
-                    self.py2decode(file_name),
-                    self.py2decode(file_ext),
-                    self.py2decode(file_path)
-                    ))
-        if sort == 'abc':
-            templist.sort()
+            for file_name in filenames:
+                file_path = os.path.join(dirname, file_name)
+                _fp, file_ext = os.path.splitext(file_path)
+                templist.append({
+                    'name': self.py2decode(file_name),
+                    'ext': self.py2decode(file_ext),
+                    'path': self.py2decode(file_path)
+                    })
+        # if sort == 'abc':
+        #     templist
         return templist
 
     def py2decode(self, string):
         if PY2:
-            string = string.decode('utf-8')
+            string = string.encode('utf-8')
         return string
 
     @staticmethod

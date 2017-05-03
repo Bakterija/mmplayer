@@ -44,7 +44,7 @@ class Config(ConfigBase):
     def get_playlist_button(self, item):
         return self.get_button(
             item['name'],
-            lambda item=item: {
+            lambda : {
                 self.root.media_control.open_playlist(item),
                 self.root.switch_screen("media")
             },
@@ -57,19 +57,19 @@ class Config(ConfigBase):
         playlist_dict = args[1]
 
         new_list = self.default_list
-        nm = ''
-
-        item = {}
+        cur_section = ''
 
         for section, playlists in  sorted(playlist_dict.items()):
-            for plist in sorted(playlists, key=lambda x: x.name):
+            sorted_playlists = sorted(playlists, key=lambda x: x.name)
+            for plist in sorted_playlists:
                 # If section was added already, add playlist buttons
                 # else add new section
-                item['name'] = plist.name
-                if nm == section:
+                item = {'name': plist.name, 'instance': plist}
+                
+                if cur_section == section:
                     new_list.append(self.get_playlist_button(item))
                 else:
-                    nm = section
+                    cur_section = section
                     new_list.append(self.get_separator())
 
                     new_list.append(self.get_section(section.upper()))

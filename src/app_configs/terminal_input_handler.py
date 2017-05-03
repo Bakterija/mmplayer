@@ -33,7 +33,7 @@ class Config(ConfigBase):
     def handle_play(self, nt, len):
         path = ' '.join(nt[1:])
         self.root.media_control.insert_queue(path, path, 'End')
-        self.root.mPlayer.start(-1)
+        self.root.mplayer.start(-1)
 
     def handle_screen(self, nt, len):
         self.root.switch_screen(nt[1])

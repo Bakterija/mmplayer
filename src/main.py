@@ -109,13 +109,14 @@ class Jotube(LayoutMethods, FloatLayout):
         self.ids.sm_area.bind(
             size=lambda ob,v: self.media_control.on_video_resize(v))
 
-        playlistview = MediaPlaylistView(self.media_control)
-        queueview = MediaQueueView(self.media_control)
-        self.media_control.attach_playlist_view(playlistview)
-        self.media_control.attach_queue_view(queueview)
+        playlistview = MediaPlaylistView()
+        queueview = MediaQueueView()
 
         self.manager.ids.media_stack.add_widget(playlistview)
         self.manager.ids.queue_stack.add_widget(queueview)
+
+        self.media_control.attach_playlist_view(playlistview)
+        self.media_control.attach_queue_view(queueview)
 
         self.media_control.bind(playlists=self.reset_sidebar_widgets)
         self.media_control.reset_playlists()
