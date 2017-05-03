@@ -1,4 +1,4 @@
-# mmplayer beta 11 (I broke many old systems while integrating new ones, next time will be using a separate dev branch)
+# mmplayer beta 11
 Python and Kivy based crossplatform media player (Only GNU/Linux and Windows supported currently)    
 
 Beta 6 screenshot below     
