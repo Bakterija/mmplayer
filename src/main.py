@@ -27,7 +27,7 @@ from kivy.core.window import Window
 from kivy.clock import Clock, mainthread
 from kivy.utils import platform
 from kivy.properties import StringProperty, ListProperty, ObjectProperty
-from app_modules.media_player import MediaPlayerClient as Media_Player
+from app_modules.media_player import mplayer
 from app_modules.media_controller.controller import MediaController
 from app_modules.media_controller.media_playlist_view import MediaPlaylistView
 from app_modules.media_controller.media_queue_view import MediaQueueView
@@ -87,6 +87,9 @@ class Jotube(LayoutMethods, FloatLayout):
         '''For showing errors in GUI'''
         self.ids.info_widget.error(error)
 
+    def set_mplayer_volume(self, value):
+        mplayer.set_volume(value)
+
     def init_widgets(self, *args):
         self.manager = Jotube_SM()
         # self.manager = Jotube_SM(transition=NoTransition())
@@ -96,9 +99,8 @@ class Jotube(LayoutMethods, FloatLayout):
         self.manager.current = 'media'
 
         ## FIRST SCREEN MEDIA PLAYER - sc-media
-        self.mPlayer = Media_Player()
-        self.mPlayer.modes['on_error'].append(self.on_error)
-        self.media_control = MediaController(self.mPlayer)
+        mplayer.bind(on_error=self.on_error)
+        self.media_control = MediaController(mplayer)
         self.media_control.videoframe = self.manager.ids.video_screen
         self.media_control.videoframe_small = self.ids.video_small
         self.media_control.bind(
@@ -109,27 +111,30 @@ class Jotube(LayoutMethods, FloatLayout):
 
         playlistview = MediaPlaylistView(self.media_control)
         queueview = MediaQueueView(self.media_control)
+        self.media_control.attach_playlist_view(playlistview)
+        self.media_control.attach_queue_view(queueview)
+
         self.manager.ids.media_stack.add_widget(playlistview)
         self.manager.ids.queue_stack.add_widget(queueview)
 
-        self.media_control.bind_on_playlists(self.reset_sidebar_widgets)
+        self.media_control.bind(playlists=self.reset_sidebar_widgets)
         self.media_control.reset_playlists()
         self.media_control.bind(
             playing_seek_value=self.ids.playback_bar.on_media_progress_val)
         self.media_control.bind(
             playing_seek_max=self.ids.playback_bar.on_media_progress_max)
 
-        self.ids.playback_bar.on_seeking = self.mPlayer.seek
+        self.ids.playback_bar.on_seeking = mplayer.seek
         self.ids.playback_bar.on_playbtn = self.media_control.play_pause
         self.ids.playback_bar.on_prevbtn = self.media_control.play_previous
         self.ids.playback_bar.on_nextbtn = self.media_control.play_next
 
-        self.mPlayer.modes['on_pause'].append(self.ids.playback_bar.on_pause)
-        self.mPlayer.modes['on_play'].append(self.ids.playback_bar.on_play)
-        self.mPlayer.modes['on_start'].append(self.ids.playback_bar.on_play)
+        mplayer.bind(on_pause=self.ids.playback_bar.on_pause)
+        mplayer.bind(on_play=self.ids.playback_bar.on_play)
+        mplayer.bind(on_start=self.ids.playback_bar.on_play)
 
         self.ids.playback_bar.bind(
-            media_volume=lambda obj, val: self.mPlayer.set_volume(val))
+            media_volume=lambda obj, val: mplayer.set_volume(val))
 
         self.ids.video_small.on_video_touch = (
             lambda: self.switch_screen('video'))
@@ -140,7 +145,7 @@ class Jotube(LayoutMethods, FloatLayout):
 
         super(Jotube, self).init_widgets()
         self.app_configurator.load_after()
-        self.ids.playback_bar.media_volume = self.mPlayer.volume * 100
+        self.ids.playback_bar.media_volume = mplayer.volume * 100
 
 class Jotube_SM(ScreenManager):
 
@@ -172,7 +177,7 @@ class JotubeApp(App):
             self.stop()
 
     def on_stop(self):
-        settings = {'volume': str(self.root_widget.mPlayer.volume)}
+        settings = {'volume': str(mplayer.volume)}
         self.root_widget.app_configurator.load_with_args(
             'user_settings', 'save', settings)
 

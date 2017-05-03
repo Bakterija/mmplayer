@@ -22,6 +22,9 @@ def update_modifier():
 
 def on_key_up(window, key, *args):
     global ctrl_held, alt_held, shift_held
+    if key == 9:
+        return
+
     if key in (308, 1073741824):
         alt_held = False
     elif key in (305, 306):
@@ -35,6 +38,9 @@ def on_key_up(window, key, *args):
 
 def on_key_down(window, key, *args):
     global ctrl_held, alt_held, shift_held
+    if key == 9:
+        return
+
     if key in (308, 1073741824):
         alt_held = True
     elif key in (305, 306):

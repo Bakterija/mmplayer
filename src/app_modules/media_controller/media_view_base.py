@@ -62,6 +62,7 @@ class MediaButton(HoverBehavior, AppRecycleViewClass, RecycleDataViewBehavior,
         self.set_bg_color()
 
 class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
+    controller = None
 
     def on_kb_return(self):
         box = self.children[0]
@@ -103,6 +104,7 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
 
         skrol = 1.0 - self.convert_distance_to_scroll(0, dist)[1]
         self.scroll_y = skrol
+        
 
 if platform == 'android':
     Builder.load_file('app_modules/media_controller/controller.kv')

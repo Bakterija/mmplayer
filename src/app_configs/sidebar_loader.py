@@ -8,7 +8,6 @@ WIDTH_TEXT = cm(0.8)
 
 class Config(ConfigBase):
     root = None
-    default_list = []
 
     def set_defaults(self, root):
         self.default_list = [
@@ -21,7 +20,6 @@ class Config(ConfigBase):
                 'Video', lambda: root.switch_screen('video'), None),
             self.get_button(
                 'Browser', lambda: root.switch_screen('browser'), None),
-            self.get_separator()
         ]
 
     def load_before(self, root_widget):
@@ -56,24 +54,25 @@ class Config(ConfigBase):
 
     def load_with_args(self, *args, **kwargs):
         mgui_widget = args[0]
-        playlists = args[1]
+        playlist_dict = args[1]
 
         new_list = self.default_list
+        nm = ''
 
-        new_list.append(self.get_section('PLACES'))
-        nm = 'places'
+        item = {}
 
-        for section in iter(playlists):
-            for item in iter(section):
+        for section, playlists in  sorted(playlist_dict.items()):
+            for plist in sorted(playlists, key=lambda x: x.name):
                 # If section was added already, add playlist buttons
                 # else add new section
-                if nm == item['section']:
+                item['name'] = plist.name
+                if nm == section:
                     new_list.append(self.get_playlist_button(item))
                 else:
-                    nm = item['section']
+                    nm = section
                     new_list.append(self.get_separator())
 
-                    new_list.append(self.get_section(item['section'].upper()))
+                    new_list.append(self.get_section(section.upper()))
 
                     new_list.append(self.get_playlist_button(item))
 

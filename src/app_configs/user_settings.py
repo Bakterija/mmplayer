@@ -22,7 +22,7 @@ class Config(ConfigBase):
 
     def load_before(self, root):
         self.loader_switch = {
-            'volume': lambda val: root.mPlayer.set_volume(float(val) * 100.0)
+            'volume': lambda val: root.set_mplayer_volume(float(val) * 100.0)
         }
 
     def load_after(self, root):

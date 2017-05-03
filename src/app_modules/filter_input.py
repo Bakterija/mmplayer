@@ -1,3 +1,4 @@
+from app_modules.widgets_standalone.compat_textinput import CompatTextInput
 from app_modules.behaviors.focus import FocusBehaviorCanvas
 from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder
@@ -16,7 +17,7 @@ kv = '''
         text: 'Filter'
         font_size: self.height * 0.5
         width: self.font_size * 4
-    TextInput:
+    CompatTextInput:
         id: filter_input
         size_hint: 1, 1
         background_color: col_dgrey
@@ -28,7 +29,7 @@ kv = '''
         cursor_color: col_white
         markup: True
         foreground_color: col_white
-        font_size: self.height * 0.5
+        font_size: int(self.height * 0.5)
         multiline: False
         on_text_validate: app.set_filter_text(self.text)
         canvas.before:
@@ -39,7 +40,7 @@ kv = '''
 '''
 
 
-class FilterInputBox(FocusBehaviorCanvas, BoxLayout):
+class FilterInputBox(BoxLayout):
     pass
 
 
