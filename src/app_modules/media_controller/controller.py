@@ -368,5 +368,9 @@ class MediaController(Widget):
                 if target['instance'] == instance:
                     found = instance
                     break
+            if found:
+                self.cur_viewed_playlist = [section, instance.name, instance]
+                return
 
-        self.cur_viewed_playlist = [section, instance.name, instance]
+        if not found:
+            Logger.warning('MediaController: playlist not found')

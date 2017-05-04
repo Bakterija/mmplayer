@@ -12,7 +12,7 @@ class Config(ConfigBase):
     @staticmethod
     def load_after(root):
         app = App.get_running_app()
-        kbinder.log_keys = True
+        # kbinder.log_keys = True
 
         kbinder.add('quit', 27, 'down', app.kb_esc)
         kbinder.add('focus_next', 9, 'down', focus_behavior.focus_next)

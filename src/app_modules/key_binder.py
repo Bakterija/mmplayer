@@ -65,13 +65,12 @@ def remove(name):
 
 def on_key_down(win, key, *args):
     global ctrl_held, alt_held, shift_held, last_key, last_modifier, last_time
-
-    try:
+    time_now = time()
+    modifier = []
+    if len(args) > 2:
         modifier = args[2]
-    except:
-        modifier = []
 
-    if last_time + 0.2 > time():
+    if last_time + 0.1 > time_now:
         if key == last_key and modifier == last_modifier:
             return
 
@@ -80,7 +79,7 @@ def on_key_down(win, key, *args):
 
     last_key = key
     last_modifier = modifier
-    last_time = time()
+    last_time = time_now
 
     if key in (308, 1073741824):
         alt_held = True

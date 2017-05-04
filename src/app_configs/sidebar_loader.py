@@ -65,7 +65,7 @@ class Config(ConfigBase):
                 # If section was added already, add playlist buttons
                 # else add new section
                 item = {'name': plist.name, 'instance': plist}
-                
+
                 if cur_section == section:
                     new_list.append(self.get_playlist_button(item))
                 else:
