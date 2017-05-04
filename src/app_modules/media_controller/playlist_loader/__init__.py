@@ -3,21 +3,24 @@ from .folder_loader import FolderLoaderPlaylist
 from os import listdir
 import json
 
+loaded_paths = set()
 
 def load_from_directory(directory):
     playlists = {}
     dir_list = listdir(directory)
 
-    for category in dir_list:
-        playlists[category] = []
-        file_list = listdir('{}{}/'.format(directory, category))
+    for section in dir_list:
+        playlists[section] = []
+        file_list = listdir('{}{}/'.format(directory, section))
 
         for f in file_list:
-            playlists[category].append(
-                load_playlist('{}{}/{}'.format(directory, category, f)))
+            playlists[section].append(
+                load_playlist('{}{}/{}'.format(directory, section, f),
+                section))
     return playlists
 
-def load_playlist(path):
+def load_playlist(path, section):
+    playlist = None
     with open(path) as data_file:
         data = json.load(data_file)
 
@@ -27,4 +30,6 @@ def load_playlist(path):
         playlist = FileLoaderPlaylist()
 
     playlist.load(path, data)
+    playlist.section = section
+
     return playlist

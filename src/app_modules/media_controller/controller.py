@@ -51,11 +51,20 @@ class MediaController(Widget):
     def __init__(self, mplayer, **kwargs):
         super(MediaController, self).__init__(**kwargs)
         self.mplayer = mplayer
-        self.mplayer.set_gui_update_callback(self.gui_update)
+        self.mplayer.bind(on_start=self.on_mplayer_start)
         self.mplayer.bind(on_video=self.video_show)
         self.skip_seek, self.seek_lock = 0, 0
         self.reset_playlists()
-        Clock.schedule_interval(self.update_seek, 0.2)
+        Clock.schedule_interval(self.update_seek, 0.1)
+
+    def on_mplayer_start(self):
+        state = self.mplayer.get_state_all()
+        index = state['cur_media']['index']
+        self.cur_played_playlist[2].set_playing(index)
+        self.cur_queue = self.cur_played_playlist[2].media
+        self.view_queue.set_data(self.cur_queue)
+        self.refresh_playlist_view()
+        self.refresh_queue_view()
 
     def attach_playlist_view(self, widget):
         self.view_playlist = widget
@@ -65,16 +74,15 @@ class MediaController(Widget):
     def attach_queue_view(self, widget):
         self.view_queue = widget
         widget.mcontrol = self
-        self.bind(cur_queue=widget.set_queue)
 
     def start_playlist(self, name, path, index, btn):
         '''Triggered when user touches a MediaButton in playlist'''
         self.mplayer.reset()
         self.cur_played_playlist = self.cur_viewed_playlist
-        self.cur_queue = self.cur_played_playlist[2].media[index:]
-        # self.cur_played_playlist[2].media[index]['state'] = 'playing'
-        self.mplayer.queue = self.cur_queue
-        stat = self.mplayer.start(0)
+        self.mplayer.queue = self.cur_played_playlist[2].media
+        self.view_queue.set_data(self.mplayer.queue)
+        self.refresh_queue_view()
+        stat = self.mplayer.start(index)
 
     def start_queue(self, index):
         '''Triggered when user touches a MediaButton in queue'''
@@ -134,37 +142,6 @@ class MediaController(Widget):
     def refresh_queue_view(self):
         self.view_queue.refresh_from_data()
 
-    def gui_update(self, *args, **kwargs):
-        if kwargs:
-            name = kwargs['name']
-            path = kwargs['path']
-            for i, x in enumerate(self.rv_playlist.data):
-                if x['name'] == name and x['path'] == path:
-                    if kwargs['state'] == 'play':
-                        self.rv_playlist.data[i]['pstate'] = 'playing'
-                    elif kwargs['state'] == 'error':
-                        self.rv_playlist.data[i]['pstate'] = 'error'
-                    continue
-
-                if kwargs['state'] == 'play':
-                    if x['pstate'] == 'playing':
-                        self.rv_playlist.data[i]['pstate'] = 'default'
-
-            for i, x in enumerate(self.rv_queue.data):
-                if x['name'] == name and x['path'] == path:
-                    if kwargs['state'] == 'play':
-                        self.rv_queue.data[i]['pstate'] = 'playing'
-                    elif kwargs['state'] == 'error':
-                        self.rv_queue.data[i]['pstate'] = 'error'
-                    continue
-
-                if kwargs['state'] == 'play':
-                    if x['pstate'] == 'playing':
-                        self.rv_queue.data[i]['pstate'] = 'default'
-
-            self.refresh_rview_playlist()
-            self.refresh_rview_queue()
-
     def update_seek(self, *arg):
         pos = self.mplayer.get_mediaPos()
         dur = self.mplayer.get_mediaDur()
@@ -192,6 +169,7 @@ class MediaController(Widget):
         self.playing_video = True
 
     def video_hide(self):
+        print("HIDE VIDEO")
         if self.videoframe:
             self.videoframe.clear_widgets()
         if self.videoframe_small:
@@ -362,15 +340,17 @@ class MediaController(Widget):
                 self.playlist_ids[x.id] = x
 
     def open_playlist(self, target):
-        found = None
         for section, playlists in self.playlists.items():
             for instance in playlists:
-                if target['instance'] == instance:
-                    found = instance
-                    break
-            if found:
-                self.cur_viewed_playlist = [section, instance.name, instance]
-                return
+                if target['name'] == instance.name:
+                    self.cur_viewed_playlist = [
+                        section, instance.name, instance]
+                    return
 
-        if not found:
-            Logger.warning('MediaController: playlist not found')
+        Logger.warning('MediaController: playlist not found')
+
+    def open_playlist_by_id(self, id):
+        if id in self.playlist_ids:
+            pl = self.playlist_ids[id]
+            target = {'name': pl.name}
+            self.open_playlist(target)
