@@ -10,8 +10,9 @@ log_keys = False
 active = True
 disabled_categories = set()
 ignore_warnings = False
+last_key = ''
+last_modifier = []
 last_time = time()
-interval = 0.0
 
 def start():
     global active
@@ -63,15 +64,23 @@ def remove(name):
         raise e
 
 def on_key_down(win, key, *args):
-    global ctrl_held, alt_held, shift_held, last_time
-
-    if not active or time() < last_time + interval:
-        return
+    global ctrl_held, alt_held, shift_held, last_key, last_modifier, last_time
 
     try:
         modifier = args[2]
     except:
         modifier = []
+
+    if last_time + 0.2 > time():
+        if key == last_key and modifier == last_modifier:
+            return
+
+    if not active:
+        return
+
+    last_key = key
+    last_modifier = modifier
+    last_time = time()
 
     if key in (308, 1073741824):
         alt_held = True
@@ -90,7 +99,6 @@ def on_key_down(win, key, *args):
             if v['state'] in ('down', 'any', 'all'):
                 if not v['modifier'] or v['modifier'] == modifier:
                     v['callback']()
-    last_time = time()
 
 def on_key_up(win, key, *args):
     global ctrl_held, alt_held, shift_held
