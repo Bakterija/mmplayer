@@ -95,7 +95,6 @@ bin/
 *.pyo
 *.sh
 *.spec
-*.json
 
 settings.ini
 *.hide

@@ -1,5 +1,14 @@
 from kivy.metrics import cm, dp
 from kivy.lang import Builder
+from kivy.utils import platform
+import os
+
+DIR_HOME = os.path.expanduser("~")+'/'
+if platform == 'linux':
+    DIR_PLAYLISTS = '%s.config/github_bakterija/mmplayer/playlists/' % (DIR_HOME)
+else:
+    DIR_PLAYLISTS = '%sgithub_bakterija/mmplayer/playlists/' % (DIR_HOME)
+
 
 def __set_app_globals__():
     col_grey = (0.4, 0.4, 0.4, 1)

@@ -160,6 +160,7 @@ class Jotube(LayoutMethods, FloatLayout):
         self.app_configurator.load_after()
         self.ids.playback_bar.media_volume = mplayer.volume * 100
 
+
 class Jotube_SM(ScreenManager):
 
     def screen_switch_modified(self):

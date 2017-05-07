@@ -62,7 +62,7 @@ class AppVideoPlayer(Video):
 
     @staticmethod
     def try_loading(mplayer, path):
-        if path[-4:] in ('.mp4', '.mkv'):
+        if path[-4:] in ('.mp4', '.mkv', '.flv'):
             return AppVideoPlayer(mplayer)
         else:
             return None

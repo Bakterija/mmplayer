@@ -49,14 +49,17 @@ class AudioPlayer(EventDispatcher):
 
     def get_pos(self):
         val = -1
-        if self.state == 'stop':
-            pass
-        elif self.state == 'pause':
-            val = self.pause_seek
-        elif self.sound:
-            val = self.sound.get_pos()
-        if self.length == -1:
-            self.length = self.sound.length
+        try:
+            if self.state == 'stop':
+                pass
+            elif self.state == 'pause':
+                val = self.pause_seek
+            elif self.sound:
+                val = self.sound.get_pos()
+            if self.length == -1:
+                self.length = self.sound.length
+        except Exception as e:
+            print ('AudioPlayer: %s' % (e))
         return val
 
     def load(self, path):

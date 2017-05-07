@@ -70,6 +70,11 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
 
     def on_key_down(self, key, modifier):
         box = self.children[0]
+        if modifier == ['shift']:
+            if key == keys.UP:
+                box.on_arrow_up()
+            elif key == keys.DOWN:
+                box.on_arrow_down()
         if not modifier:
             if key == keys.UP:
                 box.on_arrow_up()

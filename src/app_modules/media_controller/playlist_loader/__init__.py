@@ -5,18 +5,21 @@ import json
 
 loaded_paths = set()
 
-def load_from_directory(directory):
+def load_from_directories(directories):
     playlists = {}
-    dir_list = listdir(directory)
 
-    for section in dir_list:
-        playlists[section] = []
-        file_list = listdir('{}{}/'.format(directory, section))
+    for directory in directories:
+        dir_list = listdir(directory)
 
-        for f in file_list:
-            playlists[section].append(
-                load_playlist('{}{}/{}'.format(directory, section, f),
-                section))
+        for section in dir_list:
+            if not section in playlists:
+                playlists[section] = []
+            file_list = listdir('{}{}/'.format(directory, section))
+
+            for f in file_list:
+                playlists[section].append(
+                    load_playlist('{}{}/{}'.format(directory, section, f),
+                    section))
     return playlists
 
 def load_playlist(path, section):

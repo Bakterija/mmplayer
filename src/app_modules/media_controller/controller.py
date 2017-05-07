@@ -169,7 +169,6 @@ class MediaController(Widget):
         self.playing_video = True
 
     def video_hide(self):
-        print("HIDE VIDEO")
         if self.videoframe:
             self.videoframe.clear_widgets()
         if self.videoframe_small:
@@ -333,8 +332,9 @@ class MediaController(Widget):
 
     def reset_playlists(self):
         self.playlist_ids = {}
-        self.playlists = playlist_loader.load_from_directory(
-            'media/playlists/')
+        pl = playlist_loader.load_from_directories((
+            'media/playlists/', gvars.DIR_PLAYLISTS))
+        self.playlists = pl
         for section, playlists in self.playlists.items():
             for x in playlists:
                 self.playlist_ids[x.id] = x
