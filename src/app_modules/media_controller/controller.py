@@ -298,9 +298,13 @@ class MediaController(Widget):
 
     def playlist_cmenu_popup(self, dictio):
         def validate(button):
-            self.remove_playlist(
-            dictio['name'], dictio['path'], dictio['section'])
+            section = dictio['section']
+            name = dictio['name']
+            for x in self.playlists[section]:
+                if x.name == name:
+                    x.remove()
             remove_windowpopup()
+            self.reset_playlists()
         def remove_windowpopup(*args):
             if self.windowpopup:
                 Window.remove_widget(self.windowpopup)
