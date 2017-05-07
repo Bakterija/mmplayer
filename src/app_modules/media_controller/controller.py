@@ -195,9 +195,8 @@ class MediaController(Widget):
     def create_playlist_popup(self, *arg):
         def validate(button):
             if inp.text:
-                playlist_loader.create_playlist(inp.text)
+                self.create_playlist(inp.text)
             frame.dismiss()
-            self.reset_playlists()
         try:
             frame = Popup(
                 title='Type playlist name', size_hint=(1,None), height=cm(4),
@@ -300,11 +299,8 @@ class MediaController(Widget):
         def validate(button):
             section = dictio['section']
             name = dictio['name']
-            for x in self.playlists[section]:
-                if x.name == name:
-                    x.remove()
+            self.remove_playlist(name, section)
             remove_windowpopup()
-            self.reset_playlists()
         def remove_windowpopup(*args):
             if self.windowpopup:
                 Window.remove_widget(self.windowpopup)
@@ -328,13 +324,14 @@ class MediaController(Widget):
         self.windowpopup = frame
 
     def create_playlist(self, name):
-        various.create_playlist(name)
+        playlist_loader.create_playlist(name)
         self.reset_playlists()
 
-    def remove_playlist(self, name, path, section):
-        various.remove_playlist(name, path, section)
-        if path == self.active_playlist['path']:
-            self.reset_playlists()
+    def remove_playlist(self, name, section):
+        for x in self.playlists[section]:
+            if x.name == name:
+                x.remove()
+        self.reset_playlists()
 
     def reset_playlists(self):
         self.playlist_ids = {}
