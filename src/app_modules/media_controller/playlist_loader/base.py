@@ -3,9 +3,11 @@ from kivy.properties import StringProperty, ListProperty
 from kivy.compat import PY2
 from kivy.logger import Logger
 import os
+import json
 
 HOME_DIR = os.path.expanduser("~")+'/'
 next_id = 0
+
 
 class BasePlaylist(EventDispatcher):
     id = None
@@ -38,6 +40,18 @@ class BasePlaylist(EventDispatcher):
         self.path = path
         self.name = data['name']
         self.playlist_type = data['playlist_type']
+
+    @staticmethod
+    def create():
+        pass
+
+    def save_json(self, playlist_dict):
+        with open(self.path, 'w') as outfile:
+            json.dump(playlist_dict, outfile, indent=4, sort_keys=True, separators=(
+                ',', ':'))
+
+    def remove(self):
+        os.remove(self.path)
 
     @staticmethod
     def get_folders(path, sort='abc'):

@@ -53,10 +53,11 @@ class Config(ConfigBase):
             })
 
     def load_with_args(self, *args, **kwargs):
+        self.root.sidebar_items = []
         mgui_widget = args[0]
         playlist_dict = args[1]
 
-        new_list = self.default_list
+        new_list = list(self.default_list)
         cur_section = ''
 
         for section, playlists in  sorted(playlist_dict.items()):

@@ -194,8 +194,10 @@ class MediaController(Widget):
 
     def create_playlist_popup(self, *arg):
         def validate(button):
-            self.create_playlist(inp.text)
+            if inp.text:
+                playlist_loader.create_playlist(inp.text)
             frame.dismiss()
+            self.reset_playlists()
         try:
             frame = Popup(
                 title='Type playlist name', size_hint=(1,None), height=cm(4),

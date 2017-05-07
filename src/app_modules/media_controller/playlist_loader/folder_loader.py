@@ -14,3 +14,16 @@ class FolderLoaderPlaylist(BasePlaylist):
         for i, x in enumerate(folder_files):
             folder_files[i]['index'] = i
         self.media = folder_files
+
+    @staticmethod
+    def create(name, path, load_path):
+        playlist = FolderLoaderPlaylist()
+        playlist.load_path = load_path
+        playlist.name = name
+        playlist.path = path
+        playlist.save_json({
+            'name': name,
+            'path': load_path,
+            'playlist_type': 'folder_loader'
+        })
+        return playlist
