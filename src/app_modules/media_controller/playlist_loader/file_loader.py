@@ -7,8 +7,8 @@ class FileLoaderPlaylist(BasePlaylist):
         super(FileLoaderPlaylist, self).load(path, data)
         self.update()
 
-    def update(self, *a):
-        print ('not implemented')
+    def update(self):
+        pass
 
     @staticmethod
     def create(name, path, load_path):
