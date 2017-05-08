@@ -13,6 +13,7 @@ class MediaPlayer(object):
     player = None
     queue = []
     is_video = False
+    video_widget = None
     volume = 1.0
     pos = -1
     length = -1
@@ -66,11 +67,7 @@ class MediaPlayer(object):
                     if seek:
                         self.seek(seek)
 
-                    self.player.is_video = player.is_video
                     self.on_start(index)
-                    if player.is_video:
-                        for x in self.callbacks['on_video']:
-                            x(self.player)
                     self.starting = False
                     return True
 
@@ -179,6 +176,16 @@ class MediaPlayer(object):
         Logger.info('%s: %s' % (self.__class__.__name__, 'on_error'))
         for x in self.callbacks['on_error']:
             x(reason)
+
+    def on_video(self, value):
+        self.is_video = value
+        if value:
+            self.video_widget = self.player
+        else:
+            self.video_widget = None
+        for x in self.callbacks['on_video']:
+            x(value, player=self.player)
+
 
     def bind(self, **kwargs):
         for k, v in kwargs.items():

@@ -17,6 +17,12 @@ class AppVideoPlayer(Video):
         self.mplayer = mplayer
         self.bind(on_stop = mplayer.on_stop)
 
+    def on_texture(self, _, value):
+        if value:
+            self.mplayer.on_video(True)
+        else:
+            self.mplayer.on_video(False)
+
     def load(self, path):
         if PY2 and type(path) == unicode:
             path = path.encode('utf-8')
@@ -59,6 +65,10 @@ class AppVideoPlayer(Video):
     def _play_started(self, instance, value):
         self.container.clear_widgets()
         self.container.add_widget(self._video)
+
+    def unload(self):
+        self.mplayer.on_video(False)
+        super(AppVideoPlayer, self).unload()
 
     @staticmethod
     def try_loading(mplayer, path):

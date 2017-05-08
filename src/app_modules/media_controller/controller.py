@@ -52,7 +52,7 @@ class MediaController(Widget):
         super(MediaController, self).__init__(**kwargs)
         self.mplayer = mplayer
         self.mplayer.bind(on_start=self.on_mplayer_start)
-        self.mplayer.bind(on_video=self.video_show)
+        self.mplayer.bind(on_video=self.on_mplayer_video)
         self.skip_seek, self.seek_lock = 0, 0
         self.reset_playlists()
         Clock.schedule_interval(self.update_seek, 0.1)
@@ -65,6 +65,12 @@ class MediaController(Widget):
         self.view_queue.set_data(self.cur_queue)
         self.refresh_playlist_view()
         self.refresh_queue_view()
+
+    def on_mplayer_video(self, value, player=None):
+        if value:
+            self.playing_video = True
+        else:
+            self.playing_video = False
 
     def attach_playlist_view(self, widget):
         self.view_playlist = widget
@@ -159,14 +165,18 @@ class MediaController(Widget):
             if self.videoframe and self.videoframe_is_visible:
                 self.videoframe.children[0].size = size
 
+    def on_playing_video(self, _, value):
+        if value:
+            self.video_show(self.mplayer.video_widget)
+        else:
+            self.video_hide()
+
     def video_show(self, widget):
         if self.videoframe and self.videoframe_is_visible:
             self.videoframe.add_widget(widget)
         else:
             self.videoframe_small.add_widget(widget)
             self.videoframe_small.animate_in()
-        self.mplayer.bind(on_start=self.video_hide)
-        self.playing_video = True
 
     def video_hide(self):
         if self.videoframe:
@@ -174,8 +184,6 @@ class MediaController(Widget):
         if self.videoframe_small:
             self.videoframe_small.clear_widgets()
             self.videoframe_small.animate_out()
-        self.mplayer.unbind(on_start=self.video_hide)
-        self.playing_video = False
 
     def on_videoframe_is_visible(self, obj, val):
         if val:
@@ -186,7 +194,6 @@ class MediaController(Widget):
                 self.videoframe_small.animate_out()
                 temp.pos = (0, 0)
         elif self.videoframe.children and self.playing_video:
-            # if self.videoframe.children[0].children:
             temp = self.videoframe.children[0]
             self.videoframe.remove_widget(temp)
             self.videoframe_small.add_widget(temp)
