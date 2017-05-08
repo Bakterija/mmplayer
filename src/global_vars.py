@@ -33,7 +33,7 @@ def __set_app_globals__():
 
     col_ncolbg = (0.09, 0.09, 0.1, 1)
 
-    rv_default_height = int(cm(1))
+    rv_default_height = int(cm(0.7))
     scrollbar_width = int(cm(0.6))
     default_spacing = 1
     button_height = int(cm(1))

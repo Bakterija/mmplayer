@@ -9,6 +9,7 @@
     bg_error: 0.1, 0.05, 0.05, 1
     bg_folder: 0.2, 0.2, 0.2, 1
     bg_colors: {'default': self.bg_default, 'playing': self.bg_playing, 'playing-stopped': self.bg_default, 'disabled': self.bg_disabled, 'error': self.bg_error, 'folder': self.bg_folder, 'hover': self.bg_hover}
+    font_size: int(self.height * 0.6)
     canvas.before:
         Color:
             rgba: root.bg_color
@@ -17,10 +18,12 @@
             size: root.size
     Label:
         size_hint: 0.1, 1
+        font_size: root.font_size
         text: str(root.index)
 
     LabelButton:
         background_color: [0, 0, 1, 1]
+        font_size: root.font_size
         text: root.name
         size_hint: 0.9, 1
         text_size: self.size[0], self.text_size[1]

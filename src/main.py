@@ -155,7 +155,7 @@ class Jotube(LayoutMethods, FloatLayout):
 
         # For testing
         def testfunc(*a):
-            self.media_control.open_playlist_by_id(4)
+            self.media_control.open_playlist_by_id(8)
         # Clock.schedule_once(testfunc, 0.2)
 
 class Jotube_SM(ScreenManager):
