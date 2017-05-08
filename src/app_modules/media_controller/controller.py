@@ -16,7 +16,7 @@ from kivy.core.window import Window
 import kivy.uix.filechooser as filechooser
 ##from plyer.facades import FileChooser as FileChooser2
 ##from plyer.platforms.linux.filechooser import instance as FileChooser3
-from .fileadder_dialog import FileAdderDialog
+# from .fileadder_dialog import FileAdderDialog
 from app_modules.widgets_integrated.section import rvSection
 from . import various_functions as various
 from . import playlist_loader
