@@ -11,7 +11,7 @@ class SmallVideo(ResizableBehavior, BoxLayout):
     offset_y_out = NumericProperty()
     offset_x = NumericProperty()
     offset_y = NumericProperty()
-    
+
     inside_window = BooleanProperty(False)
     resizable_up = True
     resizable_left = True
@@ -33,21 +33,21 @@ class SmallVideo(ResizableBehavior, BoxLayout):
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
-            if touch.button == 'scrolldown':
-                self.on_video_scroll_down()
-                return True
-            elif touch.button == 'left':
-                self.on_video_touch()
-                return True
-            super(SmallVideo, self).on_touch_down(touch)
+            if touch.button == 'left':
+                if self.check_resizable_side(*touch.pos):
+                    super(SmallVideo, self).on_touch_down(touch)
+                else:
+                    self.on_video_touch()
             return True
 
     def on_touch_up(self, touch):
         if self.collide_point(*touch.pos):
-            if touch.button == 'scrollup':
+            if touch.button == 'scrolldown':
+                self.on_video_scroll_down()
+            elif touch.button == 'scrollup':
                 self.on_video_scroll_up()
-                return True
-            super(SmallVideo, self).on_touch_up(touch)
+            else:
+                super(SmallVideo, self).on_touch_up(touch)
             return True
 
     def on_video_scroll_up(self, *args):

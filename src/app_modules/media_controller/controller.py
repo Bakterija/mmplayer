@@ -19,9 +19,11 @@ import kivy.uix.filechooser as filechooser
 from .fileadder_dialog import FileAdderDialog
 from app_modules.widgets_integrated.section import rvSection
 from . import various_functions as various
-from . import playlists
+from . import playlist_loader
+from kivy.logger import Logger
 import traceback
 import global_vars as gvars
+from time import time
 
 
 class MediaController(Widget):
@@ -33,14 +35,14 @@ class MediaController(Widget):
     cur_viewed_playlist = ListProperty(['', '', None])
     '''ListProperty of [section, name, instance]'''
 
-    queue = ListProperty()
+    cur_queue = ListProperty()
 
     playing_name = StringProperty()
     playing_path = StringProperty()
     playing_seek_value = NumericProperty(0)
     playing_seek_max = NumericProperty(0)
+    adding_files = BooleanProperty(False)
 
-    adding_files = False
     current_screen = ''
     windowpopup = None
     videoframe = None
@@ -51,11 +53,37 @@ class MediaController(Widget):
     def __init__(self, mplayer, **kwargs):
         super(MediaController, self).__init__(**kwargs)
         self.mplayer = mplayer
-        self.mplayer.set_gui_update_callback(self.gui_update)
-        self.mplayer.bind(on_video=self.video_show)
+        self.mplayer.bind(on_start=self.on_mplayer_start)
+        self.mplayer.bind(on_video=self.on_mplayer_video)
         self.skip_seek, self.seek_lock = 0, 0
         self.reset_playlists()
-        Clock.schedule_interval(self.update_seek, 0.2)
+        Clock.schedule_interval(self.update_seek, 0.1)
+
+    def on_mplayer_start(self):
+        state = self.mplayer.get_state_all()
+        index = state['cur_media']['index']
+        self.cur_played_playlist[2].set_playing(index)
+        self.cur_queue = self.cur_played_playlist[2].media
+        self.view_queue.set_data(self.cur_queue)
+        self.refresh_playlist_view()
+        self.refresh_queue_view()
+
+    def on_mplayer_video(self, value, player=None):
+        if value:
+            self.playing_video = True
+        else:
+            self.playing_video = False
+
+    def on_adding_files(self, _, value):
+        # DISABLED FOR NOW
+        #
+        # if not value:
+        #     self.reset_playlists
+        pass
+
+    def on_playlist_media(self, playlist, media):
+        if playlist.path == self.cur_viewed_playlist[2].path:
+            self.view_playlist.update_data()
 
     def attach_playlist_view(self, widget):
         self.view_playlist = widget
@@ -70,22 +98,10 @@ class MediaController(Widget):
         '''Triggered when user touches a MediaButton in playlist'''
         self.mplayer.reset()
         self.cur_played_playlist = self.cur_viewed_playlist
-        self.mplayer.queue = self.cur_played_playlist[2].media[index:]
-        # self.mplayer.playlist.add(name, path)
-        # x = self.rv_playlist.data[index]
-        # self.queue.append({
-        #     'text': x['name'], 'name': x['name'], 'path': x['path'],
-        #     'mtype': x['mtype'], 'pstate': x['pstate']
-        # })
-        # for x in self.rv_playlist.data[index+1:]:
-        #     self.mplayer.playlist.add(x['name'],x['path'])
-        #     nm = {
-        #         'text': x['name'], 'name': x['name'], 'path': x['path'],
-        #         'mtype': x['mtype'], 'pstate': x['pstate']
-        #     }
-        #     self.queue.append(nm)
-        #
-        stat = self.mplayer.start(0)
+        self.mplayer.queue = self.cur_played_playlist[2].media
+        self.view_queue.set_data(self.mplayer.queue)
+        self.refresh_queue_view()
+        stat = self.mplayer.start(index)
 
     def start_queue(self, index):
         '''Triggered when user touches a MediaButton in queue'''
@@ -145,37 +161,6 @@ class MediaController(Widget):
     def refresh_queue_view(self):
         self.view_queue.refresh_from_data()
 
-    def gui_update(self, *args, **kwargs):
-        if kwargs:
-            name = kwargs['name']
-            path = kwargs['path']
-            for i, x in enumerate(self.rv_playlist.data):
-                if x['name'] == name and x['path'] == path:
-                    if kwargs['state'] == 'play':
-                        self.rv_playlist.data[i]['pstate'] = 'playing'
-                    elif kwargs['state'] == 'error':
-                        self.rv_playlist.data[i]['pstate'] = 'error'
-                    continue
-
-                if kwargs['state'] == 'play':
-                    if x['pstate'] == 'playing':
-                        self.rv_playlist.data[i]['pstate'] = 'default'
-
-            for i, x in enumerate(self.rv_queue.data):
-                if x['name'] == name and x['path'] == path:
-                    if kwargs['state'] == 'play':
-                        self.rv_queue.data[i]['pstate'] = 'playing'
-                    elif kwargs['state'] == 'error':
-                        self.rv_queue.data[i]['pstate'] = 'error'
-                    continue
-
-                if kwargs['state'] == 'play':
-                    if x['pstate'] == 'playing':
-                        self.rv_queue.data[i]['pstate'] = 'default'
-
-            self.refresh_rview_playlist()
-            self.refresh_rview_queue()
-
     def update_seek(self, *arg):
         pos = self.mplayer.get_mediaPos()
         dur = self.mplayer.get_mediaDur()
@@ -193,14 +178,18 @@ class MediaController(Widget):
             if self.videoframe and self.videoframe_is_visible:
                 self.videoframe.children[0].size = size
 
+    def on_playing_video(self, _, value):
+        if value:
+            self.video_show(self.mplayer.video_widget)
+        else:
+            self.video_hide()
+
     def video_show(self, widget):
         if self.videoframe and self.videoframe_is_visible:
             self.videoframe.add_widget(widget)
         else:
             self.videoframe_small.add_widget(widget)
             self.videoframe_small.animate_in()
-        self.mplayer.bind(on_start=self.video_hide)
-        self.playing_video = True
 
     def video_hide(self):
         if self.videoframe:
@@ -208,8 +197,6 @@ class MediaController(Widget):
         if self.videoframe_small:
             self.videoframe_small.clear_widgets()
             self.videoframe_small.animate_out()
-        self.mplayer.unbind(on_start=self.video_hide)
-        self.playing_video = False
 
     def on_videoframe_is_visible(self, obj, val):
         if val:
@@ -220,7 +207,6 @@ class MediaController(Widget):
                 self.videoframe_small.animate_out()
                 temp.pos = (0, 0)
         elif self.videoframe.children and self.playing_video:
-            # if self.videoframe.children[0].children:
             temp = self.videoframe.children[0]
             self.videoframe.remove_widget(temp)
             self.videoframe_small.add_widget(temp)
@@ -228,7 +214,8 @@ class MediaController(Widget):
 
     def create_playlist_popup(self, *arg):
         def validate(button):
-            self.create_playlist(inp.text)
+            if inp.text:
+                self.create_playlist(inp.text)
             frame.dismiss()
         try:
             frame = Popup(
@@ -245,93 +232,21 @@ class MediaController(Widget):
             traceback.print_exc()
 
     def on_dropfile(self, path):
-        paths = various.get_files(path)
-        if paths:
-            for path in paths:
-                if self.adding_files:
-                    self.fdiag.add_file(path[1])
-                else:
-                    self.add_local_files_popup(path[1])
+        if not self.adding_files:
+            self.adding_files = True
+            Clock.schedule_once(
+                lambda *a: setattr(self, 'adding_files', False), 0)
+        if self.cur_viewed_playlist[2]:
+            self.cur_viewed_playlist[2].add_path(path)
         else:
-            if self.adding_files:
-                self.fdiag.add_file(path)
-            else:
-                self.add_local_files_popup(path)
-
-    def add_files(self, target, index, plist):
-        target2 = target
-        found = False
-        if index == 'Beginning':
-            index = 0
-        if target[:7] == 'Current':
-            if self.current_screen == 'sc-queue':
-                for item in plist:
-                    self.insert_queue(item['text'], item['path'], index)
-                return
-        for i, x in enumerate(self.playlists[1]):
-            if target[:7] == 'Current':
-                if x['name'] == self.active_playlist['name']:
-                    if x['path'] == self.active_playlist['path']:
-                        target = self.playlists[1][i]
-                        found = True
-                        break
-            else:
-                if x['name'] == target:
-                    target = self.playlists[1][i]
-                    found = True
-                    break
-        if found:
-            if index == 'Next':
-                index = len(target['files'])
-                for i, x in enumerate(target['files']):
-                    if x['pstate'] == 'playing':
-                        index = i
-            elif index == 'End':
-                index = len(target['files'])
-            if target2 == 'Current':
-                for item in plist:
-                    target['files'].insert(index, {
-                        'text': item['text'], 'name': item['text'],
-                        'path': item['path'],
-                        'mtype': 'media', 'pstate': 'default'
-                    })
-            else:
-                for item in plist:
-                    target['files'].insert(index, {
-                        'text': item['text'], 'name': item['text'],
-                        'path': item['path'],
-                        'mtype': 'media', 'pstate': 'default'
-                    })
-            if target['name'] == self.active_playlist['name']:
-                if target['path'] == self.active_playlist['path']:
-                    if self.rv_playlist:
-                        self.rv_playlist.on_playlist(target)
-            various.save_playlist(target['path'], target['files'])
-
-    def add_local_files_popup(self, path):
-        self.adding_files = True
-        plist_arg = [i['name'] for i in self.playlists[1]]
-        plist_arg.insert(0, 'Current ' + self.current_screen)
-        plist_arg.insert(1, 'Queue')
-        self.fdiag = FileAdderDialog(plist_arg, self.add_files)
-        self.fdiag.bind(on_dismiss=lambda *args: setattr(self, 'adding_files', False))
-        self.fdiag.open()
-        self.fdiag.add_file(path)
-
-    def add_local_files_popup2(self, *args):
-        from app_modules import filechooser22
-        try:
-            # self.eemo = FileChooser3()
-            # aa = self.eemo.open_file()
-            self.ee = filechooser22.instance()
-            aa = self.ee._file_selection_dialog(mode = 'filename')
-        except Exception as e:
-            traceback.print_exc()
+            Logger.warning('{}: no playlist selected'.format(
+                self.__class__.__name__))
 
     def playlist_cmenu_popup(self, dictio):
         def validate(button):
-            self.remove_playlist(
-            dictio['name'], dictio['path'], dictio['section'])
+            section = dictio['section']
+            name = dictio['name']
+            self.remove_playlist(name, section)
             remove_windowpopup()
         def remove_windowpopup(*args):
             if self.windowpopup:
@@ -356,47 +271,37 @@ class MediaController(Widget):
         self.windowpopup = frame
 
     def create_playlist(self, name):
-        various.create_playlist(name)
+        playlist_loader.create_playlist(name)
         self.reset_playlists()
 
-    def remove_playlist(self, name, path, section):
-        various.remove_playlist(name, path, section)
-        if path == self.active_playlist['path']:
-            self.reset_playlists()
+    def remove_playlist(self, name, section):
+        for x in self.playlists[section]:
+            if x.name == name:
+                x.remove()
+        self.reset_playlists()
 
-    def reset_playlists(self):
-        files = []
-        self.playlists = playlists.load_from_directory('media/playlists/')
-
-        # self.playlists = various.get_playlists()
-        # np = various.get_playlists()
-        # for x in np: print (x)
-        # for section in self.playlists:
-        #     for item in section:
-        #         nm = {
-        #             'text': item['name'], 'name': item['name'],
-        #             'path': item['path'],
-        #             'mtype': 'folder', 'pstate': 'default',
-        #             'dictio': item, 'section': item['section'],
-        #         }
-        #         files.append(nm)
-        # self.active_playlist = {
-        #     'section': '',
-        #     'files': files,
-        #     'name': '',
-        #     'path': ''
-        # }
-
-
-        # if self.rv_playlist:
-        #     self.rv_playlist.on_playlist(self.active_playlist)
+    def reset_playlists(self, *args):
+        self.playlist_ids = {}
+        pl = playlist_loader.load_from_directories((
+            'media/playlists/', gvars.DIR_PLAYLISTS))
+        self.playlists = pl
+        for section, playlists in self.playlists.items():
+            for x in playlists:
+                x.bind(media=self.on_playlist_media)
+                self.playlist_ids[x.id] = x
 
     def open_playlist(self, target):
-        found = None
         for section, playlists in self.playlists.items():
             for instance in playlists:
-                if target['instance'] == instance:
-                    found = instance
-                    break
+                if target['name'] == instance.name:
+                    self.cur_viewed_playlist = [
+                        section, instance.name, instance]
+                    return
 
-        self.cur_viewed_playlist = [section, instance.name, instance]
+        Logger.warning('MediaController: playlist not found')
+
+    def open_playlist_by_id(self, id):
+        if id in self.playlist_ids:
+            pl = self.playlist_ids[id]
+            target = {'name': pl.name}
+            self.open_playlist(target)

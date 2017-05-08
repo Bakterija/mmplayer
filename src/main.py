@@ -66,17 +66,13 @@ class Jotube(LayoutMethods, FloatLayout):
         self.app_configurator.load_with_args(
             'sidebar_loader', media_controller, playlists)
 
-    def on_dropfile(self, win, val):
+    def on_dropfile(self, win, path):
         '''Runs when a file is dropped on the window'''
-        self.media_control.on_dropfile(val)
+        self.media_control.on_dropfile(path)
 
     def mgui_add_playlist(self, *args):
         '''For adding playlists in MediaController from GUI buttons'''
         self.media_control.create_playlist_popup()
-
-    def mgui_add_local_files(self, *args):
-        '''For adding files to playlists in MediaController from GUI buttons'''
-        self.media_control.add_local_files_popup()
 
     def on_video_screen(self, *args):
         '''Runs when video screen is entered and left.
@@ -90,6 +86,15 @@ class Jotube(LayoutMethods, FloatLayout):
     def set_mplayer_volume(self, value):
         mplayer.set_volume(value)
 
+    def mplayer_seek_relative(self, value):
+        mplayer.seek_relative(value)
+
+    def mplayer_next(self):
+        mplayer.next()
+
+    def mplayer_previous(self):
+        mplayer.previous()
+
     def init_widgets(self, *args):
         self.manager = Jotube_SM()
         # self.manager = Jotube_SM(transition=NoTransition())
@@ -99,7 +104,7 @@ class Jotube(LayoutMethods, FloatLayout):
         self.manager.current = 'media'
 
         ## FIRST SCREEN MEDIA PLAYER - sc-media
-        mplayer.bind(on_error=self.on_error)
+        mplayer.error_callback = self.on_error
         self.media_control = MediaController(mplayer)
         self.media_control.videoframe = self.manager.ids.video_screen
         self.media_control.videoframe_small = self.ids.video_small
@@ -147,6 +152,11 @@ class Jotube(LayoutMethods, FloatLayout):
         super(Jotube, self).init_widgets()
         self.app_configurator.load_after()
         self.ids.playback_bar.media_volume = mplayer.volume * 100
+
+        # For testing
+        def testfunc(*a):
+            self.media_control.open_playlist_by_id(4)
+        # Clock.schedule_once(testfunc, 0.2)
 
 class Jotube_SM(ScreenManager):
 

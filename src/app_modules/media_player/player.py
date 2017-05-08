@@ -4,6 +4,7 @@ from kivy.logger import Logger
 from time import sleep
 from .providers import provider_list as providers
 from .providers.error_player import ErrorPlayer
+from kivy.event import EventDispatcher
 import traceback
 
 
@@ -11,10 +12,12 @@ class MediaPlayer(object):
     cur_index = -1
     player = None
     queue = []
-    video = None
+    is_video = False
+    video_widget = None
     volume = 1.0
     pos = -1
     length = -1
+    cur_media = {'name': '', 'path': ''}
 
     def __init__(self):
         self.callbacks = {
@@ -30,32 +33,28 @@ class MediaPlayer(object):
         }
 
     def reset(self):
-        self.stop()
+        self.unload()
         self.queue = []
 
-    def set_gui_update_callback(self, callback):
-        self.gui_update = callback
+    def unload(self):
+        if self.player:
+            try:
+                self.player.unload()
+            except Exception as e:
+                print (e)
 
     def set_volume(self, value):
         self.volume = float(value) / 100
         if self.player:
             self.player.volume = self.volume
 
-    def do_gui_update(self, *args):
-        if self.gui_update:
-            self.gui_update(**self.get_state_all())
-
     def start(self, index, seek=0.0):
+        self.starting = True
         index = int(index)
-        if self.player:
-            try:
-                self.player.unload()
-            except Exception as e:
-                print (e)
+        self.unload()
         try:
             self.cur_index = index
             self.cur_media = self.queue[index]
-            self.starting = True
 
             for x in providers:
                 player = x.try_loading(self, self.cur_media['path'])
@@ -63,19 +62,12 @@ class MediaPlayer(object):
                     self.player = player
                     self.player.load(self.cur_media['path'])
                     self.player.volume = self.volume
-                    self.player.play()
+                    self.play()
 
                     if seek:
                         self.seek(seek)
 
-                    if self.gui_update:
-                        # self.gui_update(**self.get_state_all())
-                        for x in self.callbacks['on_start']:
-                            x()
-
-                        if player.is_video:
-                            for x in self.callbacks['on_video']:
-                                x(self.player)
+                    self.on_start(index)
                     self.starting = False
                     return True
 
@@ -83,17 +75,11 @@ class MediaPlayer(object):
             traceback.print_exc()
             return
         self.starting = False
-
-        self.player = ErrorPlayer()
-        self.cur_media = {'name': name, 'path': path}
-        if self.gui_update:
-            self.gui_update(**self.get_state_all())
-        for x in self.callbacks['on_error']:
-            x('MediaPlayer: Could not play file {}'.format(name))
-        return False
+        # self.player = ErrorPlayer()
 
     def on_stop(self,*arg):
         if not self.starting:
+            Logger.info('%s: %s' % (self.__class__.__name__, 'on_stop'))
             if self.callbacks['next_on_stop']:
                 self.next()
 
@@ -104,32 +90,24 @@ class MediaPlayer(object):
                 x(self, self.get_mediaPos())
 
     def next(self, *arg):
-        index, name, path = self.playlist.get_next()
-        if index:
-            self.start(str(index))
-            for x in self.callbacks['on_next']:
-                x()
+        if not self.queue:
+            return self.on_error('Empty playlist')
+
+        new_index = self.cur_index + 1
+        if new_index < len(self.queue):
+            self.start(new_index)
+            self.on_next()
         else:
-            if self.playlist.list:
-                if self.callbacks['loop'] == 'playlist':
-                    self.playlist.current = 0
-                    self.start('0')
-                else:
-                    for x in self.callbacks['on_error']:
-                        x('Done playing')
-            else:
-                for x in self.callbacks['on_error']:
-                    x('Playlist is empty')
+            self.on_error('Done playing')
 
     def previous(self, *arg):
-        index, name, path = self.playlist.get_previous()
-        if index:
-            name = self.start(str(index))
-            for x in self.callbacks['on_previous']:
-                x()
-        else:
-            for x in self.callbacks['on_error']:
-                x('Playlist is empty')
+        if not self.queue:
+            return self.on_error('Empty playlist')
+
+        new_index = self.cur_index - 1
+        if new_index != -1:
+            self.start(new_index)
+            self.on_previous()
 
     def seek(self, value):
         if self.player:
@@ -176,19 +154,38 @@ class MediaPlayer(object):
         return {
             'is_video': is_video, 'state': self.get_state(),
             'volume': self.volume, 'pos': self.get_mediaPos(),
-            'length': self.get_mediaDur(), 'name': self.cur_media['name'],
-            'path': self.cur_media['path']}
+            'length': self.get_mediaDur(), 'cur_media': self.cur_media}
 
-    # def get_pos(self):
-    #     '''Unused currently'''
-    #     if self.player != None and self.player != 'external':
-    #         seconds = self.get_mediaPos()
-    #         soundlen = self.get_mediaDur()
-    #         intseconds = int(seconds)
-    #         m, s = divmod(intseconds, 60)
-    #         m2, s2 = divmod(int(soundlen), 60)
-    #         s = str(m).zfill(2)+':'+str(s).zfill(2)+'/'+str(m2).zfill(2)+':'+str(s2).zfill(2)
-    #         return s, seconds, soundlen
+    def on_start(self, index):
+        Logger.info('%s: %s(%s)' % (
+            self.__class__.__name__, 'on_start', index))
+        for x in self.callbacks['on_start']:
+            x()
+
+    def on_next(self):
+        Logger.info('%s: %s' % (self.__class__.__name__, 'on_next'))
+        for x in self.callbacks['on_next']:
+            x()
+
+    def on_previous(self):
+        Logger.info('%s: %s' % (self.__class__.__name__, 'on_previous'))
+        for x in self.callbacks['on_previous']:
+            x()
+
+    def on_error(self, reason):
+        Logger.info('%s: %s' % (self.__class__.__name__, 'on_error'))
+        for x in self.callbacks['on_error']:
+            x(reason)
+
+    def on_video(self, value):
+        self.is_video = value
+        if value:
+            self.video_widget = self.player
+        else:
+            self.video_widget = None
+        for x in self.callbacks['on_video']:
+            x(value, player=self.player)
+
 
     def bind(self, **kwargs):
         for k, v in kwargs.items():

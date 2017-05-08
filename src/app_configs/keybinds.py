@@ -24,17 +24,23 @@ class Config(ConfigBase):
             'vol_decrease', '274', 'down',
             root.ids.playback_bar.volume_decrease, modifier=['ctrl'])
         kbinder.add(
+            'mplayer_previous', '276', 'down',
+            root.mplayer_previous, modifier=['alt'])
+        kbinder.add(
+            'mplayer_next', '275', 'down',
+            root.mplayer_next, modifier=['alt'])
+        kbinder.add(
             'seek_4_sec_back', '276', 'down',
-            lambda: root.mplayer.seek_relative(-4), modifier=['shift'])
+            lambda: root.mplayer_seek_relative(-4), modifier=['shift'])
         kbinder.add(
             'seek_4_sec_forward', '275', 'down',
-            lambda: root.mplayer.seek_relative(4), modifier=['shift'])
+            lambda: root.mplayer_seek_relative(4), modifier=['shift'])
         kbinder.add(
             'seek_60_sec_back', '276', 'down',
-            lambda: root.mplayer.seek_relative(-60), modifier=['ctrl'])
+            lambda: root.mplayer_seek_relative(-60), modifier=['ctrl'])
         kbinder.add(
             'seek_60_sec_forward', '275', 'down',
-            lambda: root.mplayer.seek_relative(60), modifier=['ctrl'])
+            lambda: root.mplayer_seek_relative(60), modifier=['ctrl'])
         kbinder.add(
             'play_pause_toggle', '32', 'down', root.media_control.play_pause)
 

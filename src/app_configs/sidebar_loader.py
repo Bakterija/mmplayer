@@ -56,7 +56,7 @@ class Config(ConfigBase):
         mgui_widget = args[0]
         playlist_dict = args[1]
 
-        new_list = self.default_list
+        new_list = list(self.default_list)
         cur_section = ''
 
         for section, playlists in  sorted(playlist_dict.items()):
@@ -64,8 +64,8 @@ class Config(ConfigBase):
             for plist in sorted_playlists:
                 # If section was added already, add playlist buttons
                 # else add new section
-                item = {'name': plist.name, 'instance': plist}
-                
+                item = {'name': plist.name, 'section': section}
+
                 if cur_section == section:
                     new_list.append(self.get_playlist_button(item))
                 else:

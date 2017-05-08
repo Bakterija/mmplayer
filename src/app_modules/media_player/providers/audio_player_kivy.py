@@ -48,13 +48,19 @@ class AudioPlayer(EventDispatcher):
                 self.sound.seek(position)
 
     def get_pos(self):
-        if self.state == 'stop':
-            return -1
-        if self.state == 'pause':
-            return self.pause_seek
-        if self.length == -1:
-            self.length = self.sound.length
-        return self.sound.get_pos()
+        val = -1
+        try:
+            if self.state == 'stop':
+                pass
+            elif self.state == 'pause':
+                val = self.pause_seek
+            elif self.sound:
+                val = self.sound.get_pos()
+            if self.length == -1:
+                self.length = self.sound.length
+        except Exception as e:
+            print ('AudioPlayer: %s' % (e))
+        return val
 
     def load(self, path):
         if PY2 and type(path) == unicode:

@@ -1,7 +1,9 @@
 from __future__ import print_function
 from kivy.uix.video import Video as Video
 from kivy.properties import NumericProperty
+from kivy.resources import resource_find
 from kivy.compat import PY2
+from kivy.logger import Logger
 
 
 class AppVideoPlayer(Video):
@@ -16,6 +18,12 @@ class AppVideoPlayer(Video):
         self.allow_stretch = True
         self.mplayer = mplayer
         self.bind(on_stop = mplayer.on_stop)
+
+    def on_texture(self, _, value):
+        if value:
+            self.mplayer.on_video(True)
+        else:
+            self.mplayer.on_video(False)
 
     def load(self, path):
         if PY2 and type(path) == unicode:
@@ -60,9 +68,39 @@ class AppVideoPlayer(Video):
         self.container.clear_widgets()
         self.container.add_widget(self._video)
 
+    def unload(self):
+        self.mplayer.on_video(False)
+        super(AppVideoPlayer, self).unload()
+
+    def texture_update(self, *largs):
+        if not self.source:
+            self.texture = None
+        else:
+            filename = resource_find(self.source)
+            self._loops = 0
+            if filename is None:
+                return Logger.error('Image: Error reading file {filename}'.
+                                    format(filename=self.source))
+            mipmap = self.mipmap
+            if self._coreimage is not None:
+                self._coreimage.unbind(on_texture=self._on_tex_change)
+            try:
+                if PY2 and isinstance(filename, str):
+                    filename = filename.decode('utf-8')
+                self._coreimage = ci = CoreImage(filename, mipmap=mipmap,
+                                                 anim_delay=self.anim_delay,
+                                                 keep_data=self.keep_data,
+                                                 nocache=self.nocache)
+            except:
+                self._coreimage = ci = None
+
+            if ci:
+                ci.bind(on_texture=self._on_tex_change)
+                self.texture = ci.texture
+
     @staticmethod
     def try_loading(mplayer, path):
-        if path[-4:] in ('.mp4', '.mkv'):
+        if path[-4:] in ('.mp4', '.mkv', '.flv'):
             return AppVideoPlayer(mplayer)
         else:
             return None

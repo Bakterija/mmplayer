@@ -3,7 +3,7 @@ from kivy.uix.textinput import TextInput
 from kivy.lang import Builder
 
 
-class CompatTextInput(FocusBehaviorCanvas, TextInput):
+class CompatTextInput(TextInput):
     '''TextInput widget which is compatible with this apps behaviors'''
 
     def __init__(self, **kwargs):

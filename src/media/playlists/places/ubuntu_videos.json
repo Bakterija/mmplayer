@@ -1,0 +1,5 @@
+{
+    "name": "Videos",
+    "playlist_type": "folder_loader",
+    "path": "%USER-HOME%/Videos/"
+}

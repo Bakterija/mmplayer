@@ -18,5 +18,5 @@ class MediaQueueView(MediaRecycleviewBase):
         super(MediaQueueView, self).__init__(**kwargs)
         self.viewclass = 'QueueViewClass'
 
-    def on_queue(self, obj, data):
+    def set_queue(self, obj, data):
         self.data = data
