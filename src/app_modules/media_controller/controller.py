@@ -20,8 +20,10 @@ from .fileadder_dialog import FileAdderDialog
 from app_modules.widgets_integrated.section import rvSection
 from . import various_functions as various
 from . import playlist_loader
+from kivy.logger import Logger
 import traceback
 import global_vars as gvars
+from time import time
 
 
 class MediaController(Widget):
@@ -39,8 +41,8 @@ class MediaController(Widget):
     playing_path = StringProperty()
     playing_seek_value = NumericProperty(0)
     playing_seek_max = NumericProperty(0)
+    adding_files = BooleanProperty(False)
 
-    adding_files = False
     current_screen = ''
     windowpopup = None
     videoframe = None
@@ -71,6 +73,17 @@ class MediaController(Widget):
             self.playing_video = True
         else:
             self.playing_video = False
+
+    def on_adding_files(self, _, value):
+        # DISABLED FOR NOW
+        #
+        # if not value:
+        #     self.reset_playlists
+        pass
+
+    def on_playlist_media(self, playlist, media):
+        if playlist.path == self.cur_viewed_playlist[2].path:
+            self.view_playlist.update_data()
 
     def attach_playlist_view(self, widget):
         self.view_playlist = widget
@@ -219,88 +232,15 @@ class MediaController(Widget):
             traceback.print_exc()
 
     def on_dropfile(self, path):
-        paths = various.get_files(path)
-        if paths:
-            for path in paths:
-                if self.adding_files:
-                    self.fdiag.add_file(path[1])
-                else:
-                    self.add_local_files_popup(path[1])
+        if not self.adding_files:
+            self.adding_files = True
+            Clock.schedule_once(
+                lambda *a: setattr(self, 'adding_files', False), 0)
+        if self.cur_viewed_playlist[2]:
+            self.cur_viewed_playlist[2].add_path(path)
         else:
-            if self.adding_files:
-                self.fdiag.add_file(path)
-            else:
-                self.add_local_files_popup(path)
-
-    def add_files(self, target, index, plist):
-        target2 = target
-        found = False
-        if index == 'Beginning':
-            index = 0
-        if target[:7] == 'Current':
-            if self.current_screen == 'sc-queue':
-                for item in plist:
-                    self.insert_queue(item['text'], item['path'], index)
-                return
-        for i, x in enumerate(self.playlists[1]):
-            if target[:7] == 'Current':
-                if x['name'] == self.active_playlist['name']:
-                    if x['path'] == self.active_playlist['path']:
-                        target = self.playlists[1][i]
-                        found = True
-                        break
-            else:
-                if x['name'] == target:
-                    target = self.playlists[1][i]
-                    found = True
-                    break
-        if found:
-            if index == 'Next':
-                index = len(target['files'])
-                for i, x in enumerate(target['files']):
-                    if x['pstate'] == 'playing':
-                        index = i
-            elif index == 'End':
-                index = len(target['files'])
-            if target2 == 'Current':
-                for item in plist:
-                    target['files'].insert(index, {
-                        'text': item['text'], 'name': item['text'],
-                        'path': item['path'],
-                        'mtype': 'media', 'pstate': 'default'
-                    })
-            else:
-                for item in plist:
-                    target['files'].insert(index, {
-                        'text': item['text'], 'name': item['text'],
-                        'path': item['path'],
-                        'mtype': 'media', 'pstate': 'default'
-                    })
-            if target['name'] == self.active_playlist['name']:
-                if target['path'] == self.active_playlist['path']:
-                    if self.rv_playlist:
-                        self.rv_playlist.on_playlist(target)
-            various.save_playlist(target['path'], target['files'])
-
-    def add_local_files_popup(self, path):
-        self.adding_files = True
-        plist_arg = [i['name'] for i in self.playlists[1]]
-        plist_arg.insert(0, 'Current ' + self.current_screen)
-        plist_arg.insert(1, 'Queue')
-        self.fdiag = FileAdderDialog(plist_arg, self.add_files)
-        self.fdiag.bind(on_dismiss=lambda *args: setattr(self, 'adding_files', False))
-        self.fdiag.open()
-        self.fdiag.add_file(path)
-
-    def add_local_files_popup2(self, *args):
-        from app_modules import filechooser22
-        try:
-            # self.eemo = FileChooser3()
-            # aa = self.eemo.open_file()
-            self.ee = filechooser22.instance()
-            aa = self.ee._file_selection_dialog(mode = 'filename')
-        except Exception as e:
-            traceback.print_exc()
+            Logger.warning('{}: no playlist selected'.format(
+                self.__class__.__name__))
 
     def playlist_cmenu_popup(self, dictio):
         def validate(button):
@@ -340,13 +280,14 @@ class MediaController(Widget):
                 x.remove()
         self.reset_playlists()
 
-    def reset_playlists(self):
+    def reset_playlists(self, *args):
         self.playlist_ids = {}
         pl = playlist_loader.load_from_directories((
             'media/playlists/', gvars.DIR_PLAYLISTS))
         self.playlists = pl
         for section, playlists in self.playlists.items():
             for x in playlists:
+                x.bind(media=self.on_playlist_media)
                 self.playlist_ids[x.id] = x
 
     def open_playlist(self, target):

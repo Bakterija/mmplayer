@@ -16,6 +16,7 @@ class BasePlaylist(EventDispatcher):
     playlist_type = StringProperty()
     media = ListProperty()
     cur_playing = -1
+    can_add = True
 
     def __init__(self, **kwargs):
         global next_id
@@ -40,6 +41,10 @@ class BasePlaylist(EventDispatcher):
         self.path = path
         self.name = data['name']
         self.playlist_type = data['playlist_type']
+
+    def add_path(self, path):
+        Logger.error('{}: add_path: can not add to this playlist'.format(
+            self.name))
 
     @staticmethod
     def create():
@@ -66,22 +71,34 @@ class BasePlaylist(EventDispatcher):
 
     def get_files(self, path, sort='abc'):
         templist = []
+        if os.path.isfile(path):
+            return [self.get_default_media_dict(path)]
+
         for dirname, dirnames, filenames in os.walk(path):
             for file_name in filenames:
                 file_path = os.path.join(dirname, file_name)
-                _fp, file_ext = os.path.splitext(file_path)
-                templist.append({
-                    'name': self.py2decode(file_name),
-                    'ext': self.py2decode(file_ext),
-                    'path': self.py2decode(file_path),
-                    'state': 'default'})
+                templist.append(
+                    self.get_default_media_dict(file_path))
         # if sort == 'abc':
         #     templist
         return templist
 
-    def py2decode(self, string):
+    def get_default_media_dict(self, file_path):
+        file_name = os.path.basename(file_path)
+        _fp, file_ext = os.path.splitext(file_path)
+        return {
+            'name': self.get_unicode(file_name),
+            'ext': self.get_unicode(file_ext),
+            'path': self.get_unicode(file_path),
+            'state': 'default'}
+
+    def get_unicode(self, string):
         if PY2:
             string = string.encode('utf-8')
+            string = unicode(string, 'utf-8')
+        else:
+            if isinstance(string, bytes):
+                string = string.decode('utf-8')
         return string
 
     @staticmethod

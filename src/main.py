@@ -66,17 +66,13 @@ class Jotube(LayoutMethods, FloatLayout):
         self.app_configurator.load_with_args(
             'sidebar_loader', media_controller, playlists)
 
-    def on_dropfile(self, win, val):
+    def on_dropfile(self, win, path):
         '''Runs when a file is dropped on the window'''
-        self.media_control.on_dropfile(val)
+        self.media_control.on_dropfile(path)
 
     def mgui_add_playlist(self, *args):
         '''For adding playlists in MediaController from GUI buttons'''
         self.media_control.create_playlist_popup()
-
-    def mgui_add_local_files(self, *args):
-        '''For adding files to playlists in MediaController from GUI buttons'''
-        self.media_control.add_local_files_popup()
 
     def on_video_screen(self, *args):
         '''Runs when video screen is entered and left.
@@ -117,9 +113,6 @@ class Jotube(LayoutMethods, FloatLayout):
                 val, self.media_control.playing_video))
         self.ids.sm_area.bind(
             size=lambda ob,v: self.media_control.on_video_resize(v))
-        # For testing
-        # Clock.schedule_once(
-        #     lambda x: self.media_control.open_playlist_by_id(5), 0)
 
         playlistview = MediaPlaylistView()
         queueview = MediaQueueView()
@@ -160,6 +153,10 @@ class Jotube(LayoutMethods, FloatLayout):
         self.app_configurator.load_after()
         self.ids.playback_bar.media_volume = mplayer.volume * 100
 
+        # For testing
+        def testfunc(*a):
+            self.media_control.open_playlist_by_id(4)
+        # Clock.schedule_once(testfunc, 0.2)
 
 class Jotube_SM(ScreenManager):
 

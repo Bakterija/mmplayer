@@ -1,5 +1,6 @@
 from __future__ import print_function
 from kivy.uix.popup import Popup
+from app_modules.widgets_integrated.popup2 import AppPopup
 from kivy.uix.stacklayout import StackLayout
 from kivy.uix.recycleview import RecycleView
 from kivy.uix.button import Button
@@ -11,92 +12,112 @@ from app_modules.widgets_standalone.background_label import BackgroundLabel
 from kivy.uix.spinner import Spinner
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from kivy.properties import StringProperty
+from app_modules.behaviors.focus import FocusBehavior
 from kivy.metrics import cm
 from kivy.lang import Builder
 from kivy.compat import PY2
+from kivy.uix.boxlayout import BoxLayout
 import os
 
 # TODO FIX FILEADDER FOR PYTHON3
 kv = '''
 #: import aa1 app_modules.widgets_standalone.background_label.BackgroundLabel
 <FileAdderDialog>:
-    title: 'File adder dialog'
+    title: 'FileAdderDialog'
     size_hint: 0.9, 0.7
-    StackLayout:
-        id: content
-        BackgroundLabel:
-            id: filecounter
-            size_hint_y: None
-            height: button_height05
-            background_color: 0.2, 0.2, 0.3, 1
-            text: 'Adding files'
+    title_size: 1
 
-        FileAdderRecycleView:
-            id: file_list
-            size_hint_y: None
-            height: content.height - (cm(1) + cm(2) + cm(0.5) + cm(1))
-            canvas.before:
-                Color:
-                    rgb: 0.22, 0.22, 0.22
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
+<NMNM@StackLayout>:
+    id: content
+    BackgroundLabel:
+        id: filecounter
+        size_hint_y: None
+        height: button_height05
+        background_color: 0.2, 0.2, 0.3, 1
+        text: 'Adding files'
 
-        Widget:
-            size_hint_y: None
-            height: button_height05
+    FileAdderRecycleView:
+        id: file_list
+        size_hint_y: None
+        height: content.height - (cm(1) + cm(2) + cm(0.5) + cm(1))
+        canvas.before:
+            Color:
+                rgb: 0.22, 0.22, 0.22
+            Rectangle:
+                pos: self.pos
+                size: self.size
 
-        Label:
-            id: spinlabel
-            size_hint: None, None
-            height: button_height
-            width: cm(3)
-            text_size: self.size[0], None
-            text: 'Select playlist'
-        Spinner:
-            id: playlist_spinner
-            size_hint: None, None
-            width: content.width - spinlabel.width
-            height: button_height
-            text: 'Current'
+    Widget:
+        size_hint_y: None
+        height: button_height05
 
-        Label:
-            id: spinlabel2
-            size_hint: None, None
-            height: button_height
-            width: cm(3)
-            text_size: self.size[0], None
-            text: 'Select index'
-        Spinner:
-            id: playlist_spinner2
-            size_hint: None, None
-            width: content.width - spinlabel2.width
-            height: button_height
-            text: 'Next'
-            values: 'Beginning', 'Next', 'End'
+    Label:
+        id: spinlabel
+        size_hint: None, None
+        height: button_height
+        width: cm(3)
+        text_size: self.size[0], None
+        text: 'Select playlist'
+    Spinner:
+        id: playlist_spinner
+        size_hint: None, None
+        width: content.width - spinlabel.width
+        height: button_height
+        text: 'Current'
 
-        Widget:
-            size_hint_y: None
-            height: button_height05
+    Label:
+        id: spinlabel2
+        size_hint: None, None
+        height: button_height
+        width: cm(3)
+        text_size: self.size[0], None
+        text: 'Select index'
+    Spinner:
+        id: playlist_spinner2
+        size_hint: None, None
+        width: content.width - spinlabel2.width
+        height: button_height
+        text: 'Next'
+        values: 'Beginning', 'Next', 'End'
 
-        Button:
-            size_hint: 0.5, None
-            height: button_height
-            text: 'Cancel'
-            on_release: root.dismiss()
-        Button:
-            id: addbtn
-            size_hint: 0.5, None
-            height: button_height
-            text: 'Add'
+    Widget:
+        size_hint_y: None
+        height: button_height05
+
+    Button:
+        size_hint: 0.5, None
+        height: button_height
+        text: 'Cancel'
+        on_release: root.dismiss()
+    Button:
+        id: addbtn
+        size_hint: 0.5, None
+        height: button_height
+        text: 'Add'
 '''
 
 
-class FileAdderDialog(Popup):
-    def __init__(self, playlists, on_add, **kwargs):
+class AskSelectPlaylistBox(BoxLayout):
+    def __init__(self, playlists, cur_viewed_playlist, **kwargs):
+        super(AskSelectPlaylistBox, self).__init__(**kwargs)
+        btns = ['', 'Select playlist and add', 'Add to new playlist']
+        if cur_viewed_playlist[2]:
+            btns[0] = cur_viewed_playlist[2].name
+        for x in btns:
+            if x:
+                self.add_widget(AskSelectPlaylistButton(text=x))
+
+
+class AskSelectPlaylistButton(FocusBehavior, Button):
+    pass
+
+
+class FileAdderDialog(AppPopup):
+    def __init__(self, playlists, cur_viewed_playlist, on_add, **kwargs):
         super(FileAdderDialog, self).__init__(**kwargs)
-        self.ids.playlist_spinner.values = [i for i in playlists]
-        self.ids.addbtn.bind(on_release=lambda *args: self.accept_files(on_add))
+        self.content = AskSelectPlaylistBox(playlists, cur_viewed_playlist)
+        # self.ids.playlist_spinner.values = [i for i in playlists]
+        # self.ids.addbtn.bind(on_release=lambda *args: self.accept_files(on_add))
 
     def add_file(self, path):
         name = os.path.split(path)[1]
