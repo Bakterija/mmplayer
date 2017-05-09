@@ -1,24 +1,25 @@
 from __future__ import print_function
 from kivy.uix.widget import Widget
 from kivy.uix.stacklayout import StackLayout
-from kivy.utils import platform
-from kivy.lang import Builder
+# from kivy.utils import platform
+# from kivy.lang import Builder
 from app_modules.widgets_standalone.background_stacklayout import BackgroundStackLayout
 from kivy.uix.textinput import TextInput
 from kivy.metrics import cm, dp
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.uix.button import Button
-from kivy.properties import (BooleanProperty, StringProperty, DictProperty,
-                             ListProperty, NumericProperty, ObjectProperty)
+from kivy.properties import (
+    BooleanProperty, StringProperty, DictProperty,
+    ListProperty, NumericProperty, ObjectProperty)
 from kivy.clock import Clock
 from kivy.core.window import Window
-import kivy.uix.filechooser as filechooser
+# import kivy.uix.filechooser as filechooser
 ##from plyer.facades import FileChooser as FileChooser2
 ##from plyer.platforms.linux.filechooser import instance as FileChooser3
 # from .fileadder_dialog import FileAdderDialog
 from app_modules.widgets_integrated.section import rvSection
-from . import various_functions as various
+# from . import various_functions as various
 from . import playlist_loader
 from kivy.logger import Logger
 import traceback
@@ -53,7 +54,7 @@ class MediaController(Widget):
         self.mplayer.bind(on_start=self.on_mplayer_start)
         self.mplayer.bind(on_video=self.on_mplayer_video)
         self.skip_seek, self.seek_lock = 0, 0
-        self.reset_playlists()
+        # self.reset_playlists()
         Clock.schedule_interval(self.update_seek, 0.1)
 
     def on_mplayer_start(self):
@@ -290,6 +291,7 @@ class MediaController(Widget):
         self.reset_playlists()
 
     def reset_playlists(self, *args):
+        time0 = time()
         self.playlist_ids = {}
         pl = playlist_loader.load_from_directories((
             'media/playlists/', gvars.DIR_PLAYLISTS))
@@ -298,6 +300,8 @@ class MediaController(Widget):
             for x in playlists:
                 x.bind(media=self.on_playlist_media)
                 self.playlist_ids[x.id] = x
+        Logger.info(
+            'MediaController: reset_playlists: %s sec' % (time() - time0))
 
     def open_playlist(self, target):
         for section, playlists in self.playlists.items():

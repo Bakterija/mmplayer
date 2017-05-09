@@ -1,6 +1,6 @@
 from .base import BasePlaylist
 from kivy.logger import Logger
-from app_modules import appworker
+# from app_modules import appworker
 
 
 class FileLoaderPlaylist(BasePlaylist):

@@ -91,6 +91,10 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
                 self.page_up()
             elif key == keys.PAGE_DOWN:
                 self.page_down()
+            elif key == keys.HOME:
+                self.scroll_to_start()
+            elif key == keys.END:
+                self.scroll_to_end()
         elif modifier == ['ctrl']:
             if key == 97:
                 self.select_all()

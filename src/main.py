@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+from time import time
+TIME0 = time()
 __VERSION__ = 11
 from os import chdir
 from os.path import dirname
@@ -11,9 +13,8 @@ try:
 except:
     pass
 import global_vars
-from app_modules import appworker
-appworker.start_workers(1)
-from time import time
+# from app_modules import appworker
+# appworker.start_workers(1)
 from kivy.config import Config
 Config.set('kivy', 'exit_on_escape', 0)
 from kivy.logger import Logger, LoggerHistory
@@ -213,7 +214,12 @@ class JotubeApp(App):
         return self.root_widget
 
     def on_start(self):
+        Logger.info('App: on_start: %s' % (time() - TIME0))
+        Clock.schedule_once(self.on_first_frame, 0)
         pass
+
+    def on_first_frame(self, *args):
+        Logger.info('App: on_first_frame: %s' % (time() - TIME0))
 
     def on_pause(self):
         return True
@@ -234,7 +240,6 @@ class JotubeApp(App):
             self.root_widget.app_configurator.load_with_args(
                 'user_settings', 'save', settings)
 
-
 def main_loop():
     try:
         Builder.load_file('app_modules/layouts/pc_layout.kv')
@@ -243,7 +248,7 @@ def main_loop():
         app.run()
     except Exception as e:
         traceback.print_exc()
-    appworker.stop()
+    # appworker.stop()
 
 if __name__ == "__main__":
     main_loop()

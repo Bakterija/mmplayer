@@ -12,6 +12,14 @@ class AppRecycleView(RecycleView):
             self.children[0].on_data_update_sel(len(self.data), len(value))
         self.data = value
 
+    def scroll_to_start(self):
+        self.scroll_y = 1.0
+        self._update_effect_bounds()
+
+    def scroll_to_end(self):
+        self.scroll_y = 0.0
+        self._update_effect_bounds()
+
     def page_down(self):
         scroll = RecycleView.convert_distance_to_scroll(
             self, 0, self.height)[1] * 0.9
