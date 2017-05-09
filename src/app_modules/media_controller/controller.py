@@ -41,7 +41,6 @@ class MediaController(Widget):
     playing_seek_max = NumericProperty(0)
     adding_files = BooleanProperty(False)
 
-    current_screen = ''
     windowpopup = None
     videoframe = None
     videoframe_is_visible = BooleanProperty(False)

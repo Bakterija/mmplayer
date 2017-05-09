@@ -1,3 +1,4 @@
+from kivy.properties import ListProperty, StringProperty, BooleanProperty
 from kivy.uix.recycleview import RecycleView
 from app_modules import key_binder
 from kivy.clock import Clock
@@ -6,11 +7,53 @@ from kivy.animation import Animation
 
 
 class AppRecycleView(RecycleView):
+    reverse_sorting = BooleanProperty(False)
+    filter_text = StringProperty()
+    sorting_key = StringProperty()
+    data_full = ListProperty()
+    filter_keys = None
 
-    def set_data(self, value):
+    def __init__(self, **kwargs):
+        super(AppRecycleView, self).__init__(**kwargs)
+        self.fbind('reverse_sorting', self.update_data_from_filter)
+        self.fbind('filter_text', self.update_data_from_filter)
+
+    def set_data(self, data_full):
+        self.data_full = data_full
+        self.update_data_from_filter()
+
+    def update_data_from_filter(self, *args):
+        if not self.filter_text:
+            data = self.data_full
+        else:
+            data = self.get_filtered_data(
+                self.data_full, self.filter_keys, self.filter_text)
         if self.children:
-            self.children[0].on_data_update_sel(len(self.data), len(value))
-        self.data = value
+            self.children[0].on_data_update_sel(len(self.data), len(data))
+        self.data = data
+
+    @staticmethod
+    def get_filtered_data(data, filter_keys, find_text):
+        templist = []
+        find_text = find_text.lower()
+        if filter_keys:
+            for item in data:
+                for key, value in item.items():
+                    if key in filter_keys:
+                        if isinstance(value, int) or isinstance(value, float):
+                            continue
+                        if value.lower().find(find_text) != -1:
+                            templist.append(item)
+                            break
+        else:
+            for item in data:
+                for key, value in item.items():
+                    if isinstance(value, int) or isinstance(value, float):
+                        continue
+                    if value.lower().find(find_text) != -1:
+                        templist.append(item)
+                        break
+        return templist
 
     def scroll_to_start(self):
         self.scroll_y = 1.0

@@ -3,6 +3,7 @@ from kivy.core.window import Window
 from kivy.metrics import dp
 from kivy.clock import Clock
 from kivy.properties import BooleanProperty
+from kivy.logger import Logger
 
 
 class LayoutMethods(object):
@@ -38,6 +39,7 @@ class LayoutMethods(object):
         self.on_mouse_move(None, (-1,-1))
 
     def restore_window(self, *args):
+        Logger.info('ScreenManager: ids:{}'.format(self.manager.ids))
         if self.manager.ids.videoframe.maximized:
             self.manager.ids.videoframe.maximize_borderless_toggle()
 

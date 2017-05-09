@@ -62,6 +62,10 @@ class MediaButton(HoverBehavior, AppRecycleViewClass, RecycleDataViewBehavior,
         self.set_bg_color()
 
 class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
+    def __init__(self, **kwargs):
+        super(MediaRecycleviewBase, self).__init__(**kwargs)
+        self.filter_keys = ['name']
+
     def on_kb_return(self):
         box = self.children[0]
         if box.sel_first != -1:

@@ -12,7 +12,9 @@
             size_hint_y: None
             height: button_height
             y: root.height - button_height
-            FilterInputBox
+            FilterInputBox:
+                id: media_filter_widget
+                on_filter_text: app.root_widget.set_media_filter_text(self.filter_text)
 
         StackLayout:
             id: media_stack

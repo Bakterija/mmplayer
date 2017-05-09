@@ -1,6 +1,13 @@
 TAB = 9
 RETURN = 13
 
+ESC = 27
+SPACE = 32
+
+TILDE = 96
+
+L = 108
+
 ENTER = 271
 
 UP = 273
