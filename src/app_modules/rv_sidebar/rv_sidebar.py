@@ -105,10 +105,11 @@ class SideBarViewClass(RecycleDataViewBehavior, ButtonBehavior, StackLayout):
             traceback.print_exc()
 
     def do_func(self):
-        self.func()
-        if self.can_select:
-            self.rv.selected_index = self.index
-            self.lbl.selected = True
+        if self.func:
+            self.func()
+            if self.can_select:
+                self.rv.selected_index = self.index
+                self.lbl.selected = True
 
     def on_left_click(self):
         self.do_func()

@@ -89,8 +89,9 @@ def focus_next():
 
 def remove_focus():
     global current_focus
-    current_focus.focus = False
-    current_focus = None
+    if current_focus:
+        current_focus.focus = False
+        current_focus = None
 
 def set_focus(widget):
     global current_focus
@@ -104,6 +105,14 @@ class FocusBehavior(Widget):
     def __init__(self, **kwargs):
         super(FocusBehavior, self).__init__(**kwargs)
         self.bind(parent=on_parent)
+        self.bind(focus=self.remove_other_focused)
+
+    def remove_other_focused(self, _, value):
+        global current_focus
+        if value:
+            if current_focus != self:
+                remove_focus()
+                set_focus(self)
 
     def on_key_down(self, key, *args):
         pass

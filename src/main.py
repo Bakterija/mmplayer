@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+from time import time
+TIME0 = time()
 __VERSION__ = 11
 from os import chdir
 from os.path import dirname
@@ -11,7 +13,8 @@ try:
 except:
     pass
 import global_vars
-from time import time
+# from app_modules import appworker
+# appworker.start_workers(1)
 from kivy.config import Config
 Config.set('kivy', 'exit_on_escape', 0)
 from kivy.logger import Logger, LoggerHistory
@@ -34,6 +37,7 @@ from app_modules.media_controller.media_queue_view import MediaQueueView
 from app_configs import AppConfigHandler
 from kivy.config import Config as KivyConfig
 from app_modules.behaviors.focus import focus
+from utils import get_unicode
 import traceback
 import sys
 
@@ -69,6 +73,10 @@ class Jotube(LayoutMethods, FloatLayout):
 
     def on_dropfile(self, win, path):
         '''Runs when a file is dropped on the window'''
+        self.display_info('DROPPED FILES: %s' % (get_unicode(path)))
+        Clock.schedule_once(lambda *a: self.on_dropfile_after(path), 0.5)
+
+    def on_dropfile_after(self, path):
         self.media_control.on_dropfile(path)
 
     def mgui_add_playlist(self, *args):
@@ -79,6 +87,9 @@ class Jotube(LayoutMethods, FloatLayout):
         '''Runs when video screen is entered and left.
         Moves small video in or out, among other things'''
         super(Jotube, self).on_video_screen(*args)
+
+    def display_info(self, text):
+        self.ids.info_widget.info(text)
 
     def on_error(self, error):
         '''For showing errors in GUI'''
@@ -104,7 +115,7 @@ class Jotube(LayoutMethods, FloatLayout):
                     'Queue is empty', 'drop a file/folder here',
                     'or select a playlist'))
         elif screen == 'media':
-            if not playlist.media:
+            if playlist and not playlist.media:
                 if playlist.can_add:
                     playhint.text = 'Playlist is empty\ndrop a file/folder here'
                 else:
@@ -122,6 +133,10 @@ class Jotube(LayoutMethods, FloatLayout):
             self.on_viewed_playlist(self.media_control, pl, screen=value)
         elif value == 'queue':
             self.on_viewed_playlist(self.media_control, None, screen=value)
+
+    def set_media_filter_text(self, text):
+        if self.media_control.view_playlist:
+            self.media_control.view_playlist.filter_text = text
 
     def init_widgets(self, *args):
         self.manager = Jotube_SM()
@@ -203,7 +218,12 @@ class JotubeApp(App):
         return self.root_widget
 
     def on_start(self):
+        Logger.info('App: on_start: %s' % (time() - TIME0))
+        Clock.schedule_once(self.on_first_frame, 0)
         pass
+
+    def on_first_frame(self, *args):
+        Logger.info('App: on_first_frame: %s' % (time() - TIME0))
 
     def on_pause(self):
         return True
@@ -218,10 +238,11 @@ class JotubeApp(App):
             self.stop()
 
     def on_stop(self):
-        settings = {'volume': str(mplayer.volume)}
-        self.root_widget.app_configurator.load_with_args(
-            'user_settings', 'save', settings)
-
+        if not hasattr(self, 'app_is_stopping_now'):
+            self.app_is_stopping_now = True
+            settings = {'volume': str(mplayer.volume)}
+            self.root_widget.app_configurator.load_with_args(
+                'user_settings', 'save', settings)
 
 def main_loop():
     try:
@@ -231,6 +252,7 @@ def main_loop():
         app.run()
     except Exception as e:
         traceback.print_exc()
+    # appworker.stop()
 
 if __name__ == "__main__":
     main_loop()

@@ -1,6 +1,7 @@
 from app_modules.behaviors.focus import focus as focus_behavior
 from app_modules import key_binder as kbinder
 from .config_base import ConfigBase
+from app_modules import keys
 from kivy.app import App
 
 class Config(ConfigBase):
@@ -14,39 +15,44 @@ class Config(ConfigBase):
         app = App.get_running_app()
         # kbinder.log_keys = True
 
-        kbinder.add('quit', 27, 'down', app.kb_esc)
-        kbinder.add('focus_next', 9, 'down', focus_behavior.focus_next)
+        kbinder.add('quit', keys.ESC, 'down', app.kb_esc)
+        kbinder.add('focus_next', keys.TAB, 'down', focus_behavior.focus_next)
 
         kbinder.add(
-            'vol_increase', '273', 'down',
+            'focus_filter', keys.L, 'down',
+            root.manager.ids.media_filter_widget.focus_input,
+            modifier=['ctrl'])
+
+        kbinder.add(
+            'vol_increase', keys.UP, 'down',
             root.ids.playback_bar.volume_increase, modifier=['ctrl'])
         kbinder.add(
-            'vol_decrease', '274', 'down',
+            'vol_decrease', keys.DOWN, 'down',
             root.ids.playback_bar.volume_decrease, modifier=['ctrl'])
         kbinder.add(
-            'mplayer_previous', '276', 'down',
+            'mplayer_previous', keys.LEFT, 'down',
             root.mplayer_previous, modifier=['alt'])
         kbinder.add(
-            'mplayer_next', '275', 'down',
+            'mplayer_next', keys.RIGHT, 'down',
             root.mplayer_next, modifier=['alt'])
         kbinder.add(
-            'seek_4_sec_back', '276', 'down',
+            'seek_4_sec_back', keys.LEFT, 'down',
             lambda: root.mplayer_seek_relative(-4), modifier=['shift'])
         kbinder.add(
-            'seek_4_sec_forward', '275', 'down',
+            'seek_4_sec_forward', keys.RIGHT, 'down',
             lambda: root.mplayer_seek_relative(4), modifier=['shift'])
         kbinder.add(
-            'seek_60_sec_back', '276', 'down',
+            'seek_60_sec_back', keys.LEFT, 'down',
             lambda: root.mplayer_seek_relative(-60), modifier=['ctrl'])
         kbinder.add(
-            'seek_60_sec_forward', '275', 'down',
+            'seek_60_sec_forward', keys.RIGHT, 'down',
             lambda: root.mplayer_seek_relative(60), modifier=['ctrl'])
         kbinder.add(
-            'play_pause_toggle', '32', 'down', root.media_control.play_pause)
+            'play_pause_toggle', keys.SPACE, 'down', root.media_control.play_pause)
 
-        kbinder.add('toggle_terminal', '96', 'down',
+        kbinder.add('toggle_terminal', keys.TILDE, 'down',
                            root.ids.terminal_widget.toggle_pos_multiplier)
-        kbinder.add('terminal_scroll_up', '280', 'down',
+        kbinder.add('terminal_scroll_up', keys.PAGE_UP, 'down',
                           root.ids.terminal_widget.scroll_up)
-        kbinder.add('terminal_scroll_down', '281', 'down',
+        kbinder.add('terminal_scroll_down', keys.PAGE_DOWN, 'down',
                         root.ids.terminal_widget.scroll_down)
