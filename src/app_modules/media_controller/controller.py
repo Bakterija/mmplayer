@@ -25,298 +25,291 @@ import traceback
 import global_vars as gvars
 from time import time
 
-class MediaController(object):
-    class MediaControllerSingleton(Widget):
-        playlists = DictProperty()
+class MediaController(Widget):
+    playlists = DictProperty()
 
-        cur_played_playlist = ObjectProperty()
+    cur_played_playlist = ObjectProperty()
 
-        cur_viewed_playlist = ObjectProperty()
+    cur_viewed_playlist = ObjectProperty()
 
-        cur_queue = ListProperty()
+    cur_queue = ListProperty()
 
-        playing_name = StringProperty()
-        playing_path = StringProperty()
-        playing_seek_value = NumericProperty(0)
-        playing_seek_max = NumericProperty(0)
-        adding_files = BooleanProperty(False)
+    playing_name = StringProperty()
+    playing_path = StringProperty()
+    playing_seek_value = NumericProperty(0)
+    playing_seek_max = NumericProperty(0)
+    adding_files = BooleanProperty(False)
 
-        current_screen = ''
-        windowpopup = None
-        videoframe = None
-        videoframe_is_visible = BooleanProperty(False)
-        videoframe_small = None
-        playing_video = BooleanProperty(False)
+    current_screen = ''
+    windowpopup = None
+    videoframe = None
+    videoframe_is_visible = BooleanProperty(False)
+    videoframe_small = None
+    playing_video = BooleanProperty(False)
 
-        def __init__(self, mplayer, **kwargs):
-            super(MediaController.MediaControllerSingleton, self).__init__(
-                **kwargs)
-            self.mplayer = mplayer
-            self.mplayer.bind(on_start=self.on_mplayer_start)
-            self.mplayer.bind(on_video=self.on_mplayer_video)
-            self.skip_seek, self.seek_lock = 0, 0
-            self.reset_playlists()
-            Clock.schedule_interval(self.update_seek, 0.1)
+    def __init__(self, mplayer, **kwargs):
+        super(MediaController, self).__init__(**kwargs)
+        self.mplayer = mplayer
+        self.mplayer.bind(on_start=self.on_mplayer_start)
+        self.mplayer.bind(on_video=self.on_mplayer_video)
+        self.skip_seek, self.seek_lock = 0, 0
+        self.reset_playlists()
+        Clock.schedule_interval(self.update_seek, 0.1)
 
-        def on_mplayer_start(self):
-            state = self.mplayer.get_state_all()
-            index = state['cur_media']['index']
-            self.cur_played_playlist.set_playing(index)
-            self.cur_queue = self.cur_played_playlist.media
-            self.view_queue.set_data(self.cur_queue)
-            self.refresh_playlist_view()
-            self.refresh_queue_view()
+    def on_mplayer_start(self):
+        state = self.mplayer.get_state_all()
+        index = state['cur_media']['index']
+        self.cur_played_playlist.set_playing(index)
+        self.cur_queue = self.cur_played_playlist.media
+        self.view_queue.set_data(self.cur_queue)
+        self.refresh_playlist_view()
+        self.refresh_queue_view()
 
-        def on_mplayer_video(self, value, player=None):
-            if value:
-                self.playing_video = True
-            else:
-                self.playing_video = False
+    def on_mplayer_video(self, value, player=None):
+        if value:
+            self.playing_video = True
+        else:
+            self.playing_video = False
 
-        def on_adding_files(self, _, value):
-            # DISABLED FOR NOW
-            #
-            # if not value:
-            #     self.reset_playlists
-            pass
+    def on_adding_files(self, _, value):
+        # DISABLED FOR NOW
+        #
+        # if not value:
+        #     self.reset_playlists
+        pass
 
-        def on_playlist_media(self, playlist, media):
-            if playlist.path == self.cur_viewed_playlist.path:
-                self.view_playlist.update_data()
+    def on_playlist_media(self, playlist, media):
+        if playlist.path == self.cur_viewed_playlist.path:
+            self.view_playlist.update_data()
 
-        def attach_playlist_view(self, widget):
-            self.view_playlist = widget
-            widget.mcontrol = self
-            self.bind(cur_viewed_playlist=widget.set_viewed_playlist)
+    def attach_playlist_view(self, widget):
+        self.view_playlist = widget
+        widget.mcontrol = self
+        self.bind(cur_viewed_playlist=widget.set_viewed_playlist)
 
-        def attach_queue_view(self, widget):
-            self.view_queue = widget
-            widget.mcontrol = self
+    def attach_queue_view(self, widget):
+        self.view_queue = widget
+        widget.mcontrol = self
 
-        def start_playlist(self, name, path, index, btn):
-            '''Triggered when user touches a MediaButton in playlist'''
-            self.mplayer.reset()
-            self.cur_played_playlist = self.cur_viewed_playlist
-            self.mplayer.queue = self.cur_played_playlist.media
-            self.view_queue.set_data(self.mplayer.queue)
-            self.refresh_queue_view()
-            stat = self.mplayer.start(index)
+    def start_playlist(self, name, path, index, btn):
+        '''Triggered when user touches a MediaButton in playlist'''
+        self.mplayer.reset()
+        self.cur_played_playlist = self.cur_viewed_playlist
+        self.mplayer.queue = self.cur_played_playlist.media
+        self.view_queue.set_data(self.mplayer.queue)
+        self.refresh_queue_view()
+        stat = self.mplayer.start(index)
 
-        def start_queue(self, index):
-            '''Triggered when user touches a MediaButton in queue'''
-            stat = self.mplayer.start(str(index))
+    def start_queue(self, index):
+        '''Triggered when user touches a MediaButton in queue'''
+        stat = self.mplayer.start(str(index))
 
-        def insert_queue(self, name, path, index):
-            current = self.mplayer.playlist.get_current()
-            if index == 'Next':
-                if current is None:
-                    index = 0
-                else:
-                    index = current[0] + 1
-            elif index == 'End':
-                index = len(self.mplayer.playlist.list) + 1
-            elif index == 'Beginning':
+    def insert_queue(self, name, path, index):
+        current = self.mplayer.playlist.get_current()
+        if index == 'Next':
+            if current is None:
                 index = 0
-            self.mplayer.playlist.insert(index, name, path)
-            self.queue.insert(index, {
-                'text': name, 'name': name, 'path': path,
-                'mtype': 'media', 'pstate': 'default'
-            })
-
-        def play_pause(self):
-            state = self.mplayer.get_state()
-            if state in ('pause', 'stop'):
-                self.mplayer.play()
             else:
-                self.mplayer.pause()
+                index = current[0] + 1
+        elif index == 'End':
+            index = len(self.mplayer.playlist.list) + 1
+        elif index == 'Beginning':
+            index = 0
+        self.mplayer.playlist.insert(index, name, path)
+        self.queue.insert(index, {
+            'text': name, 'name': name, 'path': path,
+            'mtype': 'media', 'pstate': 'default'
+        })
 
-        def play_next(self):
-            self.mplayer.next()
+    def play_pause(self):
+        state = self.mplayer.get_state()
+        if state in ('pause', 'stop'):
+            self.mplayer.play()
+        else:
+            self.mplayer.pause()
 
-        def play_previous(self):
-            self.mplayer.previous()
+    def play_next(self):
+        self.mplayer.next()
 
-        def set_media_labels(self, string):
-            def resizer_clock(*arg):
-                label = lbl
-                ratio = float(label.size[0]) / float(label.texture_size[0])
-                if ratio < 1:
-                    lentext = len(label.text)
-                    will_remove = lentext - int(
-                        float(lentext) * float(ratio)) + 4
-                    templist = list(label.text)
-                    while will_remove:
-                        del templist[int(len(templist) * 0.8)]
-                        will_remove -= 1
-                    templist.insert(int(len(templist) * 0.8) , '...')
-                    label.text = ''.join(templist)
+    def play_previous(self):
+        self.mplayer.previous()
 
-            lbl = self.ids.media_label
-            lbl.text = string
-            Clock.schedule_once(resizer_clock, 0)
+    def set_media_labels(self, string):
+        def resizer_clock(*arg):
+            label = lbl
+            ratio = float(label.size[0]) / float(label.texture_size[0])
+            if ratio < 1:
+                lentext = len(label.text)
+                will_remove = lentext - int(
+                    float(lentext) * float(ratio)) + 4
+                templist = list(label.text)
+                while will_remove:
+                    del templist[int(len(templist) * 0.8)]
+                    will_remove -= 1
+                templist.insert(int(len(templist) * 0.8) , '...')
+                label.text = ''.join(templist)
 
-        def refresh_playlist_view(self):
-            self.view_playlist.refresh_from_data()
+        lbl = self.ids.media_label
+        lbl.text = string
+        Clock.schedule_once(resizer_clock, 0)
 
-        def refresh_queue_view(self):
-            self.view_queue.refresh_from_data()
+    def refresh_playlist_view(self):
+        self.view_playlist.refresh_from_data()
 
-        def update_seek(self, *arg):
-            pos = self.mplayer.get_mediaPos()
-            dur = self.mplayer.get_mediaDur()
-            if pos == -1:
-                self.playing_seek_value = 0
-            else:
-                self.playing_seek_value = pos
-            if dur == -1:
-                self.playing_seek_max = 0
-            else:
-                self.playing_seek_max = dur
+    def refresh_queue_view(self):
+        self.view_queue.refresh_from_data()
 
-        def on_video_resize(self, size):
-            if self.playing_video:
-                if self.videoframe and self.videoframe_is_visible:
-                    self.videoframe.children[0].size = size
+    def update_seek(self, *arg):
+        pos = self.mplayer.get_mediaPos()
+        dur = self.mplayer.get_mediaDur()
+        if pos == -1:
+            self.playing_seek_value = 0
+        else:
+            self.playing_seek_value = pos
+        if dur == -1:
+            self.playing_seek_max = 0
+        else:
+            self.playing_seek_max = dur
 
-        def on_playing_video(self, _, value):
+    def on_video_resize(self, size):
+        if self.playing_video:
+            if self.videoframe and self.videoframe_is_visible:
+                self.videoframe.children[0].size = size
+
+    def on_playing_video(self, _, value):
+        if not self.videoframe_small:
+            Logger.error(''.join((
+                'MediaController: on_playing_video:',
+                'videoframe_small is None')))
+        else:
             if value:
                 self.video_show(self.mplayer.video_widget)
             else:
                 self.video_hide()
 
-        def video_show(self, widget):
-            if self.videoframe and self.videoframe_is_visible:
-                self.videoframe.add_widget(widget)
-            else:
-                self.videoframe_small.add_widget(widget)
-                self.videoframe_small.animate_in()
-
-        def video_hide(self):
-            if self.videoframe:
-                self.videoframe.clear_widgets()
-            if self.videoframe_small:
-                self.videoframe_small.clear_widgets()
-                self.videoframe_small.animate_out()
-
-        def on_videoframe_is_visible(self, obj, val):
-            if val:
-                if self.videoframe_small.children:
-                    temp = self.videoframe_small.children[0]
-                    self.videoframe_small.remove_widget(temp)
-                    self.videoframe.add_widget(temp)
-                    self.videoframe_small.animate_out()
-                    temp.pos = (0, 0)
-            elif self.videoframe.children and self.playing_video:
-                temp = self.videoframe.children[0]
-                self.videoframe.remove_widget(temp)
-                self.videoframe_small.add_widget(temp)
-                self.videoframe_small.animate_in()
-
-        def create_playlist_popup(self, *arg):
-            def validate(button):
-                if inp.text:
-                    self.create_playlist(inp.text)
-                frame.dismiss()
-            try:
-                frame = Popup(
-                    title='Type playlist name', size_hint=(1,None),
-                    height=cm(4), content=StackLayout())
-                inp = TextInput(
-                    multiline=False, on_text_validate= validate,
-                    size_hint=(1, None), height=gvars.button_height)
-                cancel = Button(
-                    text='Cancel', on_press=frame.dismiss,
-                    size_hint=(0.5, None), height=gvars.button_height)
-                ok = Button(
-                    text='Create', on_press=validate,
-                    size_hint=(0.5, None), height=gvars.button_height)
-                inp.focus = True
-                for x in (inp, cancel, ok):
-                    frame.content.add_widget(x)
-                frame.open()
-            except:
-                traceback.print_exc()
-
-        def on_dropfile(self, path):
-            if not self.adding_files:
-                self.adding_files = True
-                Clock.schedule_once(
-                    lambda *a: setattr(self, 'adding_files', False), 0)
-            if self.cur_viewed_playlist:
-                self.cur_viewed_playlist.add_path(path)
-            else:
-                Logger.warning('{}: no playlist selected'.format(
-                    self.__class__.__name__))
-
-        def playlist_cmenu_popup(self, dictio):
-            def validate(button):
-                section = dictio['section']
-                name = dictio['name']
-                self.remove_playlist(name, section)
-                remove_windowpopup()
-            def remove_windowpopup(*args):
-                if self.windowpopup:
-                    Window.remove_widget(self.windowpopup)
-                    self.windowpopup = None
-            remove_windowpopup()
-
-            frame = BackgroundStackLayout(size_hint=(None, None), width=cm(3),
-                                          background_color=(0.1, 0.1, 0.1, 0.9),
-                                          height=cm(4), pos=(Window.mouse_pos))
-            Window.add_widget(frame)
-            Clock.schedule_once(lambda x: setattr(frame, 'pos', self.to_window(
-                Window.mouse_pos[0], Window.mouse_pos[1])), 0)
-
-            section = rvSection(text='CMENU')
-            remove = Button(
-                text='Remove playlist', on_press=lambda x: validate(x),
-                size_hint=(1, None), height=gvars.button_height)
-            for x in (section, remove):
-                frame.add_widget(x)
-            frame.bind(on_touch_up=lambda *args: remove_windowpopup())
-            self.windowpopup = frame
-
-        def create_playlist(self, name):
-            playlist_loader.create_playlist(name)
-            self.reset_playlists()
-
-        def remove_playlist(self, name, section):
-            for x in self.playlists[section]:
-                if x.name == name:
-                    x.remove()
-            self.reset_playlists()
-
-        def reset_playlists(self, *args):
-            self.playlist_ids = {}
-            pl = playlist_loader.load_from_directories((
-                'media/playlists/', gvars.DIR_PLAYLISTS))
-            self.playlists = pl
-            for section, playlists in self.playlists.items():
-                for x in playlists:
-                    x.bind(media=self.on_playlist_media)
-                    self.playlist_ids[x.id] = x
-
-        def open_playlist(self, target):
-            for section, playlists in self.playlists.items():
-                for instance in playlists:
-                    if target['path'] == instance.path:
-                        self.cur_viewed_playlist = instance
-                        return
-
-            Logger.warning('MediaController: playlist not found')
-
-        def open_playlist_by_id(self, id):
-            if id in self.playlist_ids:
-                pl = self.playlist_ids[id]
-                target = {'name': pl.name}
-                self.open_playlist(target)
-
-    # Singleton instantiation and return
-    instance = None
-    def __init__(self, arg):
-        if not MediaController.instance:
-            MediaController.instance = MediaController.MediaControllerSingleton(arg)
+    def video_show(self, widget):
+        if self.videoframe and self.videoframe_is_visible:
+            self.videoframe.add_widget(widget)
         else:
-            MediaController.instance.val = arg
-    def __getattr__(self, name):
-        return getattr(self.instance, name)
+            self.videoframe_small.add_widget(widget)
+            self.videoframe_small.animate_in()
+
+    def video_hide(self):
+        if self.videoframe:
+            self.videoframe.clear_widgets()
+        if self.videoframe_small:
+            self.videoframe_small.clear_widgets()
+            self.videoframe_small.animate_out()
+
+    def on_videoframe_is_visible(self, obj, val):
+        if val:
+            if self.videoframe_small.children:
+                temp = self.videoframe_small.children[0]
+                self.videoframe_small.remove_widget(temp)
+                self.videoframe.add_widget(temp)
+                self.videoframe_small.animate_out()
+                temp.pos = (0, 0)
+        elif self.videoframe.children and self.playing_video:
+            temp = self.videoframe.children[0]
+            self.videoframe.remove_widget(temp)
+            self.videoframe_small.add_widget(temp)
+            self.videoframe_small.animate_in()
+
+    def create_playlist_popup(self, *arg):
+        def validate(button):
+            if inp.text:
+                self.create_playlist(inp.text)
+            frame.dismiss()
+        try:
+            frame = Popup(
+                title='Type playlist name', size_hint=(1,None),
+                height=cm(4), content=StackLayout())
+            inp = TextInput(
+                multiline=False, on_text_validate= validate,
+                size_hint=(1, None), height=gvars.button_height)
+            cancel = Button(
+                text='Cancel', on_press=frame.dismiss,
+                size_hint=(0.5, None), height=gvars.button_height)
+            ok = Button(
+                text='Create', on_press=validate,
+                size_hint=(0.5, None), height=gvars.button_height)
+            inp.focus = True
+            for x in (inp, cancel, ok):
+                frame.content.add_widget(x)
+            frame.open()
+        except:
+            traceback.print_exc()
+
+    def on_dropfile(self, path):
+        # if not self.adding_files:
+        #     self.adding_files = True
+        #     Clock.schedule_once(
+        #         lambda *a: setattr(self, 'adding_files', False), 0)
+        if self.cur_viewed_playlist:
+            self.cur_viewed_playlist.add_path_async(path)
+        else:
+            Logger.warning('{}: no playlist selected'.format(
+                self.__class__.__name__))
+
+    def playlist_cmenu_popup(self, dictio):
+        def validate(button):
+            section = dictio['section']
+            name = dictio['name']
+            self.remove_playlist(name, section)
+            remove_windowpopup()
+        def remove_windowpopup(*args):
+            if self.windowpopup:
+                Window.remove_widget(self.windowpopup)
+                self.windowpopup = None
+        remove_windowpopup()
+
+        frame = BackgroundStackLayout(size_hint=(None, None), width=cm(3),
+                                      background_color=(0.1, 0.1, 0.1, 0.9),
+                                      height=cm(4), pos=(Window.mouse_pos))
+        Window.add_widget(frame)
+        Clock.schedule_once(lambda x: setattr(frame, 'pos', self.to_window(
+            Window.mouse_pos[0], Window.mouse_pos[1])), 0)
+
+        section = rvSection(text='CMENU')
+        remove = Button(
+            text='Remove playlist', on_press=lambda x: validate(x),
+            size_hint=(1, None), height=gvars.button_height)
+        for x in (section, remove):
+            frame.add_widget(x)
+        frame.bind(on_touch_up=lambda *args: remove_windowpopup())
+        self.windowpopup = frame
+
+    def create_playlist(self, name):
+        playlist_loader.create_playlist(name)
+        self.reset_playlists()
+
+    def remove_playlist(self, name, section):
+        for x in self.playlists[section]:
+            if x.name == name:
+                x.remove()
+        self.reset_playlists()
+
+    def reset_playlists(self, *args):
+        self.playlist_ids = {}
+        pl = playlist_loader.load_from_directories((
+            'media/playlists/', gvars.DIR_PLAYLISTS))
+        self.playlists = pl
+        for section, playlists in self.playlists.items():
+            for x in playlists:
+                x.bind(media=self.on_playlist_media)
+                self.playlist_ids[x.id] = x
+
+    def open_playlist(self, target):
+        for section, playlists in self.playlists.items():
+            for instance in playlists:
+                if target['path'] == instance.path:
+                    self.cur_viewed_playlist = instance
+                    return
+
+        Logger.warning('MediaController: playlist not found')
+
+    def open_playlist_by_id(self, id):
+        if id in self.playlist_ids:
+            pl = self.playlist_ids[id]
+            target = {'name': pl.name}
+            self.open_playlist(target)

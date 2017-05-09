@@ -11,6 +11,8 @@ try:
 except:
     pass
 import global_vars
+from app_modules import appworker
+appworker.start_workers(1)
 from time import time
 from kivy.config import Config
 Config.set('kivy', 'exit_on_escape', 0)
@@ -69,8 +71,8 @@ class Jotube(LayoutMethods, FloatLayout):
 
     def on_dropfile(self, win, path):
         '''Runs when a file is dropped on the window'''
+        self.display_info('DROPPED FILES: %s' % (path))
         self.media_control.on_dropfile(path)
-        # self.display_info('DROPPED FILES: %s' % (path))
 
     def mgui_add_playlist(self, *args):
         '''For adding playlists in MediaController from GUI buttons'''
@@ -222,9 +224,11 @@ class JotubeApp(App):
             self.stop()
 
     def on_stop(self):
-        settings = {'volume': str(mplayer.volume)}
-        self.root_widget.app_configurator.load_with_args(
-            'user_settings', 'save', settings)
+        if not hasattr(self, 'app_is_stopping_now'):
+            self.app_is_stopping_now = True
+            settings = {'volume': str(mplayer.volume)}
+            self.root_widget.app_configurator.load_with_args(
+                'user_settings', 'save', settings)
 
 
 def main_loop():
@@ -235,6 +239,7 @@ def main_loop():
         app.run()
     except Exception as e:
         traceback.print_exc()
+    appworker.stop()
 
 if __name__ == "__main__":
     main_loop()
