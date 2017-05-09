@@ -39,7 +39,6 @@ class MediaController(Widget):
     playing_path = StringProperty()
     playing_seek_value = NumericProperty(0)
     playing_seek_max = NumericProperty(0)
-    adding_files = BooleanProperty(False)
 
     windowpopup = None
     videoframe = None
@@ -70,13 +69,6 @@ class MediaController(Widget):
             self.playing_video = True
         else:
             self.playing_video = False
-
-    def on_adding_files(self, _, value):
-        # DISABLED FOR NOW
-        #
-        # if not value:
-        #     self.reset_playlists
-        pass
 
     def on_playlist_media(self, playlist, media):
         if playlist.path == self.cur_viewed_playlist.path:
@@ -241,10 +233,6 @@ class MediaController(Widget):
             traceback.print_exc()
 
     def on_dropfile(self, path):
-        # if not self.adding_files:
-        #     self.adding_files = True
-        #     Clock.schedule_once(
-        #         lambda *a: setattr(self, 'adding_files', False), 0)
         if self.cur_viewed_playlist:
             self.cur_viewed_playlist.add_path(path)
         else:

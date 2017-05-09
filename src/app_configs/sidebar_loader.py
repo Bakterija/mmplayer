@@ -13,7 +13,7 @@ class Config(ConfigBase):
         self.default_list = [
             self.get_section('SCREENS'),
             self.get_button(
-                'Main', lambda: root.switch_screen('media'), None),
+                'Main', lambda: root.switch_screen('main'), None),
             self.get_button(
                 'Queue', lambda: root.switch_screen('queue'), None),
             self.get_button(

@@ -5,6 +5,18 @@
 <Jotube_SM>:
 
     Screen:
+        id: main_screen
+        name: 'main'
+        Label:
+            text: 'Nothing here yet \nAdd or select a playlist'
+            canvas.before:
+                Color:
+                    rgb: 0.2, 0.2, 0.25
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+    Screen:
         id: media_screen
         name: 'media'
         StackLayout:
