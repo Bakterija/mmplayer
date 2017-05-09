@@ -19,14 +19,9 @@ class BasePlaylist(EventDispatcher):
     cur_playing = -1
     can_add = True
     allowed_extensions = {
-        '.flac', '.midi', '.webm', '.vob', '.ogv', '.apun', '.mp3', '.ogg',
-        '.m4a', '.mp4', '.mkv', '.dmf', '.dsm', '.far', '.j2b', '.mdl',
-        '.med', '.mod', '.dbm', '.mpg', '.mp2', '.mpeg', '.mpe', '.mpv'
-        '.avi', '.flv', '.wav', '.mid',  '.669', '.abc', '.amf', '.ams',
-        '.mv2', '.mt2', '.mtm', '.okt', '.pat', '.psm', '.ptm', '.s3m',
-        '.stm', '.m4v', '.ult', '.umx', '.far', '.gdm', '.gt2', '.okt',
-        '.f4v', '.f4p', '.f4a', '.f4b', '.stx', '.ult', '.umx', '.uni',
-        '.xm', '.it', '.xm'
+        '.flac', '.midi', '.webm', '.vob', '.ogv', '.mp3', '.ogg',
+        '.m4a', '.mp4', '.mkv', '.mdl', '.mpg', '.mp2', '.mpeg',
+        '.mpe', '.mpv', '.avi', '.flv', '.wav', '.mid', '.mv2', '.m4v'
         }
 
     def __init__(self, **kwargs):
