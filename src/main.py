@@ -104,7 +104,7 @@ class Jotube(LayoutMethods, FloatLayout):
                     'Queue is empty', 'drop a file/folder here',
                     'or select a playlist'))
         elif screen == 'media':
-            if not playlist.media:
+            if playlist and not playlist.media:
                 if playlist.can_add:
                     playhint.text = 'Playlist is empty\ndrop a file/folder here'
                 else:
