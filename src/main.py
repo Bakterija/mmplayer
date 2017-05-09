@@ -133,6 +133,8 @@ class Jotube(LayoutMethods, FloatLayout):
             self.on_viewed_playlist(self.media_control, pl, screen=value)
         elif value == 'queue':
             self.on_viewed_playlist(self.media_control, None, screen=value)
+        else:
+            self.ids.playlisthint.text = ''
 
     def set_media_filter_text(self, text):
         if self.media_control.view_playlist:
