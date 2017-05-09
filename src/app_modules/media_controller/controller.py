@@ -10,7 +10,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.properties import (BooleanProperty, StringProperty, DictProperty,
-                             ListProperty, NumericProperty)
+                             ListProperty, NumericProperty, ObjectProperty)
 from kivy.clock import Clock
 from kivy.core.window import Window
 import kivy.uix.filechooser as filechooser
@@ -29,11 +29,9 @@ class MediaController(object):
     class MediaControllerSingleton(Widget):
         playlists = DictProperty()
 
-        cur_played_playlist = ListProperty(['', '', None])
-        '''ListProperty of [section, name, instance]'''
+        cur_played_playlist = ObjectProperty()
 
-        cur_viewed_playlist = ListProperty(['', '', None])
-        '''ListProperty of [section, name, instance]'''
+        cur_viewed_playlist = ObjectProperty()
 
         cur_queue = ListProperty()
 
@@ -63,8 +61,8 @@ class MediaController(object):
         def on_mplayer_start(self):
             state = self.mplayer.get_state_all()
             index = state['cur_media']['index']
-            self.cur_played_playlist[2].set_playing(index)
-            self.cur_queue = self.cur_played_playlist[2].media
+            self.cur_played_playlist.set_playing(index)
+            self.cur_queue = self.cur_played_playlist.media
             self.view_queue.set_data(self.cur_queue)
             self.refresh_playlist_view()
             self.refresh_queue_view()
@@ -83,7 +81,7 @@ class MediaController(object):
             pass
 
         def on_playlist_media(self, playlist, media):
-            if playlist.path == self.cur_viewed_playlist[2].path:
+            if playlist.path == self.cur_viewed_playlist.path:
                 self.view_playlist.update_data()
 
         def attach_playlist_view(self, widget):
@@ -99,7 +97,7 @@ class MediaController(object):
             '''Triggered when user touches a MediaButton in playlist'''
             self.mplayer.reset()
             self.cur_played_playlist = self.cur_viewed_playlist
-            self.mplayer.queue = self.cur_played_playlist[2].media
+            self.mplayer.queue = self.cur_played_playlist.media
             self.view_queue.set_data(self.mplayer.queue)
             self.refresh_queue_view()
             stat = self.mplayer.start(index)
@@ -244,8 +242,8 @@ class MediaController(object):
                 self.adding_files = True
                 Clock.schedule_once(
                     lambda *a: setattr(self, 'adding_files', False), 0)
-            if self.cur_viewed_playlist[2]:
-                self.cur_viewed_playlist[2].add_path(path)
+            if self.cur_viewed_playlist:
+                self.cur_viewed_playlist.add_path(path)
             else:
                 Logger.warning('{}: no playlist selected'.format(
                     self.__class__.__name__))
@@ -301,9 +299,8 @@ class MediaController(object):
         def open_playlist(self, target):
             for section, playlists in self.playlists.items():
                 for instance in playlists:
-                    if target['name'] == instance.name:
-                        self.cur_viewed_playlist = [
-                            section, instance.name, instance]
+                    if target['path'] == instance.path:
+                        self.cur_viewed_playlist = instance
                         return
 
             Logger.warning('MediaController: playlist not found')

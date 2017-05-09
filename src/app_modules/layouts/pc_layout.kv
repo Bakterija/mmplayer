@@ -50,6 +50,12 @@
             Rectangle:
                 size: self.size
                 pos: self.pos
+    Label:
+        id: playlisthint
+        font_size: int(self.height * 0.16)
+        size_hint: None, None
+        size: sm_area.width * 0.5, sm_area.height * 0.3
+        center: sm_area.center
 
     ResizableBoxLayout:
         id: sidebar
