@@ -70,6 +70,7 @@ class Jotube(LayoutMethods, FloatLayout):
     def on_dropfile(self, win, path):
         '''Runs when a file is dropped on the window'''
         self.media_control.on_dropfile(path)
+        # self.display_info('DROPPED FILES: %s' % (path))
 
     def mgui_add_playlist(self, *args):
         '''For adding playlists in MediaController from GUI buttons'''
@@ -79,6 +80,9 @@ class Jotube(LayoutMethods, FloatLayout):
         '''Runs when video screen is entered and left.
         Moves small video in or out, among other things'''
         super(Jotube, self).on_video_screen(*args)
+
+    def display_info(self, text):
+        self.ids.info_widget.info(text)
 
     def on_error(self, error):
         '''For showing errors in GUI'''

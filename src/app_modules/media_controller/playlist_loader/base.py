@@ -2,6 +2,7 @@ from kivy.event import EventDispatcher
 from kivy.properties import StringProperty, ListProperty
 from kivy.compat import PY2
 from kivy.logger import Logger
+from time import time
 import os
 import json
 
@@ -56,6 +57,10 @@ class BasePlaylist(EventDispatcher):
         Logger.error('{}: add_path: can not add to this playlist'.format(
             self.name))
 
+    def add_path_async(self, path):
+        Logger.error('{}: add_path: can not add to this playlist'.format(
+            self.name))
+
     @staticmethod
     def create():
         pass
@@ -81,6 +86,7 @@ class BasePlaylist(EventDispatcher):
 
     def get_files(self, path, sort='abc'):
         templist = []
+        time0 = time()
         if os.path.isfile(path):
             return [self.get_default_media_dict(path)]
 
@@ -92,6 +98,9 @@ class BasePlaylist(EventDispatcher):
                     templist.append(new_file)
         # if sort == 'abc':
         #     templist
+        if time() - time0 > 1.0:
+            Logger.info('{}-playlist: found {} files in {} seconds'.format(
+                self.name, len(templist), time() - time0))
         return templist
 
     def get_default_media_dict(self, file_path):

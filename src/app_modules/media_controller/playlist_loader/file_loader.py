@@ -5,6 +5,7 @@ from kivy.logger import Logger
 class FileLoaderPlaylist(BasePlaylist):
     can_add = True
     file_modif_time = 0
+    adding_files = False
 
     def load(self, path, data):
         super(FileLoaderPlaylist, self).load(path, data)
