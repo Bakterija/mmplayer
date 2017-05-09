@@ -18,7 +18,8 @@ class Config(ConfigBase):
             directories = (
                 'media/thumbnails/',
                 'media/playlists/',
-                global_vars.DIR_PLAYLISTS
+                global_vars.DIR_PLAYLISTS,
+                '%s/playlists/' % (global_vars.DIR_PLAYLISTS)
             )
 
         for x in directories:

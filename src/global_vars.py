@@ -5,7 +5,8 @@ import os
 
 DIR_HOME = os.path.expanduser("~")+'/'
 if platform == 'linux':
-    DIR_PLAYLISTS = '%s.config/github_bakterija/mmplayer/playlists/' % (DIR_HOME)
+    DIR_PLAYLISTS = '%s.config/github_bakterija/mmplayer/playlists/' % (
+        DIR_HOME)
 else:
     DIR_PLAYLISTS = '%sgithub_bakterija/mmplayer/playlists/' % (DIR_HOME)
 
