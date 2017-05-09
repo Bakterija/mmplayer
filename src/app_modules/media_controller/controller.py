@@ -246,7 +246,7 @@ class MediaController(Widget):
         #     Clock.schedule_once(
         #         lambda *a: setattr(self, 'adding_files', False), 0)
         if self.cur_viewed_playlist:
-            self.cur_viewed_playlist.add_path_async(path)
+            self.cur_viewed_playlist.add_path(path)
         else:
             Logger.warning('{}: no playlist selected'.format(
                 self.__class__.__name__))

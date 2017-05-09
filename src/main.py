@@ -36,6 +36,7 @@ from app_modules.media_controller.media_queue_view import MediaQueueView
 from app_configs import AppConfigHandler
 from kivy.config import Config as KivyConfig
 from app_modules.behaviors.focus import focus
+from utils import get_unicode
 import traceback
 import sys
 
@@ -71,7 +72,10 @@ class Jotube(LayoutMethods, FloatLayout):
 
     def on_dropfile(self, win, path):
         '''Runs when a file is dropped on the window'''
-        self.display_info('DROPPED FILES: %s' % (path))
+        self.display_info('DROPPED FILES: %s' % (get_unicode(path)))
+        Clock.schedule_once(lambda *a: self.on_dropfile_after(path), 0.5)
+
+    def on_dropfile_after(self, path):
         self.media_control.on_dropfile(path)
 
     def mgui_add_playlist(self, *args):
