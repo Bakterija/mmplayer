@@ -64,7 +64,8 @@ class Config(ConfigBase):
             for plist in sorted_playlists:
                 # If section was added already, add playlist buttons
                 # else add new section
-                item = {'name': plist.name, 'section': section}
+                item = {
+                    'name': plist.name, 'section': section, 'path': plist.path}
 
                 if cur_section == section:
                     new_list.append(self.get_playlist_button(item))

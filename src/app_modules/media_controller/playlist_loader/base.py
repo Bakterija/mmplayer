@@ -17,6 +17,16 @@ class BasePlaylist(EventDispatcher):
     media = ListProperty()
     cur_playing = -1
     can_add = True
+    allowed_extensions = {
+        '.flac', '.midi', '.webm', '.vob', '.ogv', '.apun', '.mp3', '.ogg',
+        '.m4a', '.mp4', '.mkv', '.dmf', '.dsm', '.far', '.j2b', '.mdl',
+        '.med', '.mod', '.dbm', '.mpg', '.mp2', '.mpeg', '.mpe', '.mpv'
+        '.avi', '.flv', '.wav', '.mid',  '.669', '.abc', '.amf', '.ams',
+        '.mv2', '.mt2', '.mtm', '.okt', '.pat', '.psm', '.ptm', '.s3m',
+        '.stm', '.m4v', '.ult', '.umx', '.far', '.gdm', '.gt2', '.okt',
+        '.f4v', '.f4p', '.f4a', '.f4b', '.stx', '.ult', '.umx', '.uni',
+        '.xm', '.it', '.xm'
+        }
 
     def __init__(self, **kwargs):
         global next_id
@@ -77,8 +87,9 @@ class BasePlaylist(EventDispatcher):
         for dirname, dirnames, filenames in os.walk(path):
             for file_name in filenames:
                 file_path = os.path.join(dirname, file_name)
-                templist.append(
-                    self.get_default_media_dict(file_path))
+                new_file = self.get_default_media_dict(file_path)
+                if new_file:
+                    templist.append(new_file)
         # if sort == 'abc':
         #     templist
         return templist
@@ -86,6 +97,8 @@ class BasePlaylist(EventDispatcher):
     def get_default_media_dict(self, file_path):
         file_name = os.path.basename(file_path)
         _fp, file_ext = os.path.splitext(file_path)
+        if file_ext not in self.allowed_extensions:
+            return None
         return {
             'name': self.get_unicode(file_name),
             'ext': self.get_unicode(file_ext),

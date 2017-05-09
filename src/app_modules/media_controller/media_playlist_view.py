@@ -23,8 +23,8 @@ class MediaPlaylistView(MediaRecycleviewBase):
         self.viewclass = 'PlaylistViewClass'
 
     def set_viewed_playlist(self, mcontrol, new_playlist):
-        self.playlist_instance = new_playlist[2]
-        self.set_data(new_playlist[2].media)
+        self.playlist_instance = new_playlist
+        self.set_data(new_playlist.media)
 
     def update_data(self):
         self.set_data(self.playlist_instance.media)

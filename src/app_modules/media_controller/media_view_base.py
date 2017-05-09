@@ -1,4 +1,5 @@
-from kivy.properties import StringProperty, DictProperty, ListProperty
+from kivy.properties import (
+    StringProperty, DictProperty, ListProperty, NumericProperty)
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from app_modules.widgets_standalone.app_recycleview import AppRecycleView
 from app_modules.widgets_standalone.app_recycleview import AppRecycleBoxLayout
@@ -17,7 +18,7 @@ from kivy.clock import Clock
 
 class MediaButton(HoverBehavior, AppRecycleViewClass, RecycleDataViewBehavior,
                   ButtonBehavior, StackLayout):
-    index = None
+    index = NumericProperty(-1)
     rv = None
     bg_colors = DictProperty()
     state = StringProperty('default')

@@ -45,6 +45,7 @@ if platform in ('windows','win', 'linux'):
 
 class Jotube(LayoutMethods, FloatLayout):
     sidebar_items = ListProperty()
+    media_control = ObjectProperty()
 
     def __init__(self, **kwargs):
         super(Jotube, self).__init__(**kwargs)
@@ -95,8 +96,36 @@ class Jotube(LayoutMethods, FloatLayout):
     def mplayer_previous(self):
         mplayer.previous()
 
+    def on_viewed_playlist(self, mcontrol, playlist, screen='media'):
+        playhint = self.ids.playlisthint
+        if screen == 'queue':
+            if not mplayer.queue:
+                playhint.text = '\n'.join((
+                    'Queue is empty', 'drop a file/folder here',
+                    'or select a playlist'))
+        elif screen == 'media':
+            if not playlist.media:
+                if playlist.can_add:
+                    playhint.text = 'Playlist is empty\ndrop a file/folder here'
+                else:
+                    playhint.text = '{} directory is empty'.format(playlist.name)
+            else:
+                if playhint.text:
+                    playhint.text = ''
+        else:
+            if playhint.text:
+                playhint.text = ''
+
+    def on_screen_current(self, _, value):
+        if value == 'media':
+            pl = self.media_control.cur_viewed_playlist
+            self.on_viewed_playlist(self.media_control, pl, screen=value)
+        elif value == 'queue':
+            self.on_viewed_playlist(self.media_control, None, screen=value)
+
     def init_widgets(self, *args):
         self.manager = Jotube_SM()
+        self.manager.bind(current=self.on_screen_current)
         # self.manager = Jotube_SM(transition=NoTransition())
         self.manager.screen_switch_modified = self.switch_screen
         self.ids.sm_area.add_widget(self.manager)
@@ -108,6 +137,7 @@ class Jotube(LayoutMethods, FloatLayout):
         self.media_control = MediaController(mplayer)
         self.media_control.videoframe = self.manager.ids.video_screen
         self.media_control.videoframe_small = self.ids.video_small
+        self.media_control.bind(cur_viewed_playlist=self.on_viewed_playlist)
         self.media_control.bind(
             videoframe_is_visible=lambda obj, val:self.on_video_screen(
                 val, self.media_control.playing_video))
@@ -155,7 +185,7 @@ class Jotube(LayoutMethods, FloatLayout):
 
         # For testing
         def testfunc(*a):
-            self.media_control.open_playlist_by_id(4)
+            self.media_control.open_playlist_by_id(8)
         # Clock.schedule_once(testfunc, 0.2)
 
 class Jotube_SM(ScreenManager):

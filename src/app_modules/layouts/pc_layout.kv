@@ -1,5 +1,4 @@
 #: import MultiLineLabel app_modules.widgets_standalone.multi_line_label.MultiLineLabel
-#: import LabelButton app_modules.widgets_standalone.labelbutton.LabelButton
 #: import SideBarRecycleView app_modules.rv_sidebar.rv_sidebar.SideBarRecycleView
 #: import PlayBackBar app_modules.playback_bar.playback_bar.PlayBackBar
 #: import ResizableBoxLayout app_modules.widgets_integrated.resizable_boxlayout.ResizableBoxLayout
@@ -30,17 +29,6 @@
             pos: self.right - scrollbar_width, self.pos[1]
             size: scrollbar_width, self.height
 
-<LabelButton>:
-    size_hint: 1, None
-    height: cm(13)
-    canvas.before:
-        Color:
-            rgb: 1, 0, 0
-        Rectangle:
-            size: self.size
-            pos: self.pos
-
-
 <Jotube>:
     side_bar_width: cm(4)
     upper_bar_height: int(cm(1))
@@ -62,6 +50,12 @@
             Rectangle:
                 size: self.size
                 pos: self.pos
+    Label:
+        id: playlisthint
+        font_size: int(self.height * 0.16)
+        size_hint: None, None
+        size: sm_area.width * 0.5, sm_area.height * 0.3
+        center: sm_area.center
 
     ResizableBoxLayout:
         id: sidebar
