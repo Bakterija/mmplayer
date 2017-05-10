@@ -146,7 +146,7 @@ class Jotube(LayoutMethods, FloatLayout):
         self.manager.current = 'main'
 
         ## FIRST SCREEN MEDIA PLAYER - sc-media
-        mplayer.error_callback = self.on_error
+        mplayer.bind(on_error=self.on_error)
         self.media_control = MediaController(mplayer)
         self.media_control.videoframe = self.manager.ids.video_screen
         self.media_control.videoframe_small = self.ids.video_small
@@ -198,8 +198,9 @@ class Jotube(LayoutMethods, FloatLayout):
 
         # For testing
         def testfunc(*a):
-            self.media_control.open_playlist_by_id(8)
-        # Clock.schedule_once(testfunc, 0.2)
+            self.media_control.open_playlist_by_id(3)
+            self.switch_screen('media')
+        Clock.schedule_once(testfunc, 1)
 
 class Jotube_SM(ScreenManager):
 

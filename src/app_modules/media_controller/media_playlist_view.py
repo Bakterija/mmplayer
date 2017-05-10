@@ -12,7 +12,7 @@ class PlaylistViewClass(MediaButton):
     def on_release(self, *args):
         if self.mtype == 'media':
             self.rv.mcontrol.start_playlist(
-                self.name, self.path, self.index, self)
+                self.name, self.path, self.index, self.id, self)
         elif self.mtype == 'folder':
             self.rv.mcontrol.open_playlist(self.dictio)
 

@@ -57,9 +57,9 @@ class MediaController(Widget):
 
     def on_mplayer_start(self):
         state = self.mplayer.get_state_all()
-        index = state['cur_media']['index']
+        index = state['cur_media']['id']
         self.cur_played_playlist.set_playing(index)
-        self.cur_queue = self.cur_played_playlist.media
+        self.cur_queue = self.mplayer.queue
         self.view_queue.set_data(self.cur_queue)
         self.refresh_playlist_view()
         self.refresh_queue_view()
@@ -83,14 +83,14 @@ class MediaController(Widget):
         self.view_queue = widget
         widget.mcontrol = self
 
-    def start_playlist(self, name, path, index, btn):
+    def start_playlist(self, name, path, index, id, btn):
         '''Triggered when user touches a MediaButton in playlist'''
         self.mplayer.reset()
         self.cur_played_playlist = self.cur_viewed_playlist
-        self.mplayer.queue = self.cur_played_playlist.media
+        self.mplayer.queue = self.view_playlist.data[index:]
         self.view_queue.set_data(self.mplayer.queue)
         self.refresh_queue_view()
-        stat = self.mplayer.start(index)
+        stat = self.mplayer.start(0)
 
     def start_queue(self, index):
         '''Triggered when user touches a MediaButton in queue'''
@@ -301,6 +301,9 @@ class MediaController(Widget):
 
     def open_playlist_by_id(self, id):
         if id in self.playlist_ids:
+            print('open ids playlist', id)
             pl = self.playlist_ids[id]
-            target = {'name': pl.name}
+            target = {'name': pl.name, 'path': pl.path}
             self.open_playlist(target)
+        else:
+            print('playlist not in ids', id, self.playlist_ids)

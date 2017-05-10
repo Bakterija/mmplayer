@@ -19,7 +19,8 @@ from kivy.clock import Clock
 
 class MediaButton(HoverBehavior, AppRecycleViewClass, RecycleDataViewBehavior,
                   ButtonBehavior, StackLayout):
-    index = NumericProperty(-1)
+    index = 0
+    id = NumericProperty(-1)
     rv = None
     bg_colors = DictProperty()
     state = StringProperty('default')

@@ -118,6 +118,10 @@ class BasePlaylist(EventDispatcher):
                 string = string.decode('utf-8')
         return string
 
+    def refresh_media_id(self):
+        for i, x in enumerate(self.media):
+            x['id'] = i
+
     @staticmethod
     def strreplace(string):
         replacables = [('%USER-HOME%/', HOME_DIR)]
