@@ -51,14 +51,6 @@ class Jotube(LayoutMethods, FloatLayout):
     sidebar_items = ListProperty()
     media_control = ObjectProperty()
 
-    def __init__(self, **kwargs):
-        super(Jotube, self).__init__(**kwargs)
-        self.data_list = []
-        Window.bind(on_dropfile=self.on_dropfile)
-        self.app_configurator = AppConfigHandler(self)
-        self.app_configurator.load_before()
-        Clock.schedule_once(self.init_widgets, 0)
-
     def switch_screen(self, screen_name):
         if screen_name != self.manager.current:
             self.manager.current = screen_name
@@ -137,10 +129,13 @@ class Jotube(LayoutMethods, FloatLayout):
             self.media_control.view_playlist.filter_text = text
 
     def init_widgets(self, *args):
-        self.manager = Jotube_SM()
+        Window.bind(on_dropfile=self.on_dropfile)
+        self.app_configurator = AppConfigHandler(self)
+        self.app_configurator.load_before()
+        # self.manager = Jotube_SM()
         self.manager = Jotube_SM(transition=NoTransition())
         self.manager.bind(current=self.on_screen_current)
-        self.manager.screen_switch_modified = self.switch_screen
+        # self.manager.screen_switch_modified = self.switch_screen
         self.ids.sm_area.add_widget(self.manager)
 
         self.manager.current = 'main'
@@ -202,10 +197,11 @@ class Jotube(LayoutMethods, FloatLayout):
             self.switch_screen('media')
         Clock.schedule_once(testfunc, 1)
 
-class Jotube_SM(ScreenManager):
 
-    def screen_switch_modified(self):
-        pass
+class Jotube_SM(ScreenManager):
+    pass
+    # def screen_switch_modified(self):
+    #     pass
 
 
 class JotubeApp(App):
@@ -217,9 +213,9 @@ class JotubeApp(App):
         return self.root_widget
 
     def on_start(self):
+        self.root_widget.init_widgets()
         Logger.info('App: on_start: %s' % (time() - TIME0))
         Clock.schedule_once(self.on_first_frame, 0)
-        pass
 
     def on_first_frame(self, *args):
         Logger.info('App: on_first_frame: %s' % (time() - TIME0))

@@ -5,7 +5,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder
 
 
-kv = '''
+Builder.load_string('''
 <FilterInputBox>:
     orientation: 'horizontal'
     canvas.before:
@@ -39,7 +39,7 @@ kv = '''
                 rgba: col_white
             Line:
                 points: self.x, self.y + (self.height * 0.2), self.right - (self.width * 0.05), self.y + (self.height * 0.2)
-'''
+''')
 
 
 class FilterInputBox(BoxLayout):
@@ -49,5 +49,3 @@ class FilterInputBox(BoxLayout):
         input_widget = self.ids.filter_input
         input_widget.focus = True
         input_widget.select_all()
-
-Builder.load_string(kv)
