@@ -11,6 +11,7 @@ from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.stacklayout import StackLayout
 from kivy.lang import Builder
 from kivy.utils import platform
+from kivy.logger import Logger
 from kivy.metrics import cm
 from app_modules import keys
 from kivy.clock import Clock
@@ -65,6 +66,14 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
     def __init__(self, **kwargs):
         super(MediaRecycleviewBase, self).__init__(**kwargs)
         self.filter_keys = ['name']
+
+    def update_data_from_filter(self, *args):
+        Clock.schedule_once(self.log_data_update, 0)
+        super(MediaRecycleviewBase, self).update_data_from_filter()
+
+    def log_data_update(self, dt):
+        Logger.info('{}: loaded {} item playlist in {} sec'.format(
+            self.__class__.__name__, len(self.data), round(dt, 3)))
 
     def on_kb_return(self):
         box = self.children[0]

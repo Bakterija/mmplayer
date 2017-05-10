@@ -1,9 +1,10 @@
 from .config_base import ConfigBase
 from kivy.metrics import cm
+import global_vars as gvars
 
-WIDTH_SECTION = cm(0.6)
-WIDTH_SEPARATOR = cm(0.8)
-WIDTH_TEXT = cm(0.8)
+WIDTH_SECTION = gvars.sidebar_section_height
+WIDTH_SEPARATOR = gvars.rv_default_height
+WIDTH_TEXT = gvars.rv_default_height
 
 
 class Config(ConfigBase):

@@ -60,12 +60,13 @@ class Jotube(LayoutMethods, FloatLayout):
         Clock.schedule_once(self.init_widgets, 0)
 
     def switch_screen(self, screen_name):
-        self.manager.current = screen_name
-        self.media_control.current_screen = screen_name
-        if screen_name == 'video':
-            self.media_control.videoframe_is_visible = True
-        elif self.media_control.videoframe_is_visible:
-            self.media_control.videoframe_is_visible = False
+        if screen_name != self.manager.current:
+            self.manager.current = screen_name
+            self.media_control.current_screen = screen_name
+            if screen_name == 'video':
+                self.media_control.videoframe_is_visible = True
+            elif self.media_control.videoframe_is_visible:
+                self.media_control.videoframe_is_visible = False
 
     def reset_sidebar_widgets(self, media_controller, playlists):
         self.app_configurator.load_with_args(

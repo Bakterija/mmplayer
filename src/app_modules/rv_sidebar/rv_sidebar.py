@@ -23,6 +23,7 @@ from kivy.clock import Clock
 from kivy.core.window import Window
 from app_modules import keys as kb
 import traceback
+from time import time
 
 
 kv = '''

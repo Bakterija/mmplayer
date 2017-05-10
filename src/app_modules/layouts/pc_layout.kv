@@ -31,8 +31,8 @@
 
 <Jotube>:
     side_bar_width: cm(4)
-    upper_bar_height: int(cm(1))
-    lower_bar_height: int(cm(1.5))
+    upper_bar_height: button_height
+    lower_bar_height: lower_bar_height
     lower_bar_offset_y: 0
     side_bar_offset_x: 0
     upper_bar_offset_y: 0
@@ -80,10 +80,18 @@
         Button:
             text: 'Add playlist'
             size_hint_y: None
-            height: button_height
-            text_size: self.width * 0.8, 20
-            background_color: 0.6, 0.6, 0.6, 0.7
+            height: button_height15
+            font_size: int(self.height * 0.4)
+            text_size: self.width * 0.8, None
+            background_normal: 'data/grey_dark.png'
             on_release: root.mgui_add_playlist()
+            canvas.after:
+                Color:
+                    rgb: border_color0
+                Line:
+                    points: self.x, self.top, self.right, self.top
+                Line:
+                    points: self.x, self.y + 1, self.right, self.y + 1
 
     BoxLayout:
         id: lower_bar

@@ -14,8 +14,8 @@ kv22 = """
     col_canvas_selected: [0.6, 1, 0.6, 0.3]
     col_canvas_hover_selected: [0.7, 0.2, 0.2, 1]
     text_size: self.size
-    height: int(cm(0.8))
-    font_size: int(self.height * 0.5)
+    height: rv_default_height
+    font_size: int(self.height * 0.6)
     shorten: True
     shorten_from: 'right'
     canvas.before:
@@ -26,7 +26,7 @@ kv22 = """
             size: self.size
 
 <rvSection>:
-    height: int(cm(0.6))
+    height: sidebar_section_height
     font_size: int(self.height * 0.6)
     background_color: 0.2, 0.2, 0.2
     text_size: self.size
