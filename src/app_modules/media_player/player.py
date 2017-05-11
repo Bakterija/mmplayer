@@ -15,6 +15,7 @@ class MediaPlayer(object):
     is_video = False
     video_widget = None
     volume = 1.0
+    volume_real = 1.0
     pos = -1
     length = -1
     cur_media = {'name': '', 'path': ''}
@@ -44,10 +45,10 @@ class MediaPlayer(object):
                 print (e)
 
     def set_volume(self, value):
-        value = (float(value) * float(value)) / 10000
-        self.volume = float(value)
+        self.volume = float(value) / 100
         if self.player:
-            self.player.volume = self.volume
+            self.volume_real = (float(value) * float(value)) / 10000
+            self.player.volume = self.volume_real
 
     def start(self, index, seek=0.0):
         self.starting = True
@@ -62,7 +63,7 @@ class MediaPlayer(object):
                 if player:
                     self.player = player
                     self.player.load(self.cur_media['path'])
-                    self.player.volume = self.volume
+                    self.player.volume = self.volume_real
                     self.play()
 
                     if seek:
