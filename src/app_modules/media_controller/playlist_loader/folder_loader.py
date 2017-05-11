@@ -15,6 +15,7 @@ class FolderLoaderPlaylist(BasePlaylist):
         for i, x in enumerate(folder_files):
             folder_files[i]['index'] = i
         self.media = folder_files
+        self.refresh_media_id()
 
     @staticmethod
     def create(name, path, load_path):

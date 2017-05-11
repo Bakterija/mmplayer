@@ -34,11 +34,16 @@ def __set_app_globals__():
 
     col_ncolbg = (0.09, 0.09, 0.1, 1)
 
-    rv_default_height = int(cm(0.7))
+
+    button_height = int(cm(0.7))
+    button_height20 = int(button_height * 2.0)
+    button_height15 = int(button_height * 1.5)
+    button_height05 = int(button_height * 0.5)
+    lower_bar_height = int(button_height * 2.0)
+    rv_default_height = button_height
+    sidebar_section_height = int(button_height * 0.8)
     scrollbar_width = int(cm(0.6))
     default_spacing = 1
-    button_height = int(cm(1))
-    button_height05 = int(cm(1) * 0.5)
     scroll_wheel_distance = (rv_default_height + default_spacing) * 2
 
     app_background = (0.10, 0.10, 0.10, 1)

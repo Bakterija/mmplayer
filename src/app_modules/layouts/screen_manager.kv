@@ -5,13 +5,25 @@
 <Jotube_SM>:
 
     Screen:
+        id: main_screen
+        name: 'main'
+        Label:
+            text: 'Nothing here yet \nAdd or select a playlist'
+            canvas.before:
+                Color:
+                    rgb: 0.2, 0.2, 0.25
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+    Screen:
         id: media_screen
         name: 'media'
         StackLayout:
             id: mstack0
             size_hint_y: None
-            height: button_height
-            y: root.height - button_height
+            height: button_height15
+            y: root.height - self.height
             FilterInputBox:
                 id: media_filter_widget
                 on_filter_text: app.root_widget.set_media_filter_text(self.filter_text)
@@ -19,7 +31,7 @@
         StackLayout:
             id: media_stack
             size_hint_y: None
-            height: root.height - button_height
+            height: root.height - mstack0.height
 
     Screen:
         id: queue_screen

@@ -1,10 +1,11 @@
 from app_modules.behaviors.focus import FocusBehaviorCanvas
 from kivy.uix.textinput import TextInput
-from kivy.lang import Builder
+# from kivy.lang import Builder
 
 
 class CompatTextInput(FocusBehaviorCanvas, TextInput):
     '''TextInput widget which is compatible with this apps behaviors'''
+    remove_focus_on_touch_move = False
 
     def __init__(self, **kwargs):
         super(CompatTextInput, self).__init__(**kwargs)
@@ -22,6 +23,6 @@ class CompatTextInput(FocusBehaviorCanvas, TextInput):
             window, keycode)
 
 
-Builder.load_string('''
-<CompatTextInput>
-''')
+# Builder.load_string('''
+# <CompatTextInput>
+# ''')

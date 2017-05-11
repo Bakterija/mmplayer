@@ -62,8 +62,9 @@ class BasePlaylist(EventDispatcher):
 
     def save_json(self, playlist_dict):
         with open(self.path, 'w') as outfile:
-            json.dump(playlist_dict, outfile, indent=4, sort_keys=True, separators=(
-                ',', ':'))
+            json.dump(
+                playlist_dict, outfile, indent=4,
+                sort_keys=True, separators=(',', ':'))
 
     def remove(self):
         os.remove(self.path)
@@ -117,6 +118,10 @@ class BasePlaylist(EventDispatcher):
             if isinstance(string, bytes):
                 string = string.decode('utf-8')
         return string
+
+    def refresh_media_id(self):
+        for i, x in enumerate(self.media):
+            x['id'] = i
 
     @staticmethod
     def strreplace(string):

@@ -51,21 +51,14 @@ class Jotube(LayoutMethods, FloatLayout):
     sidebar_items = ListProperty()
     media_control = ObjectProperty()
 
-    def __init__(self, **kwargs):
-        super(Jotube, self).__init__(**kwargs)
-        self.data_list = []
-        Window.bind(on_dropfile=self.on_dropfile)
-        self.app_configurator = AppConfigHandler(self)
-        self.app_configurator.load_before()
-        Clock.schedule_once(self.init_widgets, 0)
-
     def switch_screen(self, screen_name):
-        self.manager.current = screen_name
-        self.media_control.current_screen = screen_name
-        if screen_name == 'video':
-            self.media_control.videoframe_is_visible = True
-        elif self.media_control.videoframe_is_visible:
-            self.media_control.videoframe_is_visible = False
+        if screen_name != self.manager.current:
+            self.manager.current = screen_name
+            self.media_control.current_screen = screen_name
+            if screen_name == 'video':
+                self.media_control.videoframe_is_visible = True
+            elif self.media_control.videoframe_is_visible:
+                self.media_control.videoframe_is_visible = False
 
     def reset_sidebar_widgets(self, media_controller, playlists):
         self.app_configurator.load_with_args(
@@ -108,47 +101,47 @@ class Jotube(LayoutMethods, FloatLayout):
         mplayer.previous()
 
     def on_viewed_playlist(self, mcontrol, playlist, screen='media'):
-        playhint = self.ids.playlisthint
+        self.set_playhint_text(self.manager.current, playlist=playlist)
+
+    def on_screen_current(self, _, value):
+        self.set_playhint_text(value, playlist=None)
+
+    def set_playhint_text(self, screen, playlist=None):
+        mcontrol = self.media_control
+        ntext = ''
         if screen == 'queue':
             if not mplayer.queue:
-                playhint.text = '\n'.join((
+                ntext = '\n'.join((
                     'Queue is empty', 'drop a file/folder here',
                     'or select a playlist'))
         elif screen == 'media':
             if playlist and not playlist.media:
                 if playlist.can_add:
-                    playhint.text = 'Playlist is empty\ndrop a file/folder here'
+                    ntext = 'Playlist is empty\ndrop a file/folder here'
                 else:
-                    playhint.text = '{} directory is empty'.format(playlist.name)
-            else:
-                if playhint.text:
-                    playhint.text = ''
-        else:
-            if playhint.text:
-                playhint.text = ''
-
-    def on_screen_current(self, _, value):
-        if value == 'media':
-            pl = self.media_control.cur_viewed_playlist
-            self.on_viewed_playlist(self.media_control, pl, screen=value)
-        elif value == 'queue':
-            self.on_viewed_playlist(self.media_control, None, screen=value)
+                    ntext = '{} directory is empty'.format(playlist.name)
+        elif screen == 'video' and not mcontrol.playing_video:
+            ntext = 'No video is playing'
+        self.ids.playlisthint.text = ntext
 
     def set_media_filter_text(self, text):
         if self.media_control.view_playlist:
             self.media_control.view_playlist.filter_text = text
 
     def init_widgets(self, *args):
-        self.manager = Jotube_SM()
+        Window.bind(on_dropfile=self.on_dropfile)
+        self.app_configurator = AppConfigHandler(self)
+        self.app_configurator.load_before()
+        # self.manager = Jotube_SM()
+        self.manager = Jotube_SM(transition=NoTransition())
         self.manager.bind(current=self.on_screen_current)
-        # self.manager = Jotube_SM(transition=NoTransition())
-        self.manager.screen_switch_modified = self.switch_screen
+        # self.manager.screen_switch_modified = self.switch_screen
         self.ids.sm_area.add_widget(self.manager)
 
-        self.manager.current = 'media'
+        self.manager.current = 'main'
 
         ## FIRST SCREEN MEDIA PLAYER - sc-media
-        mplayer.error_callback = self.on_error
+        mplayer.bind(on_error=self.on_error)
         self.media_control = MediaController(mplayer)
         self.media_control.videoframe = self.manager.ids.video_screen
         self.media_control.videoframe_small = self.ids.video_small
@@ -200,13 +193,15 @@ class Jotube(LayoutMethods, FloatLayout):
 
         # For testing
         def testfunc(*a):
-            self.media_control.open_playlist_by_id(8)
-        # Clock.schedule_once(testfunc, 0.2)
+            self.media_control.open_playlist_by_id(3)
+            self.switch_screen('media')
+        Clock.schedule_once(testfunc, 1)
+
 
 class Jotube_SM(ScreenManager):
-
-    def screen_switch_modified(self):
-        pass
+    pass
+    # def screen_switch_modified(self):
+    #     pass
 
 
 class JotubeApp(App):
@@ -218,9 +213,9 @@ class JotubeApp(App):
         return self.root_widget
 
     def on_start(self):
+        self.root_widget.init_widgets()
         Logger.info('App: on_start: %s' % (time() - TIME0))
         Clock.schedule_once(self.on_first_frame, 0)
-        pass
 
     def on_first_frame(self, *args):
         Logger.info('App: on_first_frame: %s' % (time() - TIME0))

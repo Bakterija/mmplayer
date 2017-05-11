@@ -22,9 +22,8 @@ class FileLoaderPlaylist(BasePlaylist):
 
     def add_path(self, path):
         path = self.get_unicode(path)
-        for new_file in self.get_files(path):
-            new_file['index'] = len(self.media)
-            self.media.append(new_file)
+        self.media = self.media + self.get_files(path)
+        self.refresh_media_id()
         self.save()
 
     def add_path_async(self, path):
@@ -34,13 +33,14 @@ class FileLoaderPlaylist(BasePlaylist):
             start_index = self.media[-1]['index']
         task = {
             'method': 'playlist_from_path', 'path': path,
-            'start_index': start_index}
+            'start_index': start_inde}
         appworker.add_task(task, self.add_path_async_done)
         Logger.info('Playlist-{}: add_path_async: {}'.format(self.name, path))
 
     def add_path_async_done(self, result):
         Logger.info('Playlist-{}: add_path_async_done:'.format(self.name))
         self.media = self.media + result['playlist']
+        self.refresh_media_id()
         self.save()
 
     def save(self):

@@ -54,7 +54,7 @@ def on_key_down(window, key, *args):
         current_focus.on_key_down(key, modifier)
 
 def on_mouse_move(window, pos):
-    if current_focus and current_focus.remove_focus_on_touch:
+    if current_focus and current_focus.remove_focus_on_touch_move:
         remove_focus()
 
 Window.bind(on_key_up=on_key_up)
@@ -86,6 +86,7 @@ def focus_next():
 
     if not found:
         set_focus(focusable_widgets[0])
+    # Logger.info('focus: focus_next: %s' % (current_focus))
 
 def remove_focus():
     global current_focus
@@ -100,7 +101,7 @@ def set_focus(widget):
 
 class FocusBehavior(Widget):
     focus = BooleanProperty(False)
-    remove_focus_on_touch = True
+    remove_focus_on_touch_move = True
 
     def __init__(self, **kwargs):
         super(FocusBehavior, self).__init__(**kwargs)

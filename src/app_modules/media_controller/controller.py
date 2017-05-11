@@ -39,7 +39,6 @@ class MediaController(Widget):
     playing_path = StringProperty()
     playing_seek_value = NumericProperty(0)
     playing_seek_max = NumericProperty(0)
-    adding_files = BooleanProperty(False)
 
     windowpopup = None
     videoframe = None
@@ -58,9 +57,9 @@ class MediaController(Widget):
 
     def on_mplayer_start(self):
         state = self.mplayer.get_state_all()
-        index = state['cur_media']['index']
+        index = state['cur_media']['id']
         self.cur_played_playlist.set_playing(index)
-        self.cur_queue = self.cur_played_playlist.media
+        self.cur_queue = self.mplayer.queue
         self.view_queue.set_data(self.cur_queue)
         self.refresh_playlist_view()
         self.refresh_queue_view()
@@ -70,13 +69,6 @@ class MediaController(Widget):
             self.playing_video = True
         else:
             self.playing_video = False
-
-    def on_adding_files(self, _, value):
-        # DISABLED FOR NOW
-        #
-        # if not value:
-        #     self.reset_playlists
-        pass
 
     def on_playlist_media(self, playlist, media):
         if playlist.path == self.cur_viewed_playlist.path:
@@ -91,14 +83,14 @@ class MediaController(Widget):
         self.view_queue = widget
         widget.mcontrol = self
 
-    def start_playlist(self, name, path, index, btn):
+    def start_playlist(self, name, path, index, id, btn):
         '''Triggered when user touches a MediaButton in playlist'''
         self.mplayer.reset()
         self.cur_played_playlist = self.cur_viewed_playlist
-        self.mplayer.queue = self.cur_played_playlist.media
+        self.mplayer.queue = self.view_playlist.data[index:]
         self.view_queue.set_data(self.mplayer.queue)
         self.refresh_queue_view()
-        stat = self.mplayer.start(index)
+        stat = self.mplayer.start(0)
 
     def start_queue(self, index):
         '''Triggered when user touches a MediaButton in queue'''
@@ -241,10 +233,6 @@ class MediaController(Widget):
             traceback.print_exc()
 
     def on_dropfile(self, path):
-        # if not self.adding_files:
-        #     self.adding_files = True
-        #     Clock.schedule_once(
-        #         lambda *a: setattr(self, 'adding_files', False), 0)
         if self.cur_viewed_playlist:
             self.cur_viewed_playlist.add_path(path)
         else:
@@ -313,6 +301,9 @@ class MediaController(Widget):
 
     def open_playlist_by_id(self, id):
         if id in self.playlist_ids:
+            print('open ids playlist', id)
             pl = self.playlist_ids[id]
-            target = {'name': pl.name}
+            target = {'name': pl.name, 'path': pl.path}
             self.open_playlist(target)
+        else:
+            print('playlist not in ids', id, self.playlist_ids)

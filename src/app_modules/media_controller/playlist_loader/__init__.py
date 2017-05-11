@@ -48,5 +48,5 @@ def load_playlist(path, section):
 def create_playlist(name):
     category = 'playlists'
     load_path = ''
-    path = '{}{}/{}'.format(gvars.DIR_PLAYLISTS, category, name)
+    path = '{}{}/{}.json'.format(gvars.DIR_PLAYLISTS, category, name)
     playlist = FileLoaderPlaylist.create(name, path, load_path)
