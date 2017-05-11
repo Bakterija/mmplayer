@@ -44,7 +44,8 @@ class MediaPlayer(object):
                 print (e)
 
     def set_volume(self, value):
-        self.volume = float(value) / 100
+        value = (float(value) * float(value)) / 10000
+        self.volume = float(value)
         if self.player:
             self.player.volume = self.volume
 
