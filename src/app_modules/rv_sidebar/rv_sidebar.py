@@ -36,6 +36,7 @@ kv = '''
         width: root.width - root.bar_width
         default_size_hint: 1, None
         default_size: None, None
+        spacing: default_spacing
 '''
 
 class SideBarViewClass(RecycleDataViewBehavior, ButtonBehavior, StackLayout):

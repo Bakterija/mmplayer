@@ -107,10 +107,6 @@ class SliderProgressBar(ProgressBar):
     def on_mouse_move(self, win, pos):
         chalf = self.circle_size * 0.5
         if self.collide_point_window(*pos) or self.seeking_touch:
-            # if not self.max or not self.value:
-            #     self.circle.pos = (
-            #         self.x, self.y + self.height * 0.5 - chalf)
-            # else:
             self.move_circle_to_progress()
         else:
             self.hide_circle()
