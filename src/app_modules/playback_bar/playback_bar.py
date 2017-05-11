@@ -79,8 +79,8 @@ kv = '''
         id: progress2
         size_hint_x: None
         width: cm(2.5)
-        max: 100
-        value: self.seeking_touch_value if self.seeking_touch == True else root.media_volume
+        max: 100.0
+        value: self.seeking_touch_value if self.seeking_touch else root.media_volume
 '''
 
 
@@ -105,23 +105,27 @@ class SliderProgressBar(ProgressBar):
         self.add_widget(self.circle)
 
     def on_mouse_move(self, win, pos):
+        chalf = self.circle_size * 0.5
         if self.collide_point_window(*pos) or self.seeking_touch:
-            if self.max == 0 or self.value == 0:
-                self.circle.pos = (self.x, self.y + self.height/2 - (
-                    self.circle_size / 2))
-            else:
-                self.move_circle_to_progress()
+            # if not self.max or not self.value:
+            #     self.circle.pos = (
+            #         self.x, self.y + self.height * 0.5 - chalf)
+            # else:
+            self.move_circle_to_progress()
         else:
             self.hide_circle()
 
     def hide_circle(self, *args):
-        self.circle.pos = (-999 - (self.circle_size / 2), -999 - (self.circle_size / 2))
+        chalf = self.circle_size * 0.5
+        self.circle.pos = (-999 - chalf, -999 - chalf)
 
     def move_circle_to_progress(self, *args):
-        self.circle.pos = (
-            self.x + (self.width / self.max * self.value) - \
-            (self.circle_size / 2),
-            self.y + self.height/2 - (self.circle_size / 2))
+        chalf = self.circle_size * 0.5
+        if not self.value:
+            x_new = self.x - chalf
+        else:
+            x_new = self.x + (self.width / self.max * self.value) - chalf
+        self.circle.pos = (x_new, self.y + self.height * 0.5 - chalf)
 
     def on_value_update(self, widget, value):
         if self.value != value:
@@ -153,14 +157,14 @@ class SliderProgressBar(ProgressBar):
             return True
 
     def on_touch_move(self, touch):
+        tx = touch.pos[0]
         if self.seeking_touch:
-            if self.collide_point(touch.pos[0], self.y):
-                x = ((touch.pos[0] - self.x) / self.width) * self.max
-                self.seeking_touch_value = x
-            elif touch.pos[0] - self.x < 0.0:
-                self.seeking_touch_value = 0.0
-            else:
-                self.seeking_touch_value = self.max
+            val = ((tx - self.x) / self.width) * self.max
+            if val < 0.0:
+                val = 0.0
+            elif val > self.max:
+                val = self.max
+            self.seeking_touch_value = val
             self.value = self.seeking_touch_value
 
     def on_seeking(self, *args):
@@ -195,7 +199,7 @@ class PlayBackBar(BoxLayout):
     path = path[0]+'/app_modules/playback_bar/'
     media_progress_max = NumericProperty(0)
     media_progress_val = NumericProperty(0)
-    media_volume = NumericProperty(50)
+    media_volume = NumericProperty(50.0)
     media_progress_val_readable = StringProperty('00:00')
     media_progress_max_readable = StringProperty('00:00')
     dont_update_progress = False
