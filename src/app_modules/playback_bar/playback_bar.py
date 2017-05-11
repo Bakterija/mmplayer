@@ -80,7 +80,7 @@ kv = '''
         size_hint_x: None
         width: cm(2.5)
         max: 100.0
-        value: self.seeking_touch_value if self.seeking_touch else root.media_volume
+        value: int(self.seeking_touch_value) if self.seeking_touch else int(root.media_volume)
 '''
 
 
