@@ -62,8 +62,9 @@ class BasePlaylist(EventDispatcher):
 
     def save_json(self, playlist_dict):
         with open(self.path, 'w') as outfile:
-            json.dump(playlist_dict, outfile, indent=4, sort_keys=True, separators=(
-                ',', ':'))
+            json.dump(
+                playlist_dict, outfile, indent=4,
+                sort_keys=True, separators=(',', ':'))
 
     def remove(self):
         os.remove(self.path)
