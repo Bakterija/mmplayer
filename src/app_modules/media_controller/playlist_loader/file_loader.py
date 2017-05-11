@@ -22,8 +22,7 @@ class FileLoaderPlaylist(BasePlaylist):
 
     def add_path(self, path):
         path = self.get_unicode(path)
-        for new_file in self.get_files(path):
-            self.media.append(new_file)
+        self.media = self.media + self.get_files(path)
         self.refresh_media_id()
         self.save()
 
