@@ -104,6 +104,7 @@
     BoxLayout:
         id: upper_bar
         size_hint: 1, None
+        orientation: 'horizontal'
         height: root.upper_bar_height
         pos: 0, root.height - root.upper_bar_height + root.upper_bar_offset_y
         canvas:
@@ -112,6 +113,15 @@
             Rectangle:
                 size: self.size
                 pos: self.pos
+        Label:
+            size_hint_x: 0.6
+            text_size: self.width, None
+            font_size: int(self.height * 0.5)
+            padding: int(cm(0.1)), 0
+            shorten: True
+            text: '{}: {}'.format(root.media_control.playing_state, root.media_control.playing_name)
+        Widget:
+            size_hint_x: 0.4
 
     Widget:
         canvas.after:

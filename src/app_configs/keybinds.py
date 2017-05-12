@@ -24,6 +24,10 @@ class Config(ConfigBase):
             modifier=['ctrl'])
 
         kbinder.add(
+            'jump_to_current', keys.J, 'down',
+            root.jump_to_current, modifier=['ctrl'])
+
+        kbinder.add(
             'vol_increase', keys.UP, 'down',
             root.ids.playback_bar.volume_increase, modifier=['ctrl'])
         kbinder.add(

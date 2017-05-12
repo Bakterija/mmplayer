@@ -46,8 +46,8 @@ class MediaPlayer(object):
 
     def set_volume(self, value):
         self.volume = float(value) / 100
+        self.volume_real = (float(value) * float(value)) / 10000
         if self.player:
-            self.volume_real = (float(value) * float(value)) / 10000
             self.player.volume = self.volume_real
 
     def start(self, index, seek=0.0):
@@ -156,7 +156,8 @@ class MediaPlayer(object):
         return {
             'is_video': is_video, 'state': self.get_state(),
             'volume': self.volume, 'pos': self.get_mediaPos(),
-            'length': self.get_mediaDur(), 'cur_media': self.cur_media}
+            'cur_index': self.cur_index, 'length': self.get_mediaDur(),
+            'cur_media': self.cur_media}
 
     def on_start(self, index):
         Logger.info('%s: %s(%s)' % (

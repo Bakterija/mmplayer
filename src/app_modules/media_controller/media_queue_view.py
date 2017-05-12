@@ -3,6 +3,7 @@ from .media_view_base import MediaRecycleviewBase
 
 
 class QueueViewClass(MediaButton):
+    queue_view = True
 
     def __init__(self, **kwargs):
         super(QueueViewClass, self).__init__(**kwargs)
