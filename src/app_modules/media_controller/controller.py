@@ -21,6 +21,7 @@ from kivy.core.window import Window
 from app_modules.widgets_integrated.section import rvSection
 # from . import various_functions as various
 from . import playlist_loader
+from .playlist_loader.base import BasePlaylist
 from kivy.logger import Logger
 import traceback
 import global_vars as gvars
@@ -28,17 +29,17 @@ from time import time
 
 class MediaController(Widget):
     playlists = DictProperty()
-
     cur_played_playlist = ObjectProperty()
-
     cur_viewed_playlist = ObjectProperty()
-
     cur_queue = ListProperty()
 
     playing_name = StringProperty()
     playing_path = StringProperty()
     playing_seek_value = NumericProperty(0)
     playing_seek_max = NumericProperty(0)
+    playing_id = NumericProperty()
+    playing_state = StringProperty()
+    last_media = None
 
     windowpopup = None
     videoframe = None
@@ -57,10 +58,25 @@ class MediaController(Widget):
 
     def on_mplayer_start(self):
         state = self.mplayer.get_state_all()
-        index = state['cur_media']['id']
-        self.cur_played_playlist.set_playing(index)
-        self.cur_queue = self.mplayer.queue
-        self.view_queue.set_data(self.cur_queue)
+        media = state['cur_media']
+        if self.last_media:
+            if self.last_media['state'] == 'playing':
+                self.last_media['state'] = 'default'
+
+        if 'id' in media:
+            index = media['id']
+            self.playing_id = index
+            if self.cur_played_playlist:
+                self.cur_played_playlist.set_playing(index)
+        else:
+            self.playing_id = -9
+            if self.cur_played_playlist:
+                self.cur_played_playlist.remove_playing()
+            media['state'] = 'playing'
+
+        self.playing_name = media['name']
+        self.playing_path = media['path']
+        self.last_media = media
         self.refresh_playlist_view()
         self.refresh_queue_view()
 
@@ -87,9 +103,9 @@ class MediaController(Widget):
         '''Triggered when user touches a MediaButton in playlist'''
         self.mplayer.reset()
         self.cur_played_playlist = self.cur_viewed_playlist
-        self.mplayer.queue = self.view_playlist.data[index:]
-        self.view_queue.set_data(self.mplayer.queue)
-        self.refresh_queue_view()
+        new_queue = list(self.view_playlist.data[index:])
+        self.mplayer.queue = new_queue
+        self.view_queue.set_data(new_queue)
         stat = self.mplayer.start(0)
 
     def start_queue(self, index):
@@ -145,6 +161,26 @@ class MediaController(Widget):
         lbl.text = string
         Clock.schedule_once(resizer_clock, 0)
 
+    def jump_to_current_index(self, screen):
+        Logger.info('MediaController: jump_to_current_index(%s)' % (screen))
+        if screen == 'playlist':
+            pl = self.view_playlist
+        elif screen == 'queue':
+            pl = self.view_queue
+
+        index = self.find_playing(pl.data)
+        if index is not None:
+            pl.scroll_to_index(index)
+            Logger.info('MediaController: jumping to index %s' % (index))
+        else:
+            Logger.info('MediaController: played index is not in view')
+
+    @staticmethod
+    def find_playing(playlist):
+        for i, x in enumerate(playlist):
+            if x['state'] == 'playing':
+                return i
+
     def refresh_playlist_view(self):
         self.view_playlist.refresh_from_data()
 
@@ -154,6 +190,7 @@ class MediaController(Widget):
     def update_seek(self, *arg):
         pos = self.mplayer.get_mediaPos()
         dur = self.mplayer.get_mediaDur()
+        self.playing_state = self.mplayer.get_state()
         if pos == -1:
             self.playing_seek_value = 0
         else:
@@ -232,10 +269,26 @@ class MediaController(Widget):
         except:
             traceback.print_exc()
 
-    def on_dropfile(self, path):
-        if self.cur_viewed_playlist:
-            self.cur_viewed_playlist.add_path(path)
-        else:
+    def on_dropfile(self, path, mouse_pos=None, playlist=None):
+        Logger.info(
+            '{}: on_dropfile: path:{} mouse_pos:{} playlist:{}'.format(
+                self.__class__.__name__, path, mouse_pos, playlist))
+
+        found = False
+        if playlist:
+            if playlist == 'playlist':
+                if self.cur_viewed_playlist:
+                    self.cur_viewed_playlist.add_path(path)
+                    found = True
+            elif playlist == 'queue':
+                pl = BasePlaylist()
+                new_media = pl.get_files(path)
+                new_queue = self.mplayer.queue + new_media
+                self.mplayer.queue = new_queue
+                self.view_queue.set_data(new_queue)
+                found = True
+
+        if not found:
             Logger.warning('{}: no playlist selected'.format(
                 self.__class__.__name__))
 

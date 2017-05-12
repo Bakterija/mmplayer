@@ -4,6 +4,7 @@ from kivy.metrics import dp
 from kivy.clock import Clock
 from kivy.properties import BooleanProperty
 from kivy.logger import Logger
+import traceback
 
 
 class LayoutMethods(object):
@@ -40,8 +41,13 @@ class LayoutMethods(object):
 
     def restore_window(self, *args):
         # Logger.info('ScreenManager: ids:{}'.format(self.manager.ids))
-        if self.manager.ids.videoframe.maximized:
-            self.manager.ids.videoframe.maximize_borderless_toggle()
+        try:
+            if hasattr(self.manager.ids, 'maximized'):
+                if self.manager.ids.videoframe.maximized:
+                    self.manager.ids.videoframe.maximize_borderless_toggle()
+        except:
+            Logger.error('{}: {}'.format(
+                self.__class__.__name__, traceback.format_exc()))
 
     def is_playing(self):
         return self.video_playing

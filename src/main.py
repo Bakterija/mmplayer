@@ -49,7 +49,8 @@ if platform in ('windows','win', 'linux'):
 
 class Jotube(LayoutMethods, FloatLayout):
     sidebar_items = ListProperty()
-    media_control = ObjectProperty()
+    # media_control = ObjectProperty()
+    media_control = MediaController(mplayer)
 
     def switch_screen(self, screen_name):
         if screen_name != self.manager.current:
@@ -67,10 +68,19 @@ class Jotube(LayoutMethods, FloatLayout):
     def on_dropfile(self, win, path):
         '''Runs when a file is dropped on the window'''
         self.display_info('DROPPED FILES: %s' % (get_unicode(path)))
-        Clock.schedule_once(lambda *a: self.on_dropfile_after(path), 0.5)
+        screen = self.manager.current
+        path = get_unicode(path)
+        if screen in ('media', 'queue'):
+            pl = 'playlist'
+            if screen == 'queue':
+                pl = 'queue'
+            Clock.schedule_once(lambda *a: self.on_dropfile_after(
+                path, mouse_pos=Window.mouse_pos, playlist=pl),
+                0.2)
 
-    def on_dropfile_after(self, path):
-        self.media_control.on_dropfile(path)
+    def on_dropfile_after(self, path, mouse_pos=None, playlist=None):
+        self.media_control.on_dropfile(
+            path, mouse_pos=mouse_pos, playlist=playlist)
 
     def mgui_add_playlist(self, *args):
         '''For adding playlists in MediaController from GUI buttons'''
@@ -128,6 +138,13 @@ class Jotube(LayoutMethods, FloatLayout):
         if self.media_control.view_playlist:
             self.media_control.view_playlist.filter_text = text
 
+    def jump_to_current(self):
+        screen = self.manager.current
+        if screen in 'media':
+            self.media_control.jump_to_current_index('playlist')
+        elif screen == 'queue':
+            self.media_control.jump_to_current_index('queue')
+
     def init_widgets(self, *args):
         Window.bind(on_dropfile=self.on_dropfile)
         self.app_configurator = AppConfigHandler(self)
@@ -142,7 +159,6 @@ class Jotube(LayoutMethods, FloatLayout):
 
         ## FIRST SCREEN MEDIA PLAYER - sc-media
         mplayer.bind(on_error=self.on_error)
-        self.media_control = MediaController(mplayer)
         self.media_control.videoframe = self.manager.ids.video_screen
         self.media_control.videoframe_small = self.ids.video_small
         self.media_control.bind(cur_viewed_playlist=self.on_viewed_playlist)

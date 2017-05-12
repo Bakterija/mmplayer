@@ -42,13 +42,13 @@ def __set_app_globals__():
     lower_bar_height = int(button_height * 2.0)
     rv_default_height = button_height
     sidebar_section_height = int(button_height * 0.8)
-    scrollbar_width = int(cm(0.6))
     default_spacing = 1
     scroll_wheel_distance = (rv_default_height + default_spacing) * 2
 
     app_background = (0.10, 0.10, 0.10, 1)
     border_color0 = (0.32, 0.32, 0.32)
     side_bar_color = app_background
+    scrollbar_width = int(cm(0.5))
     scrollbar_color = (0.4, 0.4, 0.4, 1)
     scrollbar_inactive_color = (.4, .4, .4, .7)
     scrollbar_background = col_ncolbg

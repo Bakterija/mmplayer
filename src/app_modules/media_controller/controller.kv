@@ -19,7 +19,7 @@
     Label:
         size_hint: 0.1, 1
         font_size: root.font_size
-        text: str(root.id)
+        text: str(root.index) if root.queue_view else str(root.id)
 
     LabelButton:
         font_size: root.font_size

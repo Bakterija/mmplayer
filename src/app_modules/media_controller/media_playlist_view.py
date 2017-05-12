@@ -4,6 +4,7 @@ from kivy.logger import Logger
 
 
 class PlaylistViewClass(MediaButton):
+    queue_view = False
 
     def __init__(self, **kwargs):
         super(PlaylistViewClass, self).__init__(**kwargs)

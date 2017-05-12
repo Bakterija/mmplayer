@@ -6,6 +6,7 @@ SPACE = 32
 
 TILDE = 96
 
+J = 106
 L = 108
 
 ENTER = 271
