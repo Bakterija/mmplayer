@@ -3,9 +3,9 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.stacklayout import StackLayout
 from kivy.uix.image import Image
 from kivy.uix.behaviors import ButtonBehavior
-from kivy.uix.progressbar import ProgressBar
 from kivy.uix.button import Button
-from kivy.properties import NumericProperty, StringProperty, ListProperty
+from kivy.properties import (
+    NumericProperty, StringProperty, ListProperty, BooleanProperty)
 from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy.metrics import cm, dp
@@ -14,183 +14,59 @@ from kivy.graphics import *
 from app_modules.behaviors.hover_behavior import HoverBehavior
 from kivy.clock import Clock
 from sys import path
+from app_modules.widgets_standalone.imagebutton import ImageButton
+from .slider_progress_bar import SliderProgressBar
+from kivy.uix.label import Label
 
 
-kv = '''
-<PlayBackBar>:
-    playb_width: int(cm(3))
-    playb_width_small: int(cm(2))
-    spacing: 0
-    canvas.before:
-        Color:
-            rgb: self.background_color
-        Rectangle:
-            size: self.size
-            pos: self.pos
+class PlayBackButton(ImageButton, HoverBehavior):
+    background_normal = ListProperty([0.3, 0.3, 0.3, 0])
+    background_down = ListProperty([0, 0.4, 0.5, 0.5])
+    background_hover = ListProperty([0, 0, 1, 0.5])
+    background_current = ListProperty([0.1, 0.1, 1, 1])
+    pressing = BooleanProperty(False)
+    text = StringProperty()
 
-    PlayBackButton:
-        id: btn1
-        size_hint_x: None
-        width: root.playb_width_small
-        text: 'Previous'
-        on_release: root.on_prevbtn()
-
-    PlayBackButton:
-        id: btn2
-        size_hint_x: None
-        width: root.playb_width
-        text: 'Play'
-        on_release: root.on_playbtn()
-
-    PlayBackButton:
-        id: btn3
-        size_hint_x: None
-        width: root.playb_width_small
-        text: 'Next'
-        on_release: root.on_nextbtn()
-
-    Widget:
-        id: sep1
-        size_hint_x: None
-        width: cm(0.5)
-
-    Label:
-        id: progress_label1
-        size_hint_x: None
-        width: self.texture_size[0] + cm(0.5)
-        text: root.media_progress_val_readable
-    SliderProgressBar:
-        id: progress1
-        size_hint_x: None
-        width: root.width - btn1.width - btn2.width - btn3.width - sep1.width - sep2.width - progress2.width - cm(0.5) - progress_label1.width - progress_label2.width
-        max: root.media_progress_max
-    Label:
-        id: progress_label2
-        size_hint_x: None
-        width: self.texture_size[0] + cm(0.5)
-        text: root.media_progress_max_readable
-
-    Widget:
-        id: sep2
-        size_hint_x: None
-        width: cm(0.5)
-
-    SliderProgressBar:
-        id: progress2
-        size_hint_x: None
-        width: cm(2.5)
-        max: 100.0
-        value: int(self.seeking_touch_value) if self.seeking_touch else int(root.media_volume)
-'''
-
-
-class SliderProgressBar(ProgressBar):
-    hovering = NumericProperty(0)
-    seeking_touch = False
-    seeking_touch_value = NumericProperty(0)
-    on_seeking_function = None
-    circle_size = NumericProperty(int(cm(0.3)))
-    circle_color = ListProperty([1, 1, 1, 0.2])
-
-    def __init__(self, **kwargs):
-        super(SliderProgressBar, self).__init__(**kwargs)
-        Window.bind(mouse_pos=self.on_mouse_move)
-        Window.bind(on_cursor_leave=self.hide_circle)
-        Clock.schedule_once(self.after_init, 0)
-
-    def after_init(self, *args):
-        circlesource = 'data/circle.png'
-        self.circle = Image(source=circlesource, pos=(-999,-999), size=(
-            self.circle_size, self.circle_size))
-        self.add_widget(self.circle)
-
-    def on_mouse_move(self, win, pos):
-        chalf = self.circle_size * 0.5
-        if self.collide_point_window(*pos) or self.seeking_touch:
-            self.move_circle_to_progress()
-        else:
-            self.hide_circle()
-
-    def hide_circle(self, *args):
-        chalf = self.circle_size * 0.5
-        self.circle.pos = (-999 - chalf, -999 - chalf)
-
-    def move_circle_to_progress(self, *args):
-        chalf = self.circle_size * 0.5
-        if not self.value:
-            x_new = self.x - chalf
-        else:
-            x_new = self.x + (self.width / self.max * self.value) - chalf
-        self.circle.pos = (x_new, self.y + self.height * 0.5 - chalf)
-
-    def on_value_update(self, widget, value):
-        if self.value != value:
-            if self.seeking_touch:
-                self.value = self.seeking_touch_value
-            else:
-                self.value = value
-                if self.hovering:
-                    self.move_circle_to_progress()
-
-    def on_touch_down(self, touch):
-        if touch.button in ('scrollup', 'scrolldown', 'right'):
-            return False
-        if self.collide_point(touch.pos[0], touch.pos[1]):
-            touch.grab(self)
-            self.seeking_touch = True
-            self.on_touch_move(touch)
-            if self.max:
-                self.move_circle_to_progress()
-            return True
-
-    def on_touch_up(self, touch):
-        if touch.button in ('scrollup', 'scrolldown', 'right'):
-            return False
-        if self.seeking_touch:
-            self.seeking_touch = False
-            touch.ungrab(self)
-            self.on_seeking(self.value)
-            return True
-
-    def on_touch_move(self, touch):
-        tx = touch.pos[0]
-        if self.seeking_touch:
-            val = ((tx - self.x) / self.width) * self.max
-            if val < 0.0:
-                val = 0.0
-            elif val > self.max:
-                val = self.max
-            self.seeking_touch_value = val
-            self.value = self.seeking_touch_value
-
-    def on_seeking(self, *args):
-        pass
-
-    def collide_point_window(self, x, y):
-        sx, sy = self.to_window(self.x, self.y)
-        return sx <= x <= sx + self.width and sy <= y <= sy + self.height
-
-
-class PlayBackButton(HoverBehavior, Button):
-    hovercolors = [[0.7, 0.7, 0.7, 1], [0.6, 0.8, 0.6, 1]]
     def __init__(self, **kwargs):
         super(PlayBackButton, self).__init__(**kwargs)
-        self.hovercolors[0] = self.background_color
+        self.background_current = self.background_normal
+        self.bind(on_press=self.update_bg_on_press)
+        self.bind(on_release=self.update_bg_on_release)
 
-    def on_enter(self, *args):
-        self.background_color = self.hovercolors[1]
+    def update_bg_on_press(self, p):
+        self.background_current = self.background_down
+        self.pressing = True
 
-    def on_leave(self, *args):
-        self.background_color = self.hovercolors[0]
+    def update_bg_on_release(self, p):
+        if self.hovering:
+            self.background_current = self.background_hover
+        else:
+            self.background_current = self.background_normal
+        self.pressing = True
 
+    def on_text(self, _, text):
+        if text == 'Previous':
+            self.source = self.parent.img_prev
+        elif text == 'Play':
+            self.source = self.parent.img_play
+        elif text == 'Next':
+            self.source = self.parent.img_next
+        elif text == 'Pause':
+            self.source = self.parent.img_pause
 
-class ButtonImage(ButtonBehavior, Image):
-    def __init__(self, **kwargs):
-        super(ButtonImage, self).__init__(**kwargs)
+    def on_enter(self):
+        self.background_current = self.background_hover
+
+    def on_leave(self):
+        self.background_current = self.background_normal
 
 
 class PlayBackBar(BoxLayout):
     orientation = 'horizontal'
+    img_pause = StringProperty('data/4/play4.png')
+    img_prev = StringProperty('data/4/play1.png')
+    img_play = StringProperty('data/4/play2.png')
+    img_next = StringProperty('data/4/play3.png')
     background_color = ListProperty([0.1, 0.1, 0.1])
     path = path[0]+'/app_modules/playback_bar/'
     media_progress_max = NumericProperty(0)
@@ -285,4 +161,4 @@ class PlayBackBar(BoxLayout):
             self.media_progress_val_readable = s
 
 
-Builder.load_string(kv)
+Builder.load_file('app_modules/playback_bar/bar.kv')

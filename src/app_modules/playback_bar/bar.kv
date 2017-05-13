@@ -1,0 +1,72 @@
+<PlayBackButton>:
+    size_hint: None, None
+    height: int(self.parent.height) - 1
+    width: int(self.height)
+    canvas.before:
+        Color:
+            rgba: root.background_current
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<PlayBackBar>:
+    playb_width: int(cm(3))
+    playb_width_small: int(cm(2))
+    spacing: 1
+    canvas.before:
+        Color:
+            rgb: self.background_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    PlayBackButton:
+        id: btn1
+        text: 'Previous'
+        source: root.img_prev
+        on_release: root.on_prevbtn()
+
+    PlayBackButton:
+        id: btn2
+        text: 'Play'
+        source: root.img_play
+        on_release: root.on_playbtn()
+
+    PlayBackButton:
+        id: btn3
+        source: root.img_next
+        text: 'Next'
+        on_release: root.on_nextbtn()
+
+    Widget:
+        id: sep1
+        size_hint_x: None
+        width: int(cm(0.5))
+
+    Label:
+        id: progress_label1
+        size_hint_x: None
+        width: int(self.texture_size[0] + cm(0.5))
+        text: root.media_progress_val_readable
+    SliderProgressBar:
+        id: progress1
+        size_hint_x: None
+        width: int(root.width - btn1.width - btn2.width - btn3.width - sep1.width - sep2.width - progress2.width - cm(0.5) - progress_label1.width - progress_label2.width)
+        max: root.media_progress_max
+    Label:
+        id: progress_label2
+        size_hint_x: None
+        width: int(self.texture_size[0] + cm(0.5))
+        text: root.media_progress_max_readable
+
+    Widget:
+        id: sep2
+        size_hint_x: None
+        width: int(cm(0.5))
+
+    SliderProgressBar:
+        id: progress2
+        size_hint_x: None
+        width: int(cm(2.5))
+        max: 100.0
+        value: int(self.seeking_touch_value) if self.seeking_touch else int(root.media_volume)
