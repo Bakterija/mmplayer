@@ -2,12 +2,13 @@ from kivy.properties import BooleanProperty, NumericProperty
 from kivy.uix.widget import Widget
 from kivy.core.window import Window
 
-class HoverBehavior(object):
+class HoverBehavior(Widget):
     hovering = BooleanProperty(False)
     hover_resize_x = NumericProperty()
     hover_resize_y = NumericProperty()
 
     def __init__(self, **kwargs):
+        super(HoverBehavior, self).__init__(**kwargs)
         Window.bind(mouse_pos=self.on_mouse_move)
 
     def on_mouse_move(self, win, pos):
