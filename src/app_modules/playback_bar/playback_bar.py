@@ -19,54 +19,47 @@ from .slider_progress_bar import SliderProgressBar
 from kivy.uix.label import Label
 
 
-class PlayBackButton(ImageButton, HoverBehavior):
-    background_normal = ListProperty([0.3, 0.3, 0.3, 0])
-    background_down = ListProperty([0, 0.4, 0.5, 0.5])
-    background_hover = ListProperty([0, 0, 1, 0.5])
-    background_current = ListProperty([0.1, 0.1, 1, 1])
-    pressing = BooleanProperty(False)
+class PlayBackButton(HoverBehavior, ImageButton):
+    img_pause = StringProperty('data/4/play4')
+    img_prev = StringProperty('data/4/play1')
+    img_play = StringProperty('data/4/play2')
+    img_next = StringProperty('data/4/play3')
     text = StringProperty()
 
     def __init__(self, **kwargs):
         super(PlayBackButton, self).__init__(**kwargs)
-        self.background_current = self.background_normal
-        self.bind(on_press=self.update_bg_on_press)
-        self.bind(on_release=self.update_bg_on_release)
+        self.update_source_bg(self.text, self.hovering, self.state)
 
-    def update_bg_on_press(self, p):
-        self.background_current = self.background_down
-        self.pressing = True
+    def on_state(self, _, value):
+        self.update_source_bg(self.text, self.hovering, value)
 
-    def update_bg_on_release(self, p):
-        if self.hovering:
-            self.background_current = self.background_hover
-        else:
-            self.background_current = self.background_normal
-        self.pressing = True
+    def update_source_bg(self, text, hover, press):
+        mod = ''
+        if press == 'down':
+            mod = '_d'
+        elif hover:
+            mod = '_h'
+        if text == 'Previous':
+            self.source = ''.join((self.img_prev, mod, '.png'))
+        elif text == 'Play':
+            self.source = ''.join((self.img_play, mod, '.png'))
+        elif text == 'Next':
+            self.source = ''.join((self.img_next, mod, '.png'))
+        elif text == 'Pause':
+            self.source = ''.join((self.img_pause, mod, '.png'))
 
     def on_text(self, _, text):
-        if text == 'Previous':
-            self.source = self.parent.img_prev
-        elif text == 'Play':
-            self.source = self.parent.img_play
-        elif text == 'Next':
-            self.source = self.parent.img_next
-        elif text == 'Pause':
-            self.source = self.parent.img_pause
+        self.update_source_bg(text, self.hovering, self.state)
 
     def on_enter(self):
-        self.background_current = self.background_hover
+        self.update_source_bg(self.text, self.hovering, self.state)
 
     def on_leave(self):
-        self.background_current = self.background_normal
+        self.update_source_bg(self.text, self.hovering, self.state)
 
 
 class PlayBackBar(BoxLayout):
     orientation = 'horizontal'
-    img_pause = StringProperty('data/4/play4.png')
-    img_prev = StringProperty('data/4/play1.png')
-    img_play = StringProperty('data/4/play2.png')
-    img_next = StringProperty('data/4/play3.png')
     background_color = ListProperty([0.1, 0.1, 0.1])
     path = path[0]+'/app_modules/playback_bar/'
     media_progress_max = NumericProperty(0)

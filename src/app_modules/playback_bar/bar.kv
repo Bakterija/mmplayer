@@ -2,12 +2,6 @@
     size_hint: None, None
     height: int(self.parent.height) - 1
     width: int(self.height)
-    canvas.before:
-        Color:
-            rgba: root.background_current
-        Rectangle:
-            pos: self.pos
-            size: self.size
 
 <PlayBackBar>:
     playb_width: int(cm(3))
@@ -23,18 +17,15 @@
     PlayBackButton:
         id: btn1
         text: 'Previous'
-        source: root.img_prev
         on_release: root.on_prevbtn()
 
     PlayBackButton:
         id: btn2
         text: 'Play'
-        source: root.img_play
         on_release: root.on_playbtn()
 
     PlayBackButton:
         id: btn3
-        source: root.img_next
         text: 'Next'
         on_release: root.on_nextbtn()
 
