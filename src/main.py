@@ -149,10 +149,8 @@ class Jotube(LayoutMethods, FloatLayout):
         Window.bind(on_dropfile=self.on_dropfile)
         self.app_configurator = AppConfigHandler(self)
         self.app_configurator.load_before()
-        # self.manager = Jotube_SM()
         self.manager = Jotube_SM(transition=NoTransition())
         self.manager.bind(current=self.on_screen_current)
-        # self.manager.screen_switch_modified = self.switch_screen
         self.ids.sm_area.add_widget(self.manager)
 
         self.manager.current = 'main'
@@ -163,7 +161,7 @@ class Jotube(LayoutMethods, FloatLayout):
         self.media_control.videoframe_small = self.ids.video_small
         self.media_control.bind(cur_viewed_playlist=self.on_viewed_playlist)
         self.media_control.bind(
-            videoframe_is_visible=lambda obj, val:self.on_video_screen(
+            videoframe_is_visible=lambda obj, val: self.on_video_screen(
                 val, self.media_control.playing_video))
         self.ids.sm_area.bind(
             size=lambda ob,v: self.media_control.on_video_resize(v))
@@ -216,8 +214,6 @@ class Jotube(LayoutMethods, FloatLayout):
 
 class Jotube_SM(ScreenManager):
     pass
-    # def screen_switch_modified(self):
-    #     pass
 
 
 class JotubeApp(App):

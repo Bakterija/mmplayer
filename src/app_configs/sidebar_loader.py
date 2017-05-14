@@ -19,8 +19,6 @@ class Config(ConfigBase):
                 'Queue', lambda: root.switch_screen('queue'), None),
             self.get_button(
                 'Video', lambda: root.switch_screen('video'), None),
-            self.get_button(
-                'Browser', lambda: root.switch_screen('browser'), None),
         ]
 
     def load_before(self, root_widget):

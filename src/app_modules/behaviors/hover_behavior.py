@@ -11,6 +11,9 @@ class HoverBehavior(Widget):
         super(HoverBehavior, self).__init__(**kwargs)
         Window.bind(mouse_pos=self.on_mouse_move)
 
+    def force_update_hover(self, *a):
+        self.on_mouse_move(None, Window.mouse_pos)
+
     def on_mouse_move(self, win, pos):
         if self.hovering == False:
             if self.collide_point_window(*pos):
