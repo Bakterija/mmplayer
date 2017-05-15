@@ -39,7 +39,7 @@ def __set_app_globals__():
     button_height20 = int(button_height * 2.0)
     button_height15 = int(button_height * 1.5)
     button_height05 = int(button_height * 0.5)
-    lower_bar_height = int(button_height * 2.0)
+    lower_bar_height = int(button_height * 1.6)
     rv_default_height = button_height
     sidebar_section_height = int(button_height * 0.8)
     default_spacing = 1

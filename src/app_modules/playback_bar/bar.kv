@@ -4,8 +4,6 @@
     width: int(self.height)
 
 <PlayBackBar>:
-    playb_width: int(cm(3))
-    playb_width_small: int(cm(2))
     spacing: 1
     canvas.before:
         Color:
@@ -32,7 +30,7 @@
     Widget:
         id: sep1
         size_hint_x: None
-        width: int(cm(0.5))
+        width: int(cm(0.4))
 
     Label:
         id: progress_label1
@@ -42,7 +40,7 @@
     SliderProgressBar:
         id: progress1
         size_hint_x: None
-        width: int(root.width - btn1.width - btn2.width - btn3.width - sep1.width - sep2.width - progress2.width - cm(0.5) - progress_label1.width - progress_label2.width)
+        width: int(root.width - btn1.width - btn2.width - btn3.width - sep1.width - sep2.width - sep3.width - vol_img.width - progress2.width - cm(0.7) - progress_label1.width - progress_label2.width)
         max: root.media_progress_max
     Label:
         id: progress_label2
@@ -53,7 +51,18 @@
     Widget:
         id: sep2
         size_hint_x: None
+        width: int(cm(0.4))
+
+    Image:
+        id: vol_img
+        size_hint_x: None
         width: int(cm(0.5))
+        source: 'data/volume/mute.png' if not root.media_volume else 'data/volume/down.png' if root.media_volume < 50.0 else 'data/volume/up.png'
+
+    Widget:
+        id: sep3
+        size_hint_x: None
+        width: int(cm(0.1))
 
     SliderProgressBar:
         id: progress2
