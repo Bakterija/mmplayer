@@ -118,7 +118,6 @@ class AppRecycleBoxLayout(RecycleBoxLayout):
             self.selected_widgets.add(i)
         self._update_selected()
 
-
     def deselect_all(self):
         self.selected_widgets = set()
         self.desel_index = self.sel_last

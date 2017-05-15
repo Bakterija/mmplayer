@@ -5,11 +5,7 @@ from .media_view_base import MediaRecycleviewBase
 class QueueViewClass(MediaButton):
     queue_view = True
 
-    def __init__(self, **kwargs):
-        super(QueueViewClass, self).__init__(**kwargs)
-        self.children[0].bind(on_release=self.on_release)
-
-    def on_release(self, *args):
+    def start_media(self, *args):
         if self.mtype == 'media':
             self.rv.mcontrol.start_queue(self.index)
 

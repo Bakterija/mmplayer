@@ -2,7 +2,7 @@
 
 <MediaButton>:
     bg_color: 0.20, 0.20, 0.40, 1
-    bg_hover: 0.5, 0.5, 0.5, 1
+    bg_hover: 0.4, 0.45, 0.4, 1
     bg_default: 0.20, 0.20, 0.40, 1
     bg_playing: 0.5, 0.15, 0.3, 1
     bg_disabled: 0.2, 0.2, 0.2, 1
@@ -16,12 +16,17 @@
         Rectangle:
             pos: root.pos
             size: root.size
+        Color:
+            rgba: (0.2, 0.4, 0.7, 0.45) if self.selected and self.state != 'playing' else (0.2, 0.4, 0.7, 0)
+        Rectangle:
+            pos: root.pos
+            size: root.size
     Label:
         size_hint: 0.1, 1
         font_size: root.font_size
         text: str(root.index) if root.queue_view else str(root.id)
 
-    LabelButton:
+    Label:
         font_size: root.font_size
         text: root.name
         size_hint: 0.9, 1

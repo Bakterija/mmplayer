@@ -8,6 +8,7 @@ from app_modules.behaviors.hover_behavior import HoverBehavior
 from app_modules.behaviors.focus import FocusBehaviorCanvas
 from kivy.uix.recycleview import RecycleView
 from kivy.uix.behaviors import ButtonBehavior
+from app_modules.behaviors.button2 import ButtonBehavior2
 from kivy.uix.stacklayout import StackLayout
 from kivy.lang import Builder
 from kivy.utils import platform
@@ -17,8 +18,8 @@ from app_modules import keys
 from kivy.clock import Clock
 
 
-class MediaButton(HoverBehavior, AppRecycleViewClass, RecycleDataViewBehavior,
-                  ButtonBehavior, StackLayout):
+class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
+                  RecycleDataViewBehavior, StackLayout):
     index = NumericProperty(-1)
     id = NumericProperty(-1)
     rv = None
@@ -36,6 +37,13 @@ class MediaButton(HoverBehavior, AppRecycleViewClass, RecycleDataViewBehavior,
         self.set_bg_color()
         if not self.rv:
             self.rv = rv
+
+    def on_press(self, button, double_tap):
+        if button == 'left':
+            if double_tap:
+                self.start_media()
+            else:
+                self.parent.select_with_touch(self.index)
 
     def set_bg_color(self, *args):
         if self.hovering and self.state != 'playing':
@@ -57,10 +65,6 @@ class MediaButton(HoverBehavior, AppRecycleViewClass, RecycleDataViewBehavior,
             self.set_bg_color()
 
     def on_selected(self, _, value):
-        if value:
-            self.hovering = True
-        else:
-            self.hovering = False
         self.set_bg_color()
 
 class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
@@ -81,7 +85,7 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
         if box.sel_first != -1:
             for x in box.children:
                 if x.index == box.sel_first:
-                    x.on_release()
+                    x.start_media()
 
     def on_key_down(self, key, modifier):
         box = self.children[0]
