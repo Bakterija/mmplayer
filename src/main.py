@@ -38,6 +38,7 @@ from app_configs import AppConfigHandler
 from kivy.config import Config as KivyConfig
 from app_modules.behaviors.focus import focus
 from utils import get_unicode
+# from kivymd_modified.theming import ThemeManager
 import traceback
 import sys
 
@@ -115,6 +116,14 @@ class Jotube(LayoutMethods, FloatLayout):
 
     def on_screen_current(self, _, value):
         self.set_playhint_text(value, playlist=None)
+        self.update_focusable_widgets(value)
+
+    def update_focusable_widgets(self, screen):
+        for k, v in self.sc_focusable_switch.items():
+            if screen in v:
+                k.is_focusable = True
+            else:
+                k.is_focusable = False
 
     def set_playhint_text(self, screen, playlist=None):
         mcontrol = self.media_control
@@ -205,11 +214,17 @@ class Jotube(LayoutMethods, FloatLayout):
         self.app_configurator.load_after()
         self.ids.playback_bar.media_volume = mplayer.volume * 100
 
+        self.sc_focusable_switch = {
+            self.media_control.view_playlist: ('media'),
+            self.media_control.view_queue: ('queue'),
+            self.manager.ids.media_filter_widget: ('media')
+        }
+
         # For testing
         def testfunc(*a):
             self.media_control.open_playlist_by_id(3)
             self.switch_screen('media')
-        # Clock.schedule_once(testfunc, 1)
+        Clock.schedule_once(testfunc, 1)
 
 
 class Jotube_SM(ScreenManager):
@@ -217,6 +232,7 @@ class Jotube_SM(ScreenManager):
 
 
 class JotubeApp(App):
+    mtheme = global_vars.theme_manager
     root_widget = None
 
     def build(self):

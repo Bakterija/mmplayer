@@ -1,4 +1,11 @@
 from kivy.compat import PY2
+import os, webbrowser
+
+def get_containing_directory(file_path):
+    return os.path.abspath(os.path.join(file_path, os.pardir))
+
+def open_directory(path):
+    webbrowser.open(path)
 
 def get_unicode(string):
     if PY2:

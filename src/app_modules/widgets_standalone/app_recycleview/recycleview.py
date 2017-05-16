@@ -22,6 +22,10 @@ class AppRecycleView(RecycleView):
         self.data_full = data_full
         self.update_data_from_filter()
 
+    def clear_data(self):
+        self.data_full = []
+        self.update_data_from_filter()
+
     def update_data_from_filter(self, *args):
         if not self.filter_text:
             data = self.data_full

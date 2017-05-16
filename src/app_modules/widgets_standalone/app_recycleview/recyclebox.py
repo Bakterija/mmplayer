@@ -60,7 +60,6 @@ class AppRecycleBoxLayout(RecycleBoxLayout):
                 elif new_last not in self.selected_widgets:
                     self.add_remove_selected_set(new_last)
                 self.sel_last = new_last
-
         self._update_selected()
         self._scroll_to_selected()
 
@@ -140,9 +139,9 @@ class AppRecycleBoxLayout(RecycleBoxLayout):
                     break
         if not pos:
             return
-        self.context_menu_function(pos)
+        self.context_menu_function(x, x.index, pos)
 
-    def context_menu_function(self, pos):
+    def context_menu_function(self, child, index, pos):
         pass
 
     def get_widget_from_index(self, index):

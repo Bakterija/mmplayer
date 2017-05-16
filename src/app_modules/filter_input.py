@@ -1,6 +1,6 @@
 from app_modules.widgets_standalone.compat_textinput import CompatTextInput
 from app_modules.behaviors.focus import FocusBehaviorCanvas
-from kivy.properties import StringProperty
+from kivy.properties import StringProperty, BooleanProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder
 
@@ -44,6 +44,17 @@ Builder.load_string('''
 
 class FilterInputBox(BoxLayout):
     filter_text = StringProperty()
+    is_focusable = BooleanProperty()
+
+    def on_is_focusable(self, _, value):
+        if value:
+            self.ids.filter_input.is_focusable = True
+        else:
+            self.ids.filter_input.is_focusable = False
+
+    # def enable_focusable(self):
+    #
+    # def disable_focusable(self):
 
     def focus_input(self, *args):
         input_widget = self.ids.filter_input

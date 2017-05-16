@@ -13,7 +13,6 @@ from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from kivy.uix.recycleview.layout import LayoutSelectionBehavior
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
-from app_modules.behaviors.focus import FocusBehaviorCanvasKB
 from app_modules.behaviors.focus import FocusBehaviorCanvas
 from app_modules.widgets_standalone.app_recycleview import (
     AppRecycleBoxLayout, AppRecycleView)

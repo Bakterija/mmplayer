@@ -1,6 +1,8 @@
 from kivy.metrics import cm, dp
 from kivy.lang import Builder
 from kivy.utils import platform
+from kivy.event import EventDispatcher
+from kivy.properties import NumericProperty, ListProperty
 import os
 
 DIR_HOME = os.path.expanduser("~")+'/'
@@ -19,6 +21,7 @@ def __set_app_globals__():
 
     col_blue = (0.3, 0.4, 0.5, 1)
     col_bblue = (0.35, 0.45, 0.55, 1)
+    col_bblue_transp06 = (0.35, 0.45, 0.55, 0.6)
     col_bbblue = (0.5, 0.6, 0.7, 1)
     col_dblue = (0.25, 0.35, 0.45, 1)
     col_dblue2 = (0.15, 0.25, 0.35, 1)
@@ -33,7 +36,6 @@ def __set_app_globals__():
     col_red = (0.8, 0.2, 0.2, 1)
 
     col_ncolbg = (0.09, 0.09, 0.1, 1)
-
 
     button_height = int(cm(0.7))
     button_height20 = int(button_height * 2.0)
@@ -58,3 +60,13 @@ def __set_app_globals__():
         Builder.load_string('#: set %s %s' % (attr, value))
 
 __set_app_globals__()
+
+
+class ThemeManager(EventDispatcher):
+    btn_height = NumericProperty(button_height)
+    btn_height05 = NumericProperty(button_height05)
+    background2 = ListProperty(col_dgrey)
+    col_text = ListProperty([0.9, 0.9, 0.9, 1])
+    col_text_disabled = ListProperty([0.5, 0.5, 0.5, 1])
+
+theme_manager = ThemeManager()

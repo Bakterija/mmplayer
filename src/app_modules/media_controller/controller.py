@@ -31,7 +31,7 @@ class MediaController(Widget):
     playlists = DictProperty()
     cur_played_playlist = ObjectProperty()
     cur_viewed_playlist = ObjectProperty()
-    cur_queue = ListProperty()
+    # cur_queue = ListProperty()
 
     playing_name = StringProperty()
     playing_path = StringProperty()
@@ -68,6 +68,8 @@ class MediaController(Widget):
             self.playing_id = index
             if self.cur_played_playlist:
                 self.cur_played_playlist.set_playing(index)
+            else:
+                media['state'] = 'playing'
         else:
             self.playing_id = -9
             if self.cur_played_playlist:
@@ -99,7 +101,7 @@ class MediaController(Widget):
         self.view_queue = widget
         widget.mcontrol = self
 
-    def start_playlist(self, name, path, index, id, btn):
+    def start_playlist_from_index(self, name, path, index, id, btn):
         '''Triggered when user touches a MediaButton in playlist'''
         self.mplayer.reset()
         self.cur_played_playlist = self.cur_viewed_playlist
@@ -110,24 +112,24 @@ class MediaController(Widget):
 
     def start_queue(self, index):
         '''Triggered when user touches a MediaButton in queue'''
-        stat = self.mplayer.start(str(index))
+        stat = self.mplayer.start(index)
 
-    def insert_queue(self, name, path, index):
-        current = self.mplayer.playlist.get_current()
-        if index == 'Next':
-            if current is None:
-                index = 0
-            else:
-                index = current[0] + 1
-        elif index == 'End':
-            index = len(self.mplayer.playlist.list) + 1
-        elif index == 'Beginning':
-            index = 0
-        self.mplayer.playlist.insert(index, name, path)
-        self.queue.insert(index, {
-            'text': name, 'name': name, 'path': path,
-            'mtype': 'media', 'pstate': 'default'
-        })
+    def start_selection(self, new_queue, cur_playlist=None):
+        self.mplayer.reset()
+        if cur_playlist:
+            self.cur_played_playlist = cur_playlist
+        self.mplayer.queue = new_queue
+        self.view_queue.set_data(new_queue)
+        self.start_queue(0)
+
+    def add_to_queue(self, new_media):
+        new_queue = self.mplayer.queue + new_media
+        self.mplayer.queue = new_queue
+        self.view_queue.set_data(new_queue)
+
+    def clear_queue(self, *args):
+        self.mplayer.reset()
+        self.view_queue.clear_data()
 
     def play_pause(self):
         state = self.mplayer.get_state()
@@ -142,25 +144,6 @@ class MediaController(Widget):
     def play_previous(self):
         self.mplayer.previous()
 
-    def set_media_labels(self, string):
-        def resizer_clock(*arg):
-            label = lbl
-            ratio = float(label.size[0]) / float(label.texture_size[0])
-            if ratio < 1:
-                lentext = len(label.text)
-                will_remove = lentext - int(
-                    float(lentext) * float(ratio)) + 4
-                templist = list(label.text)
-                while will_remove:
-                    del templist[int(len(templist) * 0.8)]
-                    will_remove -= 1
-                templist.insert(int(len(templist) * 0.8) , '...')
-                label.text = ''.join(templist)
-
-        lbl = self.ids.media_label
-        lbl.text = string
-        Clock.schedule_once(resizer_clock, 0)
-
     def jump_to_current_index(self, screen):
         Logger.info('MediaController: jump_to_current_index(%s)' % (screen))
         if screen == 'playlist':
@@ -171,6 +154,7 @@ class MediaController(Widget):
         index = self.find_playing(pl.data)
         if index is not None:
             pl.scroll_to_index(index)
+            pl.children[0].select_with_touch(index)
             Logger.info('MediaController: jumping to index %s' % (index))
         else:
             Logger.info('MediaController: played index is not in view')
@@ -283,9 +267,7 @@ class MediaController(Widget):
             elif playlist == 'queue':
                 pl = BasePlaylist()
                 new_media = pl.get_files(path)
-                new_queue = self.mplayer.queue + new_media
-                self.mplayer.queue = new_queue
-                self.view_queue.set_data(new_queue)
+                self.add_to_queue(new_media)
                 found = True
 
         if not found:
@@ -348,6 +330,7 @@ class MediaController(Widget):
             for instance in playlists:
                 if target['path'] == instance.path:
                     self.cur_viewed_playlist = instance
+                    Clock.schedule_once(self.view_playlist.focus_widget, 0.2)
                     return
 
         Logger.warning('MediaController: playlist not found')

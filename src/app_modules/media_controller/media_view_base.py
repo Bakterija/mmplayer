@@ -16,6 +16,7 @@ from kivy.logger import Logger
 from kivy.metrics import cm
 from app_modules import keys
 from kivy.clock import Clock
+from utils import not_implemented
 
 
 class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
@@ -44,6 +45,11 @@ class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
                 self.start_media()
             else:
                 self.parent.select_with_touch(self.index)
+        elif button == 'right':
+            if not self.index in self.parent.selected_widgets:
+                Clock.schedule_once(
+                    lambda *a: self.parent.select_with_touch(self.index))
+            self.open_context_menu()
 
     def set_bg_color(self, *args):
         if self.hovering and self.state != 'playing':
@@ -67,10 +73,23 @@ class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
     def on_selected(self, _, value):
         self.set_bg_color()
 
+    def open_context_menu(self, *args):
+        not_implemented.show_error()
+
+
 class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
+    mcontrol = None
+
     def __init__(self, **kwargs):
         super(MediaRecycleviewBase, self).__init__(**kwargs)
         self.filter_keys = ['name']
+        self.children[0].context_menu_function = self.open_ctx
+
+    def get_selected_data(self):
+        return [self.data[i] for i in self.children[0].selected_widgets]
+
+    def open_ctx(self, widget, index, pos):
+        widget.open_context_menu()
 
     def update_data_from_filter(self, *args):
         Clock.schedule_once(self.log_data_update, 0)
@@ -103,7 +122,7 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
                 self.on_kb_return()
             elif key == keys.ENTER:
                 self.on_kb_return()
-            elif key == 1073741942:
+            elif key == keys.MENU:
                 box.open_context_menu()
             elif key == keys.PAGE_UP:
                 self.page_up()
@@ -115,7 +134,7 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
                 self.scroll_to_end()
         elif modifier == ['ctrl']:
             if key == 97:
-                self.select_all()
+                box.select_all()
             elif key == 32:
                 box.deselect_all()
 
@@ -129,6 +148,12 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
 
         skrol = 1.0 - self.convert_distance_to_scroll(0, dist)[1]
         self.scroll_y = skrol
+
+    def find_playing(self):
+        for i, x in enumerate(self.data):
+            if x['state'] == 'playing':
+                return i
+        return -1
 
 
 if platform == 'android':
