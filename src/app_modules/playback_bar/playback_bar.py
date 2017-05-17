@@ -82,14 +82,16 @@ class PlayBackBar(BoxLayout):
         self.bind(media_progress_val=self.ids.progress1.on_value_update)
         self.ids.progress1.bind(on_touch_down=self.toggle_progress_update)
         self.ids.progress1.bind(on_touch_up=self.toggle_progress_update)
-        self.ids.progress1.bind(on_touch_up=lambda obj, val: setattr(
-            self, 'media_progress_val', self.ids.progress1.value))
-        self.ids.progress1.bind(on_touch_move=lambda obj, val: setattr(
-            self, 'media_progress_val', self.ids.progress1.value))
-        self.ids.progress2.bind(on_touch_move=lambda obj, val: setattr(
-            self, 'media_volume', self.ids.progress2.value))
-        self.ids.progress2.bind(on_touch_up=lambda obj, val: setattr(
-            self, 'media_volume', self.ids.progress2.value))
+        self.ids.progress1.bind(on_touch_up=self.update_media_progress)
+        self.ids.progress1.bind(on_touch_move=self.update_media_progress)
+        self.ids.progress2.bind(on_touch_move=self.update_media_volume)
+        self.ids.progress2.bind(on_touch_up=self.update_media_volume)
+
+    def update_media_progress(self, widget, value):
+        self.media_progress_val = widget.value
+
+    def update_media_volume(self, widget, value):
+        self.media_volume = widget.value
 
     def get_readable_from_int(self, seconds):
         seconds = int(seconds)
@@ -119,8 +121,7 @@ class PlayBackBar(BoxLayout):
 
     def on_media_progress_max(self, *args):
         if args:
-            if self.dont_update_progress == False:
-                self.media_progress_max = args[1]
+            self.media_progress_max = args[1]
             s = self.get_readable_from_int(self.media_progress_max)
             self.media_progress_max_readable = s
 
