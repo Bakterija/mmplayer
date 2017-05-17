@@ -23,6 +23,15 @@ class Config(ConfigBase):
             root.manager.ids.media_filter_widget.focus_input,
             modifier=['ctrl'])
 
+        screenbinds = (
+            (keys.N1, 'main'), (keys.N2, 'queue'),
+            (keys.N3, 'media'), (keys.N4, 'video'))
+        for key, name in screenbinds:
+            kbinder.add(
+                'screen_switch_%s' % (name), key, 'down',
+                lambda key=key, name=name: root.switch_screen(name),
+                modifier=['alt'])
+
         kbinder.add(
             'jump_to_current', keys.J, 'down',
             root.jump_to_current, modifier=['ctrl'])
