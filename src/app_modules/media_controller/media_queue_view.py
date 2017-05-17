@@ -17,11 +17,18 @@ class QueueViewClass(MediaButton):
             can_jump = False
         else:
             can_jump = True
+        if count_selected:
+            cant_remove = False
+        else:
+            cant_remove = True
 
         ci = [
             {
                 'text': 'Play', 'disabled': False,
                 'on_press': self.start_media},
+            {
+                'text': 'Remove from playlist', 'disabled': cant_remove,
+                'on_press': self.rv.remove_selected},
             {
                 'text': 'Clear queue', 'disabled': False,
                 'on_press': self.rv.mcontrol.clear_queue},
@@ -56,3 +63,7 @@ class MediaQueueView(MediaRecycleviewBase):
 
     def set_queue(self, obj, data):
         self.data = data
+
+    def remove_selected(self):
+        remlist = sorted(list(self.children[0].selected_widgets))
+        self.mcontrol.queue_remove_indexes(remlist)

@@ -4,6 +4,7 @@ from kivy.logger import Logger
 class FolderLoaderPlaylist(BasePlaylist):
     load_path = ''
     can_add = False
+    can_remove = False
 
     def load(self, path, data):
         super(FolderLoaderPlaylist, self).load(path, data)

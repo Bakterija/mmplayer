@@ -127,6 +127,13 @@ class MediaController(Widget):
         self.mplayer.queue = new_queue
         self.view_queue.set_data(new_queue)
 
+    def queue_remove_indexes(self, index_list):
+        for x in reversed(index_list):
+            del self.mplayer.queue[x]
+        self.view_queue.set_data(self.mplayer.queue)
+        Logger.info('MediaController: removed %s files from queue' % (
+            len(index_list)))
+
     def clear_queue(self, *args):
         self.mplayer.reset()
         self.view_queue.clear_data()

@@ -43,6 +43,13 @@ class FileLoaderPlaylist(BasePlaylist):
         self.refresh_media_id()
         self.save()
 
+    def remove_indexes(self, index_list):
+        for x in reversed(index_list):
+            del self.media[x]
+        self.refresh_media_id()
+        Logger.info('FileLoaderPlaylist: removed %s files' % (len(index_list)))
+        self.save()
+
     def save(self):
         self.save_json({
             'name': self.name,

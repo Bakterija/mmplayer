@@ -99,6 +99,9 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
         Logger.info('{}: loaded {} item playlist in {} sec'.format(
             self.__class__.__name__, len(self.data), round(dt, 3)))
 
+    def remove_selected(self):
+        pass
+
     def on_kb_return(self):
         box = self.children[0]
         if box.sel_first != -1:
@@ -132,6 +135,8 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
                 self.scroll_to_start()
             elif key == keys.END:
                 self.scroll_to_end()
+            elif key == keys.DEL:
+                self.remove_selected()
         elif modifier == ['ctrl']:
             if key == 97:
                 box.select_all()

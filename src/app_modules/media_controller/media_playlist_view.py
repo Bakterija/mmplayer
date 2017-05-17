@@ -21,6 +21,10 @@ class PlaylistViewClass(MediaButton):
             can_jump = False
         else:
             can_jump = True
+        cant_remove = True
+        if self.rv.playlist_instance:
+            if self.rv.playlist_instance.can_remove:
+                cant_remove = False
 
         ci = [
             {
@@ -34,8 +38,8 @@ class PlaylistViewClass(MediaButton):
                 'text': 'Add to queue', 'disabled': False,
                 'on_press': self.add_to_queue},
             {
-                'text': 'Remove from playlist', 'disabled': False,
-                'on_press': show_not_implemented},
+                'text': 'Remove from playlist', 'disabled': cant_remove,
+                'on_press': self.rv.remove_selected},
             {
                 'text': 'Jump to current played', 'disabled': can_jump,
                 'on_press': lambda *a: self.rv.scroll_to_index(jump_index)},
@@ -81,3 +85,7 @@ class MediaPlaylistView(MediaRecycleviewBase):
 
     def update_data(self):
         self.set_data(self.playlist_instance.media)
+
+    def remove_selected(self):
+        remlist = [x['id'] for x in self.get_selected_data()]
+        self.playlist_instance.remove_indexes(remlist)

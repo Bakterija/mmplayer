@@ -9,6 +9,8 @@ TILDE = 96
 J = 106
 L = 108
 
+DEL = 127
+
 ENTER = 271
 
 UP = 273
