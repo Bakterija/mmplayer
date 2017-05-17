@@ -3,15 +3,11 @@ from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.lang import Builder
-from kivy.uix.recycleview import RecycleView
-from kivy.uix.recycleview.views import RecycleDataViewBehavior
-from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from kivy.metrics import dp
 from kivy.properties import NumericProperty, ListProperty, OptionProperty, \
     StringProperty
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
-from kivymd.theming import ThemableBehavior
 from app_modules.behaviors.focus import FocusBehavior
 from app_modules.widgets_standalone.app_recycleview import AppRecycleView
 from app_modules.widgets_standalone.app_recycleview import AppRecycleViewClass
@@ -110,7 +106,7 @@ class MDMenu(AppRecycleView, FocusBehavior):
             if x.hovering:
                 x.hovering = False
 
-class MDDropdownMenu(ThemableBehavior, BoxLayout):
+class MDDropdownMenu(BoxLayout):
     items = ListProperty()
     '''See :attr:`~kivy.uix.recycleview.RecycleView.data`
     '''
