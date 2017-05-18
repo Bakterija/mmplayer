@@ -12,59 +12,11 @@ focus_grab_widgets = []
 prev_focused_widgets = []
 max_previous_widgets = 10
 current_focus = None
-ctrl_held = False
-alt_held = False
-shift_held = False
-modifier = []
-
-def update_modifier():
-    global ctrl_held, alt_held, shift_held, modifier
-    modifier = []
-    if ctrl_held:
-        modifier.append('ctrl')
-    if alt_held:
-        modifier.append('alt')
-    if shift_held:
-        modifier.append('shift')
-
-def on_key_up(window, key, *args):
-    global ctrl_held, alt_held, shift_held
-    if key == 9:
-        return
-
-    if key in (308, 1073741824):
-        alt_held = False
-    elif key in (305, 306):
-        ctrl_held = False
-    elif key in (304, 303):
-        shift_held = False
-
-    if current_focus:
-        update_modifier()
-        current_focus.on_key_up(key, modifier)
-
-def on_key_down(window, key, *args):
-    global ctrl_held, alt_held, shift_held
-    if key == 9:
-        return
-
-    if key in (308, 1073741824):
-        alt_held = True
-    elif key in (305, 306):
-        ctrl_held = True
-    elif key in (304, 303):
-        shift_held = True
-
-    if current_focus:
-        update_modifier()
-        current_focus.on_key_down(key, modifier)
 
 def on_mouse_move(window, pos):
     if current_focus and current_focus.remove_focus_on_touch_move:
         remove_focus()
 
-Window.bind(on_key_up=on_key_up)
-Window.bind(on_key_down=on_key_down)
 Window.bind(mouse_pos=on_mouse_move)
 
 def on_parent(self, parent):
@@ -159,6 +111,7 @@ class FocusBehavior(Widget):
     focus = BooleanProperty(False)
     remove_focus_on_touch_move = True
     subfocus_widgets = ListProperty()
+    grab_keys = ListProperty()
     grab_focus = False
     is_focusable = True
     is_subfocus = False

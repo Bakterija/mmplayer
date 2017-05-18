@@ -1,4 +1,4 @@
-from app_modules.behaviors.focus import FocusBehaviorCanvas
+from app_modules.kb_system.canvas import FocusBehaviorCanvas
 from kivy.uix.textinput import TextInput
 # from kivy.lang import Builder
 

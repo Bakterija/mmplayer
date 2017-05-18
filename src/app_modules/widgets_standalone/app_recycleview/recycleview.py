@@ -1,6 +1,5 @@
 from kivy.properties import ListProperty, StringProperty, BooleanProperty
 from kivy.uix.recycleview import RecycleView
-from app_modules import key_binder
 from kivy.clock import Clock
 from kivy.metrics import dp
 from kivy.animation import Animation

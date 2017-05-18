@@ -1,5 +1,5 @@
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
-from app_modules import key_binder
+from app_modules import kb_system
 from kivy.clock import Clock
 
 
@@ -30,11 +30,11 @@ class AppRecycleBoxLayout(RecycleBoxLayout):
 
     def get_modifier_mode(self):
         mode = ''
-        if key_binder.ctrl_held and key_binder.shift_held:
+        if kb_system.held_ctrl and kb_system.held_shift:
             mode = ''
-        elif key_binder.ctrl_held:
+        elif kb_system.held_ctrl:
             mode = 'ctrl'
-        elif key_binder.shift_held:
+        elif kb_system.held_shift:
             mode = 'shift'
         return mode
 

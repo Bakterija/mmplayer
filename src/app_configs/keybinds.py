@@ -1,7 +1,7 @@
-from app_modules.behaviors.focus import focus as focus_behavior
-from app_modules import key_binder as kbinder
+from app_modules.kb_system import focus as focus_behavior
+from app_modules import kb_system as kbinder
+from app_modules.kb_system import keys
 from .config_base import ConfigBase
-from app_modules import keys
 from kivy.app import App
 
 class Config(ConfigBase):
@@ -65,7 +65,3 @@ class Config(ConfigBase):
 
         kbinder.add('toggle_terminal', keys.TILDE, 'down',
                            root.ids.terminal_widget.toggle_pos_multiplier)
-        kbinder.add('terminal_scroll_up', keys.PAGE_UP, 'down',
-                          root.ids.terminal_widget.scroll_up)
-        kbinder.add('terminal_scroll_down', keys.PAGE_DOWN, 'down',
-                        root.ids.terminal_widget.scroll_down)

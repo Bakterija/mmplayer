@@ -1,5 +1,5 @@
 from app_modules.widgets_standalone.compat_textinput import CompatTextInput
-from app_modules.behaviors.focus import FocusBehaviorCanvas
+from app_modules.kb_system.canvas import FocusBehaviorCanvas
 from kivy.properties import StringProperty, BooleanProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder

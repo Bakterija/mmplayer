@@ -1,6 +1,6 @@
-from app_modules.behaviors.focus import FocusBehaviorCanvas
+from app_modules.kb_system.canvas import FocusBehaviorCanvas
 from kivy.uix.button import Button
-from app_modules import keys
+from app_modules.kb_system import keys
 
 
 class FocusButton(FocusBehaviorCanvas, Button):

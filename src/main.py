@@ -36,7 +36,7 @@ from app_modules.media_controller.media_playlist_view import MediaPlaylistView
 from app_modules.media_controller.media_queue_view import MediaQueueView
 from app_configs import AppConfigHandler
 from kivy.config import Config as KivyConfig
-from app_modules.behaviors.focus import focus
+from app_modules.kb_system import focus
 from utils import get_unicode
 # from kivymd_modified.theming import ThemeManager
 import traceback

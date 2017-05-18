@@ -13,14 +13,14 @@ from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from kivy.uix.recycleview.layout import LayoutSelectionBehavior
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
-from app_modules.behaviors.focus import FocusBehaviorCanvas
+from app_modules.kb_system.canvas import FocusBehaviorCanvas
 from app_modules.widgets_standalone.app_recycleview import (
     AppRecycleBoxLayout, AppRecycleView)
 from kivy.uix.behaviors import ButtonBehavior
 from .pc_sidebar_widgets import rvLabelButton, rvSection
 from kivy.clock import Clock
 from kivy.core.window import Window
-from app_modules import keys as kb
+from app_modules.kb_system import keys as kb
 import traceback
 from time import time
 

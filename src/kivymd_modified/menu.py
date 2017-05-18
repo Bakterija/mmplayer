@@ -8,11 +8,11 @@ from kivy.properties import NumericProperty, ListProperty, OptionProperty, \
     StringProperty
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
-from app_modules.behaviors.focus import FocusBehavior
+from app_modules.kb_system.focus import FocusBehavior
 from app_modules.widgets_standalone.app_recycleview import AppRecycleView
 from app_modules.widgets_standalone.app_recycleview import AppRecycleViewClass
 from app_modules.behaviors.hover_behavior import HoverBehavior
-from app_modules import keys
+from app_modules.kb_system import keys
 from global_vars import theme_manager
 
 

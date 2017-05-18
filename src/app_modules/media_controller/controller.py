@@ -337,7 +337,8 @@ class MediaController(Widget):
             for instance in playlists:
                 if target['path'] == instance.path:
                     self.cur_viewed_playlist = instance
-                    Clock.schedule_once(self.view_playlist.focus_widget, 0.2)
+                    # TODO Disable for now, add config setting later
+                    # Clock.schedule_once(self.view_playlist.focus_widget, 0.2)
                     return
 
         Logger.warning('MediaController: playlist not found')
