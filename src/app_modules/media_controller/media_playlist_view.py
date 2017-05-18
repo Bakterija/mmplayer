@@ -44,8 +44,16 @@ class PlaylistViewClass(MediaButton):
                 'text': 'Jump to current played', 'disabled': can_jump,
                 'on_press': lambda *a: self.rv.scroll_to_index(jump_index)},
             {
-                'text': 'Delete files', 'disabled': False,
-                'on_press': show_not_implemented},
+                'text': 'Select all', 'disabled': False,
+                'on_press': self.rv.ids.box.select_all},
+            {
+                'text': 'Deselect all', 'disabled': False,
+                'on_press': self.rv.ids.box.deselect_all},
+            # Decided not to include it for now
+            #
+            # {
+            #     'text': 'Delete files', 'disabled': False,
+            #     'on_press': show_not_implemented},
             {
                 'text': 'Properties', 'disabled': False,
                 'on_press': self.open_prop_dialog

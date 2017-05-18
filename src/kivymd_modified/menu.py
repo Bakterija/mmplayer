@@ -22,7 +22,7 @@ Builder.load_string('''
     size_hint_y: None
     padding: int(cm(0.2)), 0
     height: app.mtheme.btn_height
-    on_release: root.parent.parent.parent.parent.dismiss()  # Horrible, but hey it works
+    on_release: root.parent.parent.dismiss_ctx_menu()
     canvas.before:
         Color:
             rgba: col_bblue_transp06 if self.selected else [0, 0, 0, 0]
@@ -76,6 +76,7 @@ class MDMenu(AppRecycleView, FocusBehavior):
     width_mult = NumericProperty(1)
     remove_focus_on_touch_move = False
     grab_focus = True
+    nremoving = False
 
     # def __init__(self, **kwargs):
     #     super(MDMenu, self).__init__(**kwargs)
@@ -98,8 +99,10 @@ class MDMenu(AppRecycleView, FocusBehavior):
             self.dismiss_ctx_menu()
 
     def dismiss_ctx_menu(self):
-        self.remove_from_focus(prev_focus=True)
-        self.parent.parent.dismiss()
+        if not self.nremoving:
+            self.remove_from_focus(prev_focus=True)
+            self.parent.parent.dismiss()
+            self.nremoving = True
 
     def remove_hover(self):
         for x in self.children[0].children:

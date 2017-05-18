@@ -36,6 +36,12 @@ class QueueViewClass(MediaButton):
                 'text': 'Jump to current played', 'disabled': can_jump,
                 'on_press': lambda *a: self.rv.scroll_to_index(jump_index)},
             {
+                'text': 'Select all', 'disabled': False,
+                'on_press': self.rv.children[0].select_all},
+            {
+                'text': 'Deselect all', 'disabled': False,
+                'on_press': self.rv.children[0].deselect_all},
+            {
                 'text': 'Properties', 'disabled': False,
                 'on_press': self.open_prop_dialog
             }
