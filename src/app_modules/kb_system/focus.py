@@ -88,9 +88,10 @@ def remove_focus():
 def set_focus_previous(*args):
     global focus_grab_widgets, focusable_widgets, prev_focused_widgets
     if not focus_grab_widgets:
-        last = prev_focused_widgets[-1]
-        # Logger.info('focus: focusing previous %s' % (last()))
-        set_focus(last(), change_previous=False)
+        if prev_focused_widgets:
+            last = prev_focused_widgets[-1]
+            # Logger.info('focus: focusing previous %s' % (last()))
+            set_focus(last(), change_previous=False)
 
 def set_focus(widget, change_previous=True):
     global current_focus, prev_focused_widgets, max_previous_widgets

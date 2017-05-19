@@ -86,7 +86,7 @@ class MediaPropertiesDialog(FocusBehaviorCanvas, Popup):
             if k == 'path':
                 self.containing_directory = get_containing_directory(v)
 
-                if v in media_cache:
+                if v in media_cache and media_cache[v]:
                     mc = media_cache[v]
                     if 'duration' in mc:
                         btn = MediaPropertiesDialogText('duration', mc['duration'])

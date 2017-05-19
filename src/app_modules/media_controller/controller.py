@@ -58,7 +58,7 @@ class MediaController(Widget):
         # self.reset_playlists()
         Clock.schedule_interval(self.update_seek, 0.1)
         media_info.info_update_callback = self.on_media_info_update
-        Clock.schedule_once(lambda *a: media_info.start_workers(2), 3)
+        Clock.schedule_once(lambda *a: media_info.start_workers(2), 1)
 
     def on_mplayer_start(self):
         state = self.mplayer.get_state_all()

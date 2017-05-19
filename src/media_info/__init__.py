@@ -4,12 +4,14 @@ from . import info_ffprobe
 from time import time, sleep
 from app_modules import appworker
 from kivy.clock import Clock
+from kivy.logger import Logger
 
 cache = {}
 worker_state = {}
 remaining_tasks = 0
 scheduled_paths = []
 info_update_callback = None
+detected_ffprobe = None
 
 def get_info(media_list):
     t0 = time()
@@ -25,6 +27,7 @@ def get_info_async(media_path):
 
 def get_info_async_done(media_path, info):
     global cache, info_update_callback, remaining_tasks, worker_state
+    global detected_ffprobe
     cache[media_path] = info
     worker_state[media_path] = 'done'
     remaining_tasks -= 1
@@ -58,11 +61,15 @@ def update_schedule(dt):
     # print (time() - t0, remaining_tasks, len(scheduled_paths))
 
 def worker_thread(ind, queue):
-    while True:
-        sleep (0.1)
-        tt = qu.get()
-        result = info_ffprobe.get_info(tt)
-        Clock.schedule_once(lambda *a: get_info_async_done(tt, result))
+    if info_ffprobe.find_ffprobe():
+        while True:
+            sleep (0.1)
+            tt = qu.get()
+            result = info_ffprobe.get_info(tt)
+            Clock.schedule_once(lambda *a: get_info_async_done(tt, result))
+    else:
+        Clock.schedule_once(on_ffprobe_not_found, 0)
+
 
 qu = Queue()
 def start_workers(count):
@@ -71,3 +78,10 @@ def start_workers(count):
         t = Thread(target=worker_thread, args=(i, qu,))
         t.daemon = True
         t.start()
+
+def on_ffprobe_not_found(*args):
+    global detected_ffprobe
+    detected_ffprobe = False
+    Clock.unschedule(update_schedule)
+    Logger.warning('media_info: ffprobe was not found, '
+                   'media information will not be added')

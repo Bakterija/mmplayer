@@ -13,8 +13,6 @@ try:
 except:
     pass
 import global_vars
-from app_modules import appworker
-appworker.start_workers(1)
 from kivy.config import Config
 Config.set('kivy', 'exit_on_escape', 0)
 from kivy.logger import Logger, LoggerHistory
@@ -38,6 +36,7 @@ from app_configs import AppConfigHandler
 from kivy.config import Config as KivyConfig
 from app_modules.kb_system import focus
 from utils import get_unicode
+from app_modules import appworker
 # from kivymd_modified.theming import ThemeManager
 import traceback
 import sys
@@ -277,5 +276,9 @@ def main_loop():
         traceback.print_exc()
     appworker.stop()
 
+
 if __name__ == "__main__":
+    from multiprocessing import freeze_support
+    freeze_support()
+    appworker.start_workers(1)
     main_loop()
