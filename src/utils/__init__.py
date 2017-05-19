@@ -9,7 +9,10 @@ def open_directory(path):
 
 def get_unicode(string):
     if PY2:
-        string = string.encode('utf-8')
+        try:
+            string = string.encode('utf-8')
+        except:
+            pass
         string = unicode(string, 'utf-8')
     else:
         if isinstance(string, bytes):

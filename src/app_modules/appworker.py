@@ -1,5 +1,6 @@
 # from app_modules.media_controller.playlist_loader.base import BasePlaylist
 from time import time, sleep
+from kivy.logger import Logger
 import multiprocessing
 import threading
 try:
@@ -81,13 +82,13 @@ class WorkerInterface(object):
         self.send.put(task)
 
     def update(self):
-        if not self.recv.empty():
-            task = self.recv.get_nowait()
-            if task['method'] == 'task_done':
-                self.task_callbacks[task['task_id']](task)
-            elif task['method'] == 'Logger_info':
-                from kivy.logger import Logger
-                Logger.info(task['text'])
+        for i in range(50):
+            if not self.recv.empty():
+                task = self.recv.get_nowait()
+                if task['method'] == 'task_done':
+                    self.task_callbacks[task['task_id']](task)
+                elif task['method'] == 'Logger_info':
+                    Logger.info(task['text'])
 
     def start_process(self):
         if not self.process:

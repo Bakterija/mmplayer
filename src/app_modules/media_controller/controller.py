@@ -26,6 +26,8 @@ from kivy.logger import Logger
 import traceback
 import global_vars as gvars
 from time import time
+import media_info
+
 
 class MediaController(Widget):
     playlists = DictProperty()
@@ -55,6 +57,8 @@ class MediaController(Widget):
         self.skip_seek, self.seek_lock = 0, 0
         # self.reset_playlists()
         Clock.schedule_interval(self.update_seek, 0.1)
+        media_info.info_update_callback = self.on_media_info_update
+        Clock.schedule_once(lambda *a: media_info.start_workers(2), 3)
 
     def on_mplayer_start(self):
         state = self.mplayer.get_state_all()
@@ -351,3 +355,11 @@ class MediaController(Widget):
             self.open_playlist(target)
         else:
             print('playlist not in ids', id, self.playlist_ids)
+
+    def on_media_info_update(self, path, info):
+        pl = self.view_playlist.find_view_with_path(path)
+        que = self.view_queue.find_view_with_path(path)
+        if pl:
+            pl.update_media_info(info)
+        if que:
+            que.update_media_info(info)

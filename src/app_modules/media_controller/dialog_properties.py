@@ -7,6 +7,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import StringProperty
 from kivy.lang import Builder
 from utils import get_containing_directory, open_directory
+from media_info import cache as media_cache
 
 Builder.load_string('''
 #: import ConditionLayout app_modules.widgets_standalone.condition_layout.ConditionLayout
@@ -84,6 +85,19 @@ class MediaPropertiesDialog(FocusBehaviorCanvas, Popup):
             self.ids.grid.add_widget(btn)
             if k == 'path':
                 self.containing_directory = get_containing_directory(v)
+
+                if v in media_cache:
+                    mc = media_cache[v]
+                    if 'duration' in mc:
+                        btn = MediaPropertiesDialogText('duration', mc['duration'])
+                        self.ids.grid.add_widget(btn)
+                    if mc['format']:
+                        for x in ('artist', 'title', 'album', 'genre', 'date'):
+                            tagtext = ''.join(('TAG:', x))
+                            if tagtext in mc['format']:
+                                btn = MediaPropertiesDialogText(
+                                    x, mc['format'][tagtext])
+                                self.ids.grid.add_widget(btn)
 
     def open_cont_dir(self):
         open_directory(self.containing_directory)

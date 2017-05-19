@@ -13,8 +13,8 @@ try:
 except:
     pass
 import global_vars
-# from app_modules import appworker
-# appworker.start_workers(1)
+from app_modules import appworker
+appworker.start_workers(1)
 from kivy.config import Config
 Config.set('kivy', 'exit_on_escape', 0)
 from kivy.logger import Logger, LoggerHistory
@@ -275,7 +275,7 @@ def main_loop():
         app.run()
     except Exception as e:
         traceback.print_exc()
-    # appworker.stop()
+    appworker.stop()
 
 if __name__ == "__main__":
     main_loop()

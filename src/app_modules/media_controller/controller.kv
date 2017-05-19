@@ -28,12 +28,16 @@
 
     Label:
         font_size: root.font_size
-        text: root.name
-        size_hint: 0.9, 1
+        text: root.text
+        size_hint: 0.8, 1
         text_size: self.size[0], None
         shorten: True
         padding_x: 20
-
+    Label:
+        font_size: root.font_size
+        text: str(int(root.duration / 60.0))
+        size_hint: 0.1, 1
+        text_size: self.size[0], None
 
 <MediaRecycleviewBase>:
     AppRecycleBoxLayout:

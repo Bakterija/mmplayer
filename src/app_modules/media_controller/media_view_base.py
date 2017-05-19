@@ -1,5 +1,5 @@
-from kivy.properties import (
-    StringProperty, DictProperty, ListProperty, NumericProperty)
+from kivy.properties import StringProperty, DictProperty, ListProperty
+from kivy.properties import NumericProperty, BooleanProperty
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from app_modules.widgets_standalone.app_recycleview import AppRecycleView
 from app_modules.widgets_standalone.app_recycleview import AppRecycleBoxLayout
@@ -17,6 +17,7 @@ from kivy.metrics import cm
 from app_modules.kb_system import keys
 from kivy.clock import Clock
 from utils import not_implemented
+import media_info
 
 
 class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
@@ -28,8 +29,17 @@ class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
     state = StringProperty('default')
     mtype = StringProperty('media')
     name = StringProperty()
+    text = StringProperty()
     path = StringProperty()
     bg_color = ListProperty()
+    in_mi = BooleanProperty(False)
+    duration = NumericProperty(-1)
+    is_video = BooleanProperty(False)
+    artist = StringProperty()
+    title = StringProperty()
+    album = StringProperty()
+    genre = StringProperty()
+    date = StringProperty()
 
     def refresh_view_attrs(self, rv, index, data):
         super(MediaButton, self).refresh_view_attrs(rv, index, data)
@@ -38,6 +48,39 @@ class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
         self.set_bg_color()
         if not self.rv:
             self.rv = rv
+        if self.path not in media_info.cache:
+            media_info.get_info_async(self.path)
+            self.update_media_info(None)
+        else:
+            self.update_media_info(media_info.cache[self.path])
+
+    def update_media_info(self, info):
+        if info:
+            self.in_mi = True
+            self.is_video = info['is_video']
+            self.duration = info['duration']
+            self.artist = info['format'].get('TAG:artist', '')
+            self.title = info['format'].get('TAG:title', '')
+            self.album = info['format'].get('TAG:album', '')
+            self.genre = info['format'].get('TAG:genre', '')
+            self.date = info['format'].get('TAG:date', '')
+        else:
+            if media_info.worker_state[self.path] == 'waiting':
+                media_info.add_priority_path(self.path)
+            self.in_mi = False
+            self.is_video = False
+            self.duration = -1
+            self.artist = ''
+            self.title = ''
+            self.album = ''
+            self.genre = ''
+            self.date = ''
+        if self.title and self.artist:
+            self.text = ' - '.join((self.artist, self.title))
+        elif self.title:
+            self.text = self.title
+        else:
+            self.text = self.name
 
     def on_press(self, button, double_tap):
         if button == 'left':
@@ -160,6 +203,10 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
                 return i
         return -1
 
+    def find_view_with_path(self, path):
+        for x in self.children[0].children:
+            if x.path == path:
+                return x
 
 if platform == 'android':
     Builder.load_file('app_modules/media_controller/controller.kv')
