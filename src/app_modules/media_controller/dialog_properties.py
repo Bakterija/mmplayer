@@ -105,6 +105,7 @@ class MediaPropertiesDialog(FocusBehaviorCanvas, AppPopup):
     def dismiss(self):
         super(MediaPropertiesDialog, self).dismiss()
         self.remove_from_focus(prev_focus=True)
+        self.parent.remove_widget(self)
 
     @staticmethod
     def open_diag(media_dict):

@@ -1,6 +1,7 @@
 from kivy.properties import BooleanProperty, NumericProperty
 from kivy.uix.widget import Widget
 from kivy.core.window import Window
+from time import time
 import weakref
 
 _hover_widgets = []
@@ -12,10 +13,10 @@ def on_mouse_move(win, pos):
     if not active:
         return
     hovered = []
+    t0 = time()
     for ref in _hover_widgets:
         self = ref()
         if self:
-
             if self.collide_point_window(*pos):
                 hovered.append(self)
             elif self.hovering:
@@ -25,6 +26,7 @@ def on_mouse_move(win, pos):
         if hovered:
             highest = hovered[0]
             for self in hovered:
+        #         # print ('HVR', self, self.hover_height, self.parent)
                 if self.hover_height > highest.hover_height:
                     if highest.hovering:
                         highest.hovering = False
@@ -51,9 +53,21 @@ class HoverBehavior(Widget):
     hover_height = 0
 
     def __init__(self, **kwargs):
-        global _hover_widgets
         super(HoverBehavior, self).__init__(**kwargs)
-        _hover_widgets.append(weakref.ref(self))
+        self.bind(parent=self.on_parent_update_hover)
+
+    def on_parent_update_hover(self, _, parent):
+        global _hover_widgets
+        if parent:
+            _hover_widgets.append(weakref.ref(self))
+        else:
+            d = -1
+            for i, x in enumerate(_hover_widgets):
+                if x() == self:
+                    d = i
+                    break
+            if d != -1:
+                del _hover_widgets[d]
 
     def remove_from_hover_behavior(self):
         global _hover_widgets
