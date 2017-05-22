@@ -78,9 +78,7 @@ class MDMenu(AppRecycleView, FocusBehavior):
     remove_focus_on_touch_move = False
     grab_focus = True
     nremoving = False
-
-    # def __init__(self, **kwargs):
-    #     super(MDMenu, self).__init__(**kwargs)
+    grab_keys = [keys.ESC]
 
     def on_key_down(self, key, *args):
         box = self.children[0]
@@ -110,8 +108,10 @@ class MDMenu(AppRecycleView, FocusBehavior):
             self.nremoving = True
 
     def remove_hover(self):
+        for x in self.children[0].children:
             if x.hovering:
                 x.hovering = False
+
 
 class MDDropdownMenu(BoxLayout):
     items = ListProperty()

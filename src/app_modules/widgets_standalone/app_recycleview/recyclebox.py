@@ -14,19 +14,21 @@ class AppRecycleBoxLayout(RecycleBoxLayout):
         self.selected_widgets = set()
 
     def on_data_update_sel(self, len_old, len_new):
-        def next_frame_task(*a):
-            if self.sel_last > len_new:
-                if len_new < len_old:
-                    self.sel_last = len_new - 1
-                    if self.sel_first > len_new - 1:
-                        self.sel_first = self.sel_last
-                    self.selected_widgets.add(self.sel_last)
-                    for i in list(self.selected_widgets):
-                        if i > len_new - 1:
-                            self.selected_widgets.remove(i)
-                    self._update_selected()
-                    self._scroll_to_selected()
-        Clock.schedule_once(next_frame_task, 0)
+        Clock.schedule_once(
+            lambda *a: self.on_data_next_frame_task(len_old, len_new), 0)
+
+    def on_data_next_frame_task(self, len_old, len_new):
+        if self.sel_last > len_new:
+            if len_new < len_old:
+                self.sel_last = len_new - 1
+                if self.sel_first > len_new - 1:
+                    self.sel_first = self.sel_last
+                self.selected_widgets.add(self.sel_last)
+                for i in list(self.selected_widgets):
+                    if i > len_new - 1:
+                        self.selected_widgets.remove(i)
+                self._update_selected()
+                self._scroll_to_selected()
 
     def get_modifier_mode(self):
         mode = ''
@@ -132,14 +134,17 @@ class AppRecycleBoxLayout(RecycleBoxLayout):
             self.selected_widgets.add(index)
 
     def open_context_menu(self, pos=None):
-        if not pos:
+        widget = None
+        if self.sel_last != -1:
             for x in self.children:
                 if x.index == self.sel_last:
                     pos = x.to_window(x.right, x.y)
+                    widget, widget_index = x, x.index
                     break
-        if not pos:
-            return
-        self.context_menu_function(x, x.index, pos)
+        if widget:
+            self.context_menu_function(widget, widget_index, pos)
+        else:
+            self.context_menu_function(self, None, self.pos)
 
     def context_menu_function(self, child, index, pos):
         pass

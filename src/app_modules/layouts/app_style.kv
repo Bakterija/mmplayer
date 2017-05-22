@@ -11,3 +11,28 @@
 
 <Button>:
     font_size: self.height * 0.5
+
+<SideBarButton>:
+    padding: int(cm(0.3)), 0
+    text_size: self.width, None
+    height: rv_default_height
+    font_size: int(self.height * 0.6)
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<SideBarSection>:
+    padding: int(cm(0.3)), 0
+    height: sidebar_section_height
+    font_size: int(self.height * 0.6)
+    background_color: 0.2, 0.2, 0.2
+    text_size: self.width, None
+    canvas.before:
+        Color:
+            rgb: self.background_color
+        Rectangle:
+            pos: self.pos
+            size: self.size

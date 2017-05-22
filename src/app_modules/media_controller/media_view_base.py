@@ -21,7 +21,7 @@ import media_info
 
 
 class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
-                  RecycleDataViewBehavior, StackLayout):
+                  StackLayout):
     index = NumericProperty(-1)
     id = NumericProperty(-1)
     rv = None
@@ -43,7 +43,6 @@ class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
 
     def refresh_view_attrs(self, rv, index, data):
         super(MediaButton, self).refresh_view_attrs(rv, index, data)
-        self.index = index
         self.hovering = False
         self.set_bg_color()
         if not self.rv:

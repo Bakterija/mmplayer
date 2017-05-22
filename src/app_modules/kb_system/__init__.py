@@ -96,11 +96,11 @@ def on_key_event(key, modifier, is_down):
         Logger.info('kb_dispatcher: on_key_{}: {} - {}'.format(
             kstate, key, modifier))
 
+    dispatch_global = True
     cur_focus = focus_behavior.current_focus
     if cur_focus and key in cur_focus.grab_keys:
-        dispatch_to_focused(key, modifier, is_down)
-
-    else:
+        dispatch_global = dispatch_to_focused(key, modifier, is_down)
+    if dispatch_global:
         found = False
         for k, v in keybinds.items():
             if v['category'] in disabled_categories:
@@ -115,11 +115,13 @@ def on_key_event(key, modifier, is_down):
 
 def dispatch_to_focused(key, modifier, is_down):
     cf = focus_behavior.current_focus
+    retval = None
     if cf:
         if is_down:
-            cf.on_key_down(key, modifier)
+            retval = cf.on_key_down(key, modifier)
         else:
-            cf.on_key_up(key, modifier)
+            retval = cf.on_key_up(key, modifier)
+        return retval
 
 def update_modifier(key, is_down):
     global held_alt, held_ctrl, held_shift

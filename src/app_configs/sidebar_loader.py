@@ -31,14 +31,16 @@ class Config(ConfigBase):
     def get_button(self, name, left_click, right_click):
         return {
             'text': name, 'wtype': 'text', 'can_select': True,
-            'func': left_click, 'func2': right_click, 'height': WIDTH_TEXT
-        }
+            'func': left_click, 'func2': right_click, 'height': WIDTH_TEXT,
+            'viewclass': 'SideBarButton', 'selectable': True}
 
     def get_section(self, name):
-        return {'text': name, 'wtype': 'section', 'height': WIDTH_SECTION}
+        return {'text': name, 'wtype': 'section', 'height': WIDTH_SECTION,
+        'viewclass': 'SideBarSection', 'selectable': False}
 
     def get_separator(self):
-        return {'text': '', 'wtype': 'separator', 'height': WIDTH_SEPARATOR}
+        return {'text': '', 'wtype': 'separator', 'height': WIDTH_SEPARATOR,
+        'viewclass': 'SideBarSeparator', 'selectable': False}
 
     def get_playlist_button(self, item):
         return self.get_button(

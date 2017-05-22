@@ -1,23 +1,19 @@
-from kivy.uix.recycleview import RecycleView
 from kivy.uix.stacklayout import StackLayout
 from kivy.utils import platform
 from kivy.metrics import dp, cm
 from kivy.lang import Builder
 from kivy.uix.label import Label
 from kivy.uix.button import Button
-from kivy.properties import BooleanProperty
-from kivy.properties import StringProperty, DictProperty
+from kivy.properties import BooleanProperty, StringProperty, DictProperty
 from kivy.properties import ListProperty, NumericProperty
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.recycleview.views import RecycleDataViewBehavior
-from kivy.uix.recycleview.layout import LayoutSelectionBehavior
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from app_modules.kb_system.canvas import FocusBehaviorCanvas
 from app_modules.widgets_standalone.app_recycleview import (
-    AppRecycleBoxLayout, AppRecycleView)
+    AppRecycleBoxLayout, AppRecycleView, AppRecycleViewClass)
 from kivy.uix.behaviors import ButtonBehavior
-from .pc_sidebar_widgets import rvLabelButton, rvSection
+from .pc_sidebar_widgets import SideBarButton, SideBarSection
 from kivy.clock import Clock
 from app_modules.behaviors.hover_behavior import HoverBehavior
 from app_modules.kb_system import keys as kb
@@ -28,7 +24,8 @@ from time import time
 kv = '''
 <SideBarRecycleView>:
     viewclass: 'SideBarViewClass'
-    SelectableRecycleBox:
+    SingleSelectBox:
+        id: box
         orientation: 'vertical'
         size_hint: None, None
         height: self.minimum_height
@@ -38,7 +35,7 @@ kv = '''
         spacing: default_spacing
 '''
 
-class SideBarViewClass(HoverBehavior, RecycleDataViewBehavior,
+class SideBarViewClass(HoverBehavior, AppRecycleViewClass,
                        ButtonBehavior, StackLayout):
     index = None
     text = StringProperty()
@@ -51,12 +48,15 @@ class SideBarViewClass(HoverBehavior, RecycleDataViewBehavior,
         super(SideBarViewClass, self).__init__(**kwargs)
         size_hint_y = None
 
+    def on_selected(self, _, a):
+        print (self.index, a)
+
     def init_children(self, *args):
         if self.wtype == 'text':
-            self.lbl = rvLabelButton(text=self.text)
+            self.lbl = SideBarButton(text=self.text)
             self.add_widget(self.lbl)
         elif self.wtype == 'section':
-            self.lbl = rvSection(text=self.text)
+            self.lbl = SideBarSection(text=self.text)
             self.add_widget(self.lbl)
         elif self.wtype == 'separator':
             self.lbl = Label(text=self.text)
@@ -142,13 +142,24 @@ class SideBarRecycleView(FocusBehaviorCanvas, AppRecycleView):
 
     def __init__(self, **kwargs):
         super(SideBarRecycleView, self).__init__(**kwargs)
+        self.bind(focus=self.on_focus_update_kbhover)
+
+    def on_children(self, _, value):
+        box = value[0]
         self.kb_switch = {
-            kb.DOWN: self.set_kbhover_next,
-            kb.UP: self.set_kbhover_previous,
+            kb.DOWN: box.on_arrow_down,
+            kb.UP: box.on_arrow_up,
             kb.RETURN: self.kb_func_visible_hover,
             kb.PAGE_UP: self.page_up,
             kb.PAGE_DOWN: self.page_down,
+            kb.MENU: self.kb_ctx_menu
         }
+
+    def on_focus_update_kbhover(self, _, has_focus):
+        if has_focus:
+            self.kbhover_index = self.selected_index
+        else:
+            self.kbhover_index = -1
 
     def on_key_down(self, key, *args):
         if key in self.kb_switch:
@@ -181,9 +192,13 @@ class SideBarRecycleView(FocusBehaviorCanvas, AppRecycleView):
             if x.index == self.kbhover_index:
                 x.do_func()
 
+    def kb_ctx_menu(self):
+        for x in self.children[0].children:
+            if x.index == self.kbhover_index:
+                x.on_right_click()
 
-class SelectableRecycleBox(RecycleBoxLayout):
-    pass
-
+class SingleSelectBox(AppRecycleBoxLayout):
+    def get_modifier_mode(self):
+        return ''
 
 Builder.load_string(kv)
