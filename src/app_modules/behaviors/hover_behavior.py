@@ -1,28 +1,67 @@
 from kivy.properties import BooleanProperty, NumericProperty
 from kivy.uix.widget import Widget
 from kivy.core.window import Window
+import weakref
+
+_hover_widgets = []
+active = True
+min_hover_height = 0
+
+def on_mouse_move(win, pos):
+    global _hover_widgets, active, min_hover_height
+    if not active:
+        return
+    hovered = []
+    for ref in _hover_widgets:
+        self = ref()
+        if self:
+
+            if self.collide_point_window(*pos):
+                hovered.append(self)
+            elif self.hovering:
+                self.hovering = False
+                self.on_leave()
+
+        if hovered:
+            highest = hovered[0]
+            for self in hovered:
+                if self.hover_height > highest.hover_height:
+                    if highest.hovering:
+                        highest.hovering = False
+                        highest.on_leave()
+                    highest = self
+                elif self.hovering:
+                    self.hovering = False
+                    self.on_leave()
+
+            if highest.hover_height < min_hover_height:
+                return
+
+            if not highest.hovering:
+                highest.hovering = True
+                highest.on_enter()
+
+Window.bind(mouse_pos=on_mouse_move)
+
 
 class HoverBehavior(Widget):
     hovering = BooleanProperty(False)
     hover_resize_x = NumericProperty()
     hover_resize_y = NumericProperty()
+    hover_height = 0
 
     def __init__(self, **kwargs):
+        global _hover_widgets
         super(HoverBehavior, self).__init__(**kwargs)
-        Window.bind(mouse_pos=self.on_mouse_move)
+        _hover_widgets.append(weakref.ref(self))
 
-    def force_update_hover(self, *a):
-        self.on_mouse_move(None, Window.mouse_pos)
+    def remove_from_hover_behavior(self):
+        global _hover_widgets
+        _hover_widgets.remove(self)
 
-    def on_mouse_move(self, win, pos):
-        if self.hovering == False:
-            if self.collide_point_window(*pos):
-                self.hovering = True
-                self.on_enter()
-        else:
-            if self.collide_point_window(*pos) == False:
-                self.hovering = False
-                self.on_leave()
+    @staticmethod
+    def force_update_hover(*a):
+        on_mouse_move(None, Window.mouse_pos)
 
     def on_enter(self, *args):
         pass

@@ -67,6 +67,7 @@ Builder.load_string('''
 class MDMenuItem(HoverBehavior, ButtonBehavior, BoxLayout,
                  AppRecycleViewClass):
     text = StringProperty()
+    hover_height = 10
 
     def __init__(self, **kwargs):
         super(MDMenuItem, self).__init__(**kwargs)
@@ -98,6 +99,10 @@ class MDMenu(AppRecycleView, FocusBehavior):
         elif key == keys.ESC:
             self.dismiss_ctx_menu()
 
+    def on_ctx_dismiss(self):
+        self.remove_from_focus(prev_focus=True)
+        self.clear_widgets()
+
     def dismiss_ctx_menu(self):
         if not self.nremoving:
             self.remove_from_focus(prev_focus=True)
@@ -105,7 +110,6 @@ class MDMenu(AppRecycleView, FocusBehavior):
             self.nremoving = True
 
     def remove_hover(self):
-        for x in self.children[0].children:
             if x.hovering:
                 x.hovering = False
 
@@ -242,4 +246,5 @@ class MDDropdownMenu(BoxLayout):
         return True
 
     def dismiss(self):
+        self.children[0].children[0].on_ctx_dismiss()
         Window.remove_widget(self)

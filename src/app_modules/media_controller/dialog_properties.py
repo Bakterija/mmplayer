@@ -8,6 +8,7 @@ from kivy.properties import StringProperty
 from kivy.lang import Builder
 from utils import get_containing_directory, open_directory
 from media_info import cache as media_cache
+from app_modules.widgets_integrated.popup2 import AppPopup
 
 Builder.load_string('''
 #: import ConditionLayout app_modules.widgets_standalone.condition_layout.ConditionLayout
@@ -69,7 +70,7 @@ class MediaPropertiesDialogText(BoxLayout):
         self.t_value = str(value)
 
 
-class MediaPropertiesDialog(FocusBehaviorCanvas, Popup):
+class MediaPropertiesDialog(FocusBehaviorCanvas, AppPopup):
     containing_directory = StringProperty()
     remove_focus_on_touch_move = False
     grab_focus = True
@@ -77,7 +78,6 @@ class MediaPropertiesDialog(FocusBehaviorCanvas, Popup):
     def __init__(self, media_dict, **kwargs):
         super(MediaPropertiesDialog, self).__init__(**kwargs)
         self.subfocus_widgets = [self.ids.open_fld_button]
-        self.bind(on_dismiss=self.remove_focus_from_dismiss)
 
     def add_content_widgets(self, media_dict):
         for k, v in media_dict.items():
@@ -102,7 +102,8 @@ class MediaPropertiesDialog(FocusBehaviorCanvas, Popup):
     def open_cont_dir(self):
         open_directory(self.containing_directory)
 
-    def remove_focus_from_dismiss(self, *args):
+    def dismiss(self):
+        super(MediaPropertiesDialog, self).dismiss()
         self.remove_from_focus(prev_focus=True)
 
     @staticmethod

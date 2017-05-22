@@ -77,12 +77,6 @@ class rvLabelButton(ButtonBehavior, Label):
         else:
             self.background_color = self.col_canvas_default
 
-    def on_mouse_move(self, posx, posy):
-        if self.collide_point_window(posx, posy):
-            self.hovering = True
-        else:
-            self.hovering = False
-
     def collide_point_window(self, x, y):
         sx, sy = self.to_window(self.x, self.y)
         return sx <= x <= sx + self.width and sy <= y <= sy + self.height

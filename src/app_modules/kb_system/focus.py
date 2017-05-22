@@ -49,7 +49,6 @@ def find_next_focusable(widget_list):
                 break
     return previous, new
 
-
 def focus_next():
     new_focus = None
     if focus_grab_widgets:
@@ -112,10 +111,10 @@ class FocusBehavior(Widget):
     focus = BooleanProperty(False)
     remove_focus_on_touch_move = True
     subfocus_widgets = ListProperty()
+    is_subfocus = BooleanProperty(False)
     grab_keys = ListProperty()
     grab_focus = False
     is_focusable = True
-    is_subfocus = False
 
     def __init__(self, **kwargs):
         super(FocusBehavior, self).__init__(**kwargs)
@@ -125,18 +124,24 @@ class FocusBehavior(Widget):
             if self.grab_focus:
                 self.focus = True
 
+    def on_is_subfocus(self, _, value):
+        if value:
+            self.funbind('parent', on_parent)
+            self.remove_from_focus()
+        else:
+            self.bind(parent=on_parent)
+
     def remove_from_focus(self, prev_focus=False):
         global current_focus, prev_focused_widgets, focus_grab_widgets
         global prev_focused_widgets
-        if not self.is_subfocus:
-            if self.grab_focus:
-                focus_grab_widgets.remove(self)
-            else:
-                focusable_widgets.remove(self)
-            remlist = [
-                i for i, x in enumerate(prev_focused_widgets) if x() == self]
-            for x in reversed(remlist):
-                del prev_focused_widgets[x]
+        if self.grab_focus and self in focus_grab_widgets:
+            focus_grab_widgets.remove(self)
+        elif self in focusable_widgets:
+            focusable_widgets.remove(self)
+        remlist = [
+            i for i, x in enumerate(prev_focused_widgets) if x() == self]
+        for x in reversed(remlist):
+            del prev_focused_widgets[x]
         if prev_focus:
             Clock.schedule_once(set_focus_previous, 0)
 

@@ -19,7 +19,7 @@ from app_modules.widgets_standalone.app_recycleview import (
 from kivy.uix.behaviors import ButtonBehavior
 from .pc_sidebar_widgets import rvLabelButton, rvSection
 from kivy.clock import Clock
-from kivy.core.window import Window
+from app_modules.behaviors.hover_behavior import HoverBehavior
 from app_modules.kb_system import keys as kb
 import traceback
 from time import time
@@ -38,7 +38,8 @@ kv = '''
         spacing: default_spacing
 '''
 
-class SideBarViewClass(RecycleDataViewBehavior, ButtonBehavior, StackLayout):
+class SideBarViewClass(HoverBehavior, RecycleDataViewBehavior,
+                       ButtonBehavior, StackLayout):
     index = None
     text = StringProperty()
     wtype = StringProperty()
@@ -78,9 +79,13 @@ class SideBarViewClass(RecycleDataViewBehavior, ButtonBehavior, StackLayout):
         if self.children_initialised:
             self.lbl.text = self.text
 
-    def on_mouse_move(self, win, pos):
+    def on_enter(self):
         if self.wtype == 'text':
-            self.lbl.on_mouse_move(int(pos[0]), int(pos[1]))
+            self.lbl.hovering = True
+
+    def on_leave(self):
+        if self.wtype == 'text':
+            self.lbl.hovering = False
 
     def refresh_view_attrs(self, rv, index, data):
         self.index = index
@@ -94,7 +99,6 @@ class SideBarViewClass(RecycleDataViewBehavior, ButtonBehavior, StackLayout):
                 self.init_children()
                 self.rv = rv
                 self.bind(text=self.on_text)
-                Window.bind(mouse_pos=self.on_mouse_move)
                 self.children_initialised = True
             elif replace == True:
                 self.remove_widget(self.lbl)
