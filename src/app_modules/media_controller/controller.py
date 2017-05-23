@@ -240,31 +240,6 @@ class MediaController(Widget):
             self.videoframe_small.add_widget(temp)
             self.videoframe_small.animate_in()
 
-    def create_playlist_popup(self, *arg):
-        def validate(button):
-            if inp.text:
-                self.create_playlist(inp.text)
-            frame.dismiss()
-        try:
-            frame = Popup(
-                title='Type playlist name', size_hint=(1,None),
-                height=cm(4), content=StackLayout())
-            inp = TextInput(
-                multiline=False, on_text_validate= validate,
-                size_hint=(1, None), height=gvars.button_height)
-            cancel = Button(
-                text='Cancel', on_press=frame.dismiss,
-                size_hint=(0.5, None), height=gvars.button_height)
-            ok = Button(
-                text='Create', on_press=validate,
-                size_hint=(0.5, None), height=gvars.button_height)
-            inp.focus = True
-            for x in (inp, cancel, ok):
-                frame.content.add_widget(x)
-            frame.open()
-        except:
-            traceback.print_exc()
-
     def on_dropfile(self, path, mouse_pos=None, playlist=None):
         Logger.info(
             '{}: on_dropfile: path:{} mouse_pos:{} playlist:{}'.format(
@@ -286,44 +261,17 @@ class MediaController(Widget):
             Logger.warning('{}: no playlist selected'.format(
                 self.__class__.__name__))
 
-    def playlist_cmenu_popup(self, widget, dictio):
-        open_sidebar_ctx_menu(widget)
-        # def validate(button):
-        #     section = dictio['section']
-        #     name = dictio['name']
-        #     self.remove_playlist(name, section)
-        #     remove_windowpopup()
-        # def remove_windowpopup(*args):
-        #     if self.windowpopup:
-        #         Window.remove_widget(self.windowpopup)
-        #         self.windowpopup = None
-        # remove_windowpopup()
-        #
-        # frame = BackgroundStackLayout(size_hint=(None, None), width=cm(3),
-        #                               background_color=(0.1, 0.1, 0.1, 0.9),
-        #                               height=cm(4), pos=(Window.mouse_pos))
-        # Window.add_widget(frame)
-        # Clock.schedule_once(lambda x: setattr(frame, 'pos', self.to_window(
-        #     Window.mouse_pos[0], Window.mouse_pos[1])), 0)
-        #
-        # section = rvSection(text='CMENU')
-        # remove = Button(
-        #     text='Remove playlist', on_press=lambda x: validate(x),
-        #     size_hint=(1, None), height=gvars.button_height)
-        # for x in (section, remove):
-        #     frame.add_widget(x)
-        # frame.bind(on_touch_up=lambda *args: remove_windowpopup())
-        # self.windowpopup = frame
-
     def create_playlist(self, name):
         playlist_loader.create_playlist(name)
         self.reset_playlists()
 
-    def remove_playlist(self, name, section):
-        for x in self.playlists[section]:
-            if x.name == name:
-                x.remove()
-        self.reset_playlists()
+    def remove_playlist(self, playlist_path):
+        for section in self.playlists:
+            for x in self.playlists[section]:
+                if x.path == playlist_path:
+                    x.remove()
+                    self.reset_playlists()
+                    break
 
     def reset_playlists(self, *args):
         time0 = time()

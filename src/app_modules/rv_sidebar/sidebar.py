@@ -28,29 +28,15 @@ Builder.load_string('''
 
 class SideBarRecycleView(FocusBehaviorCanvas, AppRecycleView):
     grab_keys = [keys.TAB]
-    # opened_path = StringProperty()
-    # played_path = StringProperty()
 
     def __init__(self, **kwargs):
         super(SideBarRecycleView, self).__init__(**kwargs)
-        # self.bind(focus=self.on_focus_update_selected)
-        # self.bind(opened_path=self.on_opened_path)
-        # self.bind(played_path=self.on_played_path)
+        self.bind(focus=self.on_focus_update_selected)
 
-    # def on_opened_path(self, _, value):
-    #     for x in self.children[0].children:
-    #         if x.wtype == 'playlist_button':
-    #             x.update_opened_path(value)
-    #
-    # def on_played_path(self, _, value):
-    #     for x in self.children[0].children:
-    #         if x.wtype == 'playlist_button':
-    #             x.update_played_path(value)
-
-    # def on_focus_update_selected(self, _, value):
-    #     box = self.children[0]
-    #     if value:
-    #         box.select_with_touch(box.desel_index)
+    def on_focus_update_selected(self, _, value):
+        box = self.children[0]
+        if value:
+            box.select_with_touch(box.desel_index)
 
     def on_key_down(self, key, modifier):
         box = self.children[0]
@@ -103,7 +89,4 @@ class SingleSelectRecycleBox(AppRecycleBoxLayout):
         self._scroll_to_selected()
 
     def context_menu_function(self, child, index, pos):
-        wtype = None
-        if hasattr(child, 'wtype'):
-            wtype = child.wtype
-        open_sidebar_ctx_menu(child, None)
+        open_sidebar_ctx_menu(child)

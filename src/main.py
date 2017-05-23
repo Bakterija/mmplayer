@@ -37,7 +37,8 @@ from kivy.config import Config as KivyConfig
 from app_modules.kb_system import focus
 from utils import get_unicode
 from app_modules import appworker
-# from kivymd_modified.theming import ThemeManager
+from app_modules.popups_and_dialogs.create_playlist import CreatePlaylistPopup
+from app_modules.popups_and_dialogs.remove_playlist import RemovePlaylistPopup
 import traceback
 import sys
 
@@ -84,7 +85,13 @@ class Jotube(LayoutMethods, FloatLayout):
 
     def mgui_add_playlist(self, *args):
         '''For adding playlists in MediaController from GUI buttons'''
-        self.media_control.create_playlist_popup()
+        popup = CreatePlaylistPopup()
+        popup.open()
+
+    def mgui_remove_playlist(self, playlist_path):
+        '''For adding playlists in MediaController from GUI buttons'''
+        popup = RemovePlaylistPopup(playlist_path)
+        popup.open()
 
     def on_video_screen(self, *args):
         '''Runs when video screen is entered and left.
