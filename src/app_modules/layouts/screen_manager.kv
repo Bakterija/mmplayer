@@ -1,5 +1,6 @@
 #: import VideoFrame app_modules.media_controller.videoframe.VideoFrame
 #: import FilterInputBox app_modules.filter_input.FilterInputBox
+#: import PluginManager plugin_system.plugin_manager.PluginManager
 
 
 <Jotube_SM>:
@@ -7,14 +8,22 @@
     Screen:
         id: main_screen
         name: 'main'
-        Label:
-            text: 'Nothing here yet \nAdd or select a playlist'
+        PluginManager:
+            id: plugin_manager
             canvas.before:
                 Color:
-                    rgb: 0.2, 0.2, 0.25
+                    rgb: 0.2, 0.3, 0.2
                 Rectangle:
                     pos: self.pos
                     size: self.size
+        # Label:
+        #     text: 'Nothing here yet \nAdd or select a playlist'
+        #     canvas.before:
+        #         Color:
+        #             rgb: 0.2, 0.2, 0.25
+        #         Rectangle:
+        #             pos: self.pos
+        #             size: self.size
 
     Screen:
         id: media_screen

@@ -227,7 +227,8 @@ class Jotube(LayoutMethods, FloatLayout):
         self.sc_focusable_switch = {
             self.media_control.view_playlist: ('media'),
             self.media_control.view_queue: ('queue'),
-            self.manager.ids.media_filter_widget: ('media')
+            self.manager.ids.media_filter_widget: ('media'),
+            self.manager.ids.plugin_manager: ('main')
         }
 
         # For testing
