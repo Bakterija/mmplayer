@@ -67,6 +67,8 @@ __set_app_globals__()
 class ThemeManager(EventDispatcher):
     btn_height = NumericProperty(button_height)
     btn_height05 = NumericProperty(button_height05)
+    col_btn_normal = ListProperty(col_white)
+    col_btn_down = ListProperty(col_bbblue)
     background2 = ListProperty(col_dgrey)
     col_theme0 = ListProperty(col_blue)
     col_theme1 = ListProperty(col_bbblue)

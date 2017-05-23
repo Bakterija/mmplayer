@@ -39,6 +39,7 @@ from utils import get_unicode
 from app_modules import appworker
 from app_modules.popups_and_dialogs.create_playlist import CreatePlaylistPopup
 from app_modules.popups_and_dialogs.remove_playlist import RemovePlaylistPopup
+from utils import not_implemented
 import traceback
 import sys
 
@@ -82,6 +83,9 @@ class Jotube(LayoutMethods, FloatLayout):
     def on_dropfile_after(self, path, mouse_pos=None, playlist=None):
         self.media_control.on_dropfile(
             path, mouse_pos=mouse_pos, playlist=playlist)
+
+    def mgui_open_settings(self, *args):
+        not_implemented.show_error(feature='App settings')
 
     def mgui_add_playlist(self, *args):
         '''For adding playlists in MediaController from GUI buttons'''

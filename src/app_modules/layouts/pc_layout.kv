@@ -11,24 +11,6 @@
 #: import ContextMenuTextItem app_modules.other.garden_contextmenu.ContextMenuTextItem
 #: import TerminalWidget app_modules.widgets_standalone.terminal_widget.TerminalWidget
 
-<Popup>:
-    title_size: button_height05
-    separator_height: 0
-
-<ScrollView>:
-    scroll_type: ['bars', 'content']
-    bar_width: scrollbar_width
-    scroll_wheel_distance: scroll_wheel_distance
-    bar_color: scrollbar_color
-    bar_inactive_color: scrollbar_inactive_color
-
-<RecycleView>:
-    canvas.before:
-        Color:
-            rgba: scrollbar_background
-        Rectangle:
-            pos: self.right - scrollbar_width, self.pos[1]
-            size: scrollbar_width, self.height
 
 <Jotube>:
     side_bar_width: cm(4)
@@ -124,7 +106,18 @@
             shorten: True
             text: '{}: {}'.format(root.media_control.playing_state, root.media_control.playing_name)
         Widget:
-            size_hint_x: 0.4
+            size_hint_x: 0.3
+        FocusButtonEmpty:
+            size_hint_x: None
+            width: self.height
+            on_press: root.mgui_open_settings()
+            canvas:
+                Color:
+                    rgba: app.mtheme.col_btn_down if self.state == 'down' else app.mtheme.col_btn_normal
+                Rectangle:
+                    source: 'data/material/more.png'
+                    size: self.size
+                    pos: self.pos
 
     Widget:
         canvas.after:

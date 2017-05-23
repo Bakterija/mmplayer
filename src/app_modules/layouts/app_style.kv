@@ -1,3 +1,22 @@
+<RecycleView>:
+    canvas.before:
+        Color:
+            rgba: scrollbar_background
+        Rectangle:
+            pos: self.right - scrollbar_width, self.pos[1]
+            size: scrollbar_width, self.height
+
+<Popup>:
+    title_size: button_height05
+    separator_height: 0
+
+<ScrollView>:
+    scroll_type: ['bars', 'content']
+    bar_width: scrollbar_width
+    scroll_wheel_distance: scroll_wheel_distance
+    bar_color: scrollbar_color
+    bar_inactive_color: scrollbar_inactive_color
+
 <CompatTextInput>:
     font_size: button_height05
 
