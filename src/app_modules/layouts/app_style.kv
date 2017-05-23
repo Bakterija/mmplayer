@@ -13,7 +13,7 @@
     font_size: self.height * 0.5
 
 <SideBarButton>:
-    padding: int(cm(0.3)), 0
+    padding: int(cm(0.5)), 0
     text_size: self.width, None
     height: rv_default_height
     font_size: int(self.height * 0.6)
@@ -23,6 +23,17 @@
         Rectangle:
             pos: self.pos
             size: self.size
+    canvas.after:
+        Color:
+            rgba: (0.4, 0.4, 1, 1) if self.played else (0, 0, 0, 0)
+        Rectangle:
+            pos: self.pos
+            size: int(cm(0.3)), self.height
+        Color:
+            rgba: (0.6, 0.4, 0.75, 1) if self.opened else (0, 0, 0, 0)
+        Rectangle:
+            pos: self.right - int(cm(0.3)), self.y
+            size: int(cm(0.3)), self.height
 
 <SideBarSection>:
     padding: int(cm(0.3)), 0

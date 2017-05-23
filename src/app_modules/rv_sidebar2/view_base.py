@@ -1,23 +1,14 @@
-from kivy.uix.recycleview import RecycleView
-from kivy.uix.stacklayout import StackLayout
-from kivy.utils import platform
-from kivy.metrics import dp, cm
-from kivy.lang import Builder
-from kivy.uix.label import Label
-from kivy.uix.button import Button
-from kivy.properties import BooleanProperty
-from kivy.properties import StringProperty, DictProperty
-from kivy.properties import ListProperty, NumericProperty
-from kivy.uix.boxlayout import BoxLayout
+from app_modules.widgets_standalone.app_recycleview import AppRecycleViewClass
+from app_modules.behaviors.hover_behavior import HoverBehavior
+from kivy.properties import StringProperty, BooleanProperty
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.clock import Clock
-from app_modules.behaviors.hover_behavior import HoverBehavior
-from app_modules.kb_system import keys
-from app_modules.widgets_standalone.app_recycleview import AppRecycleViewClass
 
 
 class SideBarViewBase(HoverBehavior, AppRecycleViewClass, ButtonBehavior):
     text = StringProperty()
+    wtype = StringProperty()
+    hovering = BooleanProperty(False)
     index = None
     func = None
     func2 = None
@@ -25,13 +16,22 @@ class SideBarViewBase(HoverBehavior, AppRecycleViewClass, ButtonBehavior):
     def do_func(self):
         if self.func:
             self.func()
-            if self.can_select:
-                self.rv.selected_index = self.index
-                self.lbl.selected = True
+            if not self.selected:
+                self.parent.select_with_touch(self.index)
 
     def on_left_click(self):
-        self.do_func()
+        pass
 
     def on_right_click(self):
-        if self.func2:
-            self.func2()
+        pass
+
+    def on_touch_down(self, touch):
+        if self.collide_point(touch.x, touch.y):
+            if touch.device == 'mouse':
+                if touch.button == 'left':
+                    self.on_left_click()
+                elif touch.button == 'right':
+                    self.on_right_click()
+            else:
+                self.do_func()
+            return True

@@ -1,9 +1,10 @@
 from kivymd_modified.menu import MDDropdownMenu, MDMenuItem
 
-def open_sidebar_ctx_menu(widget):
+def open_sidebar_ctx_menu(widget, wtype):
+    print (widget.text, wtype)
     ci = [
-        {
-            'text': 'Remove playlist', 'disabled': False}
+        {'text': 'Add playlist', 'disabled': False},
+        {'text': 'Remove playlist', 'disabled': False}
         ]
 
     for i, x in enumerate(ci):

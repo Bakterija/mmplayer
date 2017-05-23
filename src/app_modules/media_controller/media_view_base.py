@@ -45,8 +45,6 @@ class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
         super(MediaButton, self).refresh_view_attrs(rv, index, data)
         self.hovering = False
         self.set_bg_color()
-        if not self.rv:
-            self.rv = rv
         if self.path not in media_info.cache:
             media_info.get_info_async(self.path)
             self.update_media_info(None)
@@ -163,11 +161,9 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
                 box.on_arrow_up()
             elif key == keys.DOWN:
                 box.on_arrow_down()
-            elif key == keys.RETURN:
+            elif key in (keys.ENTER, keys.RETURN):
                 self.on_kb_return()
-            elif key == keys.ENTER:
-                self.on_kb_return()
-            elif key == keys.MENU:
+            elif key in (keys.MENU, keys.MENU_WIN):
                 box.open_context_menu()
             elif key == keys.PAGE_UP:
                 self.page_up()

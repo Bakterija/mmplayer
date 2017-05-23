@@ -14,7 +14,6 @@ class ButtonBehavior2(object):
             return True
         return False
 
-
     def on_press(self, button, double_tap):
         pass
 

@@ -152,8 +152,9 @@ class MDDropdownMenu(BoxLayout):
 
     def open(self, *largs):
         Window.add_widget(self)
-        Clock.schedule_once(lambda x: self.display_menu(largs[0]), -1)
-
+        # Clock.schedule_once(lambda x: self.display_menu(largs[0]), -1)
+        self.display_menu(largs[0])
+        
     def display_menu(self, caller):
         # We need to pick a starting point, see how big we need to be,
         # and where to grow to.

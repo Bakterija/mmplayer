@@ -25,19 +25,20 @@ def on_mouse_move(win, pos):
 
         if hovered:
             highest = hovered[0]
-            for self in hovered:
-        #         # print ('HVR', self, self.hover_height, self.parent)
-                if self.hover_height > highest.hover_height:
-                    if highest.hovering:
-                        highest.hovering = False
-                        highest.on_leave()
-                    highest = self
-                elif self.hovering:
-                    self.hovering = False
-                    self.on_leave()
+            if len(hovered) > 1:
+                for self in hovered:
+                    # print ('HVR', self, self.hover_height, self.parent)
+                    if self.hover_height > highest.hover_height:
+                        if highest.hovering:
+                            highest.hovering = False
+                            highest.on_leave()
+                        highest = self
+                    elif self.hovering:
+                        self.hovering = False
+                        self.on_leave()
 
-            if highest.hover_height < min_hover_height:
-                return
+                if highest.hover_height < min_hover_height:
+                    return
 
             if not highest.hovering:
                 highest.hovering = True

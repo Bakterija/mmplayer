@@ -78,6 +78,8 @@
         SideBarRecycleView:
             height: self.parent.height - button_height
             data: root.sidebar_items
+            opened_path: root.media_control.cur_viewed_playlist.path if root.media_control.cur_viewed_playlist else ''
+            played_path: root.media_control.cur_played_playlist.path if root.media_control.cur_played_playlist else ''
         Button:
             text: 'Add playlist'
             size_hint_y: None

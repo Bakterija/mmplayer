@@ -155,6 +155,11 @@ class AppRecycleBoxLayout(RecycleBoxLayout):
                 return x
         return None
 
+    def get_selected_widget(self):
+        for x in self.children:
+            if x.selected:
+                return x
+
     def _scroll_to_selected(self):
         self.parent.scroll_to_index(self.sel_last)
 

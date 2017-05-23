@@ -1,9 +1,13 @@
 from __future__ import print_function
-from kivy.properties import BooleanProperty, NumericProperty, ListProperty
+from kivy.properties import (
+    BooleanProperty, NumericProperty, ListProperty, StringProperty)
 from kivy.uix.behaviors import ButtonBehavior
 from .view_base import SideBarViewBase
+from app_modules.behaviors.hover_behavior import HoverBehavior
 from kivy.uix.widget import Widget
 from kivy.uix.label import Label
+from kivy.clock import Clock
+from kivy.app import App
 
 
 class SideBarButton(SideBarViewBase, Label):
@@ -12,8 +16,9 @@ class SideBarButton(SideBarViewBase, Label):
     col_canvas_hover = ListProperty([0.5, 0.2, 0.2, 1])
     col_canvas_default = ListProperty([1, 1, 1, 0])
     background_color = ListProperty([0.2, 0.2, 0.2, 1])
-    hovering = BooleanProperty()
-    selected = BooleanProperty()
+    opened = BooleanProperty(False)
+    played = BooleanProperty(False)
+    path = StringProperty()
     shorten = True
     shorten_from = 'right'
 
@@ -21,8 +26,44 @@ class SideBarButton(SideBarViewBase, Label):
         super(SideBarButton, self).__init__(**kwargs)
         self.bind(selected=self.on_selected_update_canvas)
 
-    def on_hovering(self, _, new_hovering):
-        if new_hovering:
+    def update_opened_path(self, value):
+        if self.path == value:
+            self.rv.data[self.index]['opened'] = True
+            self.opened = True
+        else:
+            self.rv.data[self.index]['opened'] = False
+            self.opened = False
+
+    def update_played_path(self, value):
+        if self.path == value:
+            self.rv.data[self.index]['played'] = True
+            self.played = True
+        else:
+            self.rv.data[self.index]['played'] = False
+            self.played = False
+
+    def on_left_click(self):
+        self.parent.select_with_touch(self.index)
+        self.do_func()
+
+    def on_right_click(self):
+        self.parent.select_with_touch(self.index)
+        self.parent.open_context_menu()
+
+    def refresh_view_attrs(self, rv, index, data):
+        super(SideBarButton, self).refresh_view_attrs(rv, index, data)
+        if not data['wtype'] == 'playlist_button':
+            self.opened = False
+            self.played = False
+
+    def on_enter(self):
+        self.rv.data[self.index]['hovering'] = True
+
+    def on_leave(self):
+        self.rv.data[self.index]['hovering'] = False
+
+    def on_hovering(self, _, value):
+        if value:
             if self.selected:
                 self.background_color = self.col_canvas_hover_selected
             else:
@@ -42,10 +83,6 @@ class SideBarButton(SideBarViewBase, Label):
             self.background_color = self.col_canvas_hover
         else:
             self.background_color = self.col_canvas_default
-
-    def collide_point_window(self, x, y):
-        sx, sy = self.to_window(self.x, self.y)
-        return sx <= x <= sx + self.width and sy <= y <= sy + self.height
 
 
 class SideBarSection(SideBarViewBase, Label):

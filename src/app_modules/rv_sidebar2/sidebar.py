@@ -5,8 +5,10 @@ from app_modules.widgets_standalone.app_recycleview import (
 from app_modules.kb_system.canvas import FocusBehaviorCanvas
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from . import view_widgets
-from kivy.properties import NumericProperty
+from kivy.properties import NumericProperty, StringProperty
 from .ctx_menu import open_sidebar_ctx_menu
+from kivy.app import App
+from kivy.clock import Clock
 
 
 Builder.load_string('''
@@ -25,10 +27,24 @@ Builder.load_string('''
 
 class SideBarRecycleView(FocusBehaviorCanvas, AppRecycleView):
     grab_keys = [keys.TAB]
+    opened_path = StringProperty()
+    played_path = StringProperty()
 
     def __init__(self, **kwargs):
         super(SideBarRecycleView, self).__init__(**kwargs)
         self.bind(focus=self.on_focus_update_selected)
+        self.bind(opened_path=self.on_opened_path)
+        self.bind(played_path=self.on_played_path)
+
+    def on_opened_path(self, _, value):
+        for x in self.children[0].children:
+            if x.wtype == 'playlist_button':
+                x.update_opened_path(value)
+
+    def on_played_path(self, _, value):
+        for x in self.children[0].children:
+            if x.wtype == 'playlist_button':
+                x.update_played_path(value)
 
     def on_focus_update_selected(self, _, value):
         box = self.children[0]
@@ -41,11 +57,15 @@ class SideBarRecycleView(FocusBehaviorCanvas, AppRecycleView):
             box.on_arrow_up()
         elif key == keys.DOWN:
             box.on_arrow_down()
+        elif key in (keys.ENTER, keys.RETURN):
+            selected = box.get_selected_widget()
+            if selected:
+                selected.on_left_click()
         elif key == keys.PAGE_UP:
             self.page_up()
         elif key == keys.PAGE_DOWN:
             self.page_down()
-        elif key == keys.MENU:
+        elif key in (keys.MENU, keys.MENU_WIN):
             box.open_context_menu()
         elif key == keys.TAB:
             box.deselect_all()
@@ -77,4 +97,7 @@ class SingleSelectRecycleBox(AppRecycleBoxLayout):
         self._scroll_to_selected()
 
     def context_menu_function(self, child, index, pos):
-        open_sidebar_ctx_menu(child)
+        wtype = None
+        if hasattr(child, 'wtype'):
+            wtype = child.wtype
+        open_sidebar_ctx_menu(child, None)

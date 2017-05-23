@@ -10,6 +10,7 @@ class AppRecycleViewClass(RecycleDataViewBehavior):
     def refresh_view_attrs(self, rv, index, data):
         super(AppRecycleViewClass, self).refresh_view_attrs(rv, index, data)
         self.index = index
+        self.rv = rv
 
     def apply_selection(self, value):
         if value:
