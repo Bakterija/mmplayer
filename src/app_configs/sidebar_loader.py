@@ -21,6 +21,9 @@ class Config(ConfigBase):
             self.get_button(
                 wtype, 'Video', lambda: root.switch_screen('video'), None),
         ]
+        for x in self.default_list:
+            if x['viewclass'] == 'SideBarButton':
+                x['viewclass'] = 'SideBarScreenButton'
 
     def load_before(self, root_widget):
         self.root = root_widget
@@ -54,6 +57,7 @@ class Config(ConfigBase):
                 self.root.switch_screen("media"),},
             None)
         btn['path'] = item['path']
+        btn['viewclass'] = 'SideBarPlaylistButton'
         return btn
 
     def load_with_args(self, *args, **kwargs):

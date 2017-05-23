@@ -23,6 +23,7 @@ def __set_app_globals__():
     col_bblue = (0.35, 0.45, 0.55, 1)
     col_bblue_transp06 = (0.35, 0.45, 0.55, 0.6)
     col_bbblue = (0.5, 0.6, 0.7, 1)
+    col_bbbblue = (0.55, 0.65, 0.8, 1)
     col_dblue = (0.25, 0.35, 0.45, 1)
     col_dblue2 = (0.15, 0.25, 0.35, 1)
     col_satblue = (0.15, 0.25, 0.60, 1)
@@ -34,6 +35,7 @@ def __set_app_globals__():
     col_white = (0.9, 0.9, 0.9, 1)
     col_black = (0.1, 0.1, 0.1, 1)
     col_red = (0.8, 0.2, 0.2, 1)
+    col_orange = (0.9, 0.6, 0.3, 1)
 
     col_ncolbg = (0.09, 0.09, 0.1, 1)
 
@@ -66,6 +68,9 @@ class ThemeManager(EventDispatcher):
     btn_height = NumericProperty(button_height)
     btn_height05 = NumericProperty(button_height05)
     background2 = ListProperty(col_dgrey)
+    col_theme0 = ListProperty(col_blue)
+    col_theme1 = ListProperty(col_bbblue)
+    col_theme2 = ListProperty(col_orange)
     col_text = ListProperty([0.9, 0.9, 0.9, 1])
     col_text_disabled = ListProperty([0.5, 0.5, 0.5, 1])
 

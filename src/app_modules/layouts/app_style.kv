@@ -12,27 +12,38 @@
 <Button>:
     font_size: self.height * 0.5
 
+<SideBarViewClass>:
+    height: rv_default_height
+
 <SideBarButton>:
     padding: int(cm(0.5)), 0
     text_size: self.width, None
-    height: rv_default_height
     font_size: int(self.height * 0.6)
+    color: app.mtheme.col_theme2 if self.selected else app.mtheme.col_theme0 if self.hovering else app.mtheme.col_text
+
+<SideBarPlaylistButton>:
+    opened: True if app.root.media_control.cur_viewed_playlist and self.path == app.root.media_control.cur_viewed_playlist.path and app.root.manager.current == 'media' else False
+    played: True if app.root.media_control.cur_played_playlist and self.path == app.root.media_control.cur_played_playlist.path and app.root.media_control.playing_state == 'play' else False
     canvas.before:
         Color:
-            rgba: self.background_color
-        Rectangle:
-            pos: self.pos
-            size: self.size
-    canvas.after:
-        Color:
-            rgba: (0.4, 0.4, 1, 1) if self.played else (0, 0, 0, 0)
+            rgba: app.mtheme.col_theme0 if self.opened else (0, 0, 0, 0)
         Rectangle:
             pos: self.pos
             size: int(cm(0.3)), self.height
         Color:
-            rgba: (0.6, 0.4, 0.75, 1) if self.opened else (0, 0, 0, 0)
+            rgba: app.mtheme.col_text if self.played else (0, 0, 0, 0)
         Rectangle:
-            pos: self.right - int(cm(0.3)), self.y
+            source: 'data/volume/up.png'
+            pos: self.right - int(cm(0.45)), self.y + int(self.height * 0.5) - int(cm(0.2))
+            size: int(cm(0.4)), int(cm(0.4))
+
+<SideBarScreenButton>:
+    opened: True if self.text.lower() == app.root.manager.current else False
+    canvas.before:
+        Color:
+            rgba: app.mtheme.col_theme0 if self.opened else (0, 0, 0, 0)
+        Rectangle:
+            pos: self.pos
             size: int(cm(0.3)), self.height
 
 <SideBarSection>:
