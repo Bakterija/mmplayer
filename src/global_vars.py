@@ -1,8 +1,9 @@
+from kivy.properties import NumericProperty, ListProperty
+from kivy.event import EventDispatcher
+from kivy.utils import platform
 from kivy.metrics import cm, dp
 from kivy.lang import Builder
-from kivy.utils import platform
-from kivy.event import EventDispatcher
-from kivy.properties import NumericProperty, ListProperty
+from random import randrange
 import os
 
 DIR_HOME = os.path.expanduser("~")+'/'
@@ -64,16 +65,37 @@ def __set_app_globals__():
 __set_app_globals__()
 
 
-class ThemeManager(EventDispatcher):
+class LayoutManager(EventDispatcher):
     btn_height = NumericProperty(button_height)
     btn_height05 = NumericProperty(button_height05)
+
+
+class ThemeManager(EventDispatcher):
     col_btn_normal = ListProperty(col_white)
     col_btn_down = ListProperty(col_bbblue)
+    background0 = ListProperty((0, 0, 0, 1))
+    bar_color = ListProperty(app_background)
+    bar_border = ListProperty(border_color0)
+    # background1 = ListProperty(app_background)
     background2 = ListProperty(col_dgrey)
     col_theme0 = ListProperty(col_blue)
     col_theme1 = ListProperty(col_bbblue)
     col_theme2 = ListProperty(col_orange)
     col_text = ListProperty([0.9, 0.9, 0.9, 1])
     col_text_disabled = ListProperty([0.5, 0.5, 0.5, 1])
+    scrollbar = ListProperty(scrollbar_color)
 
+    def randomize(self):
+        for x in self.properties():
+            nc = self.get_random_color()
+            setattr(self, x, nc)
+
+
+    def get_random_color(self):
+        rgb = [float(randrange(0, 255, 1)) / 255.0 for i in range(3)]
+        rgb.append(1)
+        return rgb
+
+
+layout_manager = LayoutManager()
 theme_manager = ThemeManager()

@@ -18,7 +18,7 @@ Builder.load_string('''
     orientation: 'horizontal'
     size_hint: 1, None
     height: lbl2.height
-    AppLabel:
+    Label:
         id: lbl1
         size_hint_x: 0.2
         valign: 'top'
@@ -26,7 +26,7 @@ Builder.load_string('''
         text_size: self.size
         text: root.t_key
 
-    AppLabel:
+    Label:
         id: lbl2
         size_hint: 0.7, None
         valign: 'top'
@@ -50,7 +50,7 @@ Builder.load_string('''
                 spacing: cm(0.3)
             ConditionLayout:
                 size_hint_y: None
-                height: app.mtheme.btn_height
+                height: app.mlayout.btn_height
                 condition: True if root.containing_directory else False
                 FocusButton:
                     id: open_fld_button

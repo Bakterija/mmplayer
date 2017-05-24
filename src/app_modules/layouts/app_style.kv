@@ -14,20 +14,21 @@
     scroll_type: ['bars', 'content']
     bar_width: scrollbar_width
     scroll_wheel_distance: scroll_wheel_distance
-    bar_color: scrollbar_color
+    bar_color: app.mtheme.scrollbar
     bar_inactive_color: scrollbar_inactive_color
 
 <CompatTextInput>:
     font_size: button_height05
 
-<AppLabel@Label>:
-    size_hint_y: None
-    height: button_height
+<Label>:
+    # size_hint_y: None
+    # height: 200
+    # height: app.mlayout.btn_height
     font_size: button_height05
     color: app.mtheme.col_text
     disabled_color: app.mtheme.col_text_disabled
 
-<AppLabelInverted@AppLabel>:
+<LabelInverted@Label>:
     color: 0.1, 0.1, 0.1, 1
     disabled_color: 0.5, 0.5, 0.5, 1
 

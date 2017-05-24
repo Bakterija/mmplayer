@@ -8,22 +8,18 @@
     Screen:
         id: main_screen
         name: 'main'
+        canvas.before:
+            Color:
+                rgb: 0.2, 0.2, 0.25
+            Rectangle:
+                pos: 0, 0
+                size: self.size
+                
         PluginManager:
             id: plugin_manager
-            canvas.before:
-                Color:
-                    rgb: 0.2, 0.3, 0.2
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-        # Label:
-        #     text: 'Nothing here yet \nAdd or select a playlist'
-        #     canvas.before:
-        #         Color:
-        #             rgb: 0.2, 0.2, 0.25
-        #         Rectangle:
-        #             pos: self.pos
-        #             size: self.size
+
+        Label:
+            text: 'Nothing here yet \nAdd or select a playlist'
 
     Screen:
         id: media_screen

@@ -13,7 +13,7 @@ from app_modules.widgets_standalone.app_recycleview import AppRecycleView
 from app_modules.widgets_standalone.app_recycleview import AppRecycleViewClass
 from app_modules.behaviors.hover_behavior import HoverBehavior
 from app_modules.kb_system import keys
-from global_vars import theme_manager
+from global_vars import layout_manager
 
 
 
@@ -21,7 +21,7 @@ Builder.load_string('''
 <MDMenuItem>
     size_hint_y: None
     padding: int(cm(0.2)), 0
-    height: app.mtheme.btn_height
+    height: app.mlayout.btn_height
     on_release: root.parent.parent.dismiss_ctx_menu()
     canvas.before:
         Color:
@@ -34,7 +34,7 @@ Builder.load_string('''
         Rectangle:
             size: self.size
             pos: self.pos
-    AppLabel:
+    Label:
         text_size: self.width, None
         text: root.text
 
@@ -42,7 +42,7 @@ Builder.load_string('''
     size_hint: 1, None
     key_viewclass: 'viewclass'
     AppRecycleBoxLayout:
-        default_size: None, app.mtheme.btn_height
+        default_size: None, app.mlayout.btn_height
         default_size_hint: 1, None
         orientation: 'vertical'
 
@@ -154,7 +154,7 @@ class MDDropdownMenu(BoxLayout):
         Window.add_widget(self)
         # Clock.schedule_once(lambda x: self.display_menu(largs[0]), -1)
         self.display_menu(largs[0])
-        
+
     def display_menu(self, caller):
         # We need to pick a starting point, see how big we need to be,
         # and where to grow to.
@@ -162,14 +162,14 @@ class MDDropdownMenu(BoxLayout):
                              caller.center_y)  # Starting coords
 
         # ---ESTABLISH INITIAL TARGET SIZE ESTIMATE---
-        target_width = int(self.width_mult * theme_manager.btn_height)
+        target_width = int(self.width_mult * layout_manager.btn_height)
         # If we're wider than the Window...
         if target_width > Window.width:
             # ...reduce our multiplier to max allowed.
             target_width = int(
-                Window.width / theme_manager.btn_height) * theme_manager.btn_height
+                Window.width / layout_manager.btn_height) * layout_manager.btn_height
 
-        target_height = theme_manager.btn_height * len(self.items)
+        target_height = layout_manager.btn_height * len(self.items)
         # If we're over max_height...
         if 0 < self.max_height < target_height:
             target_height = self.max_height

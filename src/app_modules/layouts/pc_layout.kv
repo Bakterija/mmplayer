@@ -29,7 +29,7 @@
         pos: 100, 100
         canvas.before:
             Color:
-                rgba: app_background
+                rgba: app.mtheme.background0
             Rectangle:
                 size: self.size
                 pos: self.pos
@@ -53,7 +53,7 @@
         resizable_border_offset: int(cm(0.4))
         canvas.before:
             Color:
-                rgb: side_bar_color
+                rgb: app.mtheme.bar_color
             Rectangle:
                 size: self.size
                 pos: self.pos
@@ -70,9 +70,10 @@
             text_size: self.width * 0.8, None
             background_normal: 'data/grey_dark.png'
             on_release: root.mgui_add_playlist()
+            background_color: app.mtheme.col_btn_normal
             canvas.after:
                 Color:
-                    rgb: border_color0
+                    rgb: app.mtheme.bar_border
                 Line:
                     points: self.x, self.top, self.right, self.top
                 Line:
@@ -94,7 +95,7 @@
         pos: 0, root.height - root.upper_bar_height + root.upper_bar_offset_y
         canvas:
             Color:
-                rgb: side_bar_color
+                rgb: app.mtheme.bar_color
             Rectangle:
                 size: self.size
                 pos: self.pos
@@ -110,7 +111,8 @@
         FocusButtonEmpty:
             size_hint_x: None
             width: self.height
-            on_press: root.mgui_open_settings()
+            # on_press: root.mgui_open_settings()
+            on_press: app.mtheme.randomize()
             canvas:
                 Color:
                     rgba: app.mtheme.col_btn_down if self.state == 'down' else app.mtheme.col_btn_normal
@@ -122,7 +124,7 @@
     Widget:
         canvas.after:
             Color:
-                rgb: border_color0
+                rgb: app.mtheme.bar_border
             Line:
                 points: upper_bar.pos[0], upper_bar.pos[1], upper_bar.width, upper_bar.pos[1]
             Line:

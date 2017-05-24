@@ -243,6 +243,7 @@ class Jotube_SM(ScreenManager):
 
 
 class JotubeApp(App):
+    mlayout = global_vars.layout_manager
     mtheme = global_vars.theme_manager
     root_widget = None
 

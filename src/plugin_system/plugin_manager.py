@@ -45,6 +45,9 @@ class PluginManager(FocusBehaviorCanvas, AppRecycleView):
 
     def __init__(self, **kwargs):
         super(PluginManager, self).__init__(**kwargs)
+        # self.load()
+
+    def load(self):
         pl_files = os.listdir('plugins/')
         new_plugins = []
         for x in pl_files:

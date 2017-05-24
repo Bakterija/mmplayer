@@ -15,6 +15,8 @@ class Config(ConfigBase):
         app = App.get_running_app()
         # kbinder.log_keys = True
 
+        kbinder.add('sss', 268, 'down', app.mtheme.randomize)
+
         kbinder.add('quit', keys.ESC, 'down', app.kb_esc)
         kbinder.add('focus_next', keys.TAB, 'down', focus_behavior.focus_next)
 
