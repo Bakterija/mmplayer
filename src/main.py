@@ -254,11 +254,20 @@ class JotubeApp(App):
 
     def on_start(self):
         self.root_widget.init_widgets()
-        Logger.info('App: on_start: %s' % (time() - TIME0))
-        Clock.schedule_once(self.on_first_frame, 0)
+        self.last_frame_time = time() - TIME0
+        Logger.info('App: on_start: %s' % (self.last_frame_time))
+        Clock.schedule_once(lambda dt: self.on_some_frame(1, 6), 0)
 
-    def on_first_frame(self, *args):
-        Logger.info('App: on_first_frame: %s' % (time() - TIME0))
+    def on_some_frame(self, current, fmax):
+        this_time = time() - TIME0
+        fps = 1 / (this_time - self.last_frame_time)
+        Logger.info('App: on_frame {0: >2}: {1: >5} - {2: >3}'.format(
+            current, round(this_time, 3), str(int(fps))))
+        current += 1
+        self.last_frame_time = this_time
+        if current != fmax:
+            Clock.schedule_once(
+                lambda dt: self.on_some_frame(current, fmax), 0)
 
     def on_pause(self):
         return True
