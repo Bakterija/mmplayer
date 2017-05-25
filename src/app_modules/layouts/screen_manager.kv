@@ -24,20 +24,16 @@
     Screen:
         id: media_screen
         name: 'media'
-        # StackLayout:
-        #     id: mstack0
-        #     size_hint_y: None
-        #     height: button_height15
-        #     y: root.height - self.height
         FilterInputBox:
             id: media_filter_widget
-            y: root.height - self.height
+            pos: 0, root.height - self.height
             on_filter_text: app.root_widget.set_media_filter_text(self.filter_text)
 
         StackLayout:
             id: media_stack
             size_hint_y: None
             height: root.height - media_filter_widget.height
+            pos: 0, 0
 
     Screen:
         id: queue_screen

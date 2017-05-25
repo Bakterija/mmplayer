@@ -15,7 +15,7 @@ class Config(ConfigBase):
         app = App.get_running_app()
         # kbinder.log_keys = True
 
-        kbinder.add('theme_randomize', 268, 'down', app.mtheme.randomize2)
+        kbinder.add('theme_randomize', 268, 'down', app.mtheme.randomize)
         kbinder.add('scale_increase', 270, 'down', app.mlayout.increase_scale)
         kbinder.add('scale_decrease', 269, 'down', app.mlayout.decrease_scale)
 

@@ -85,18 +85,30 @@ class LayoutManager(EventDispatcher):
 
     def __init__(self, **kwargs):
         super(LayoutManager, self).__init__(**kwargs)
+        self.default_values = {
+            'button_height': button_height,
+            'button_height12': button_height12,
+            'button_height05': button_height05,
+            'button_height07': button_height07,
+            'scrollbar_width': scrollbar_width,
+            'font_size': button_height05,
+            'playback_bar_height': playback_bar_height,
+            'spacing': 1
+        }
         self.scale = 1.0
         self.set_defaults()
 
     def set_defaults(self):
-        self.button_height = button_height
-        self.button_height12 = button_height12
-        self.button_height05 = button_height05
-        self.button_height07 = button_height07
-        self.scrollbar_width = scrollbar_width
-        self.font_size = self.button_height05
-        self.playback_bar_height = playback_bar_height
-        self.spacing = 1
+        for k, v in self.default_values.items():
+            setattr(self, k , v)
+        # self.button_height = button_height
+        # self.button_height12 = button_height12
+        # self.button_height05 = button_height05
+        # self.button_height07 = button_height07
+        # self.scrollbar_width = scrollbar_width
+        # self.font_size = self.button_height05
+        # self.playback_bar_height = playback_bar_height
+        # self.spacing = 1
 
     def increase_scale(self):
         self.scale += 0.1
@@ -109,8 +121,8 @@ class LayoutManager(EventDispatcher):
         self.set_defaults()
         for x in self.properties():
             if x != 'scale':
-                cur_val = getattr(self, x)
-                new_val = int(cur_val * self.scale)
+                def_val = self.default_values[x]
+                new_val = int(def_val * self.scale)
                 setattr(self, x, new_val)
 
 
