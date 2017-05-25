@@ -9,60 +9,16 @@ from .dialog_properties import MediaPropertiesDialog
 class QueueViewClass(MediaButton):
     queue_view = True
 
-    def get_ctx_items(self):
-        selected = self.rv.get_selected_data()
-        count_selected = len(selected)
-        jump_index = self.rv.find_playing()
-        if jump_index != -1:
-            can_jump = False
-        else:
-            can_jump = True
-        if count_selected:
-            cant_remove = False
-        else:
-            cant_remove = True
-
-        ci = [
-            {
-                'text': 'Play', 'disabled': False,
-                'on_press': self.start_media},
-            {
-                'text': 'Remove from playlist', 'disabled': cant_remove,
-                'on_press': self.rv.remove_selected},
-            {
-                'text': 'Clear queue', 'disabled': False,
-                'on_press': self.rv.mcontrol.clear_queue},
-            {
-                'text': 'Jump to current played', 'disabled': can_jump,
-                'on_press': lambda *a: self.rv.scroll_to_index(jump_index)},
-            {
-                'text': 'Select all', 'disabled': False,
-                'on_press': self.rv.children[0].select_all},
-            {
-                'text': 'Deselect all', 'disabled': False,
-                'on_press': self.rv.children[0].deselect_all},
-            {
-                'text': 'Properties', 'disabled': False,
-                'on_press': self.open_prop_dialog
-            }
-        ]
-        for i, x in enumerate(ci):
-            x['viewclass'] = 'MDMenuItem'
-            x['index'] = i
-        return ci
-
     def start_media(self, *args):
         if self.mtype == 'media':
             self.rv.mcontrol.start_queue(self.index)
-
-    def open_context_menu(self):
-        drop = MDDropdownMenu(items=self.get_ctx_items(), width_mult=7)
-        drop.open(self)
 
     def open_prop_dialog(self):
         dialog = MediaPropertiesDialog.open_diag(self.rv.data[self.index])
 
 class MediaQueueView(MediaRecycleviewBase):
+    queue_view = True
+
     def __init__(self, **kwargs):
         super(MediaQueueView, self).__init__(**kwargs)
         self.viewclass = 'QueueViewClass'

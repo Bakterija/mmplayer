@@ -91,8 +91,9 @@ class MDMenu(AppRecycleView, FocusBehavior):
         elif key in (keys.RETURN, keys.ENTER):
             for x in box.children:
                 if x.selected:
-                    x.on_press()
-                    self.dismiss_ctx_menu()
+                    if not x.disabled:
+                        x.on_press()
+                        self.dismiss_ctx_menu()
                     break
         elif key == keys.ESC:
             self.dismiss_ctx_menu()

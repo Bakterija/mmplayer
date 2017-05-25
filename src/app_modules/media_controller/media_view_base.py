@@ -18,6 +18,7 @@ from app_modules.kb_system import keys
 from kivy.clock import Clock
 from utils import not_implemented
 import media_info
+from app_modules.popups_and_dialogs import media_context_menu
 
 
 class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
@@ -87,9 +88,8 @@ class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
                 self.parent.select_with_touch(self.index)
         elif button == 'right':
             if not self.index in self.parent.selected_widgets:
-                Clock.schedule_once(
-                    lambda *a: self.parent.select_with_touch(self.index))
-            self.open_context_menu()
+                self.parent.select_with_touch(self.index)
+            self.rv.ids.box.open_context_menu()
 
     def set_bg_color(self, *args):
         if self.hovering and self.state != 'playing':
@@ -113,23 +113,21 @@ class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
     def on_selected(self, _, value):
         self.set_bg_color()
 
-    def open_context_menu(self, *args):
-        not_implemented.show_error()
-
 
 class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
+    grab_keys = [keys.SPACE]
     mcontrol = None
 
     def __init__(self, **kwargs):
         super(MediaRecycleviewBase, self).__init__(**kwargs)
+        self.ids.box.context_menu_function = self.context_menu_function
         self.filter_keys = ['name']
-        self.children[0].context_menu_function = self.open_ctx
+
+    def context_menu_function(self, widget, index, pos):
+        media_context_menu.open_menu(self, widget, index, pos)
 
     def get_selected_data(self):
         return [self.data[i] for i in self.children[0].selected_widgets]
-
-    def open_ctx(self, widget, index, pos):
-        widget.open_context_menu()
 
     def update_data_from_filter(self, *args):
         Clock.schedule_once(self.log_data_update, 0)
@@ -151,12 +149,13 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
 
     def on_key_down(self, key, modifier):
         box = self.children[0]
+        res = True
         if modifier == ['shift']:
             if key == keys.UP:
                 box.on_arrow_up()
             elif key == keys.DOWN:
                 box.on_arrow_down()
-        if not modifier:
+        elif not modifier:
             if key == keys.UP:
                 box.on_arrow_up()
             elif key == keys.DOWN:
@@ -176,11 +175,12 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
             elif key == keys.DEL:
                 self.remove_selected()
         elif modifier == ['ctrl']:
-            if key == 97:
+            if key == keys.A:
                 box.select_all()
-            elif key == 32:
+            elif key == keys.SPACE:
                 box.deselect_all()
-
+                res = False
+        return res
         # Clock.schedule_once(self.int_scroll_test, 0.1)
 
     def int_scroll_test(self, a):

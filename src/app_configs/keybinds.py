@@ -65,7 +65,8 @@ class Config(ConfigBase):
             'seek_60_sec_forward', keys.RIGHT, 'down',
             lambda: root.mplayer_seek_relative(60), modifier=['ctrl'])
         kbinder.add(
-            'play_pause_toggle', keys.SPACE, 'down', root.media_control.play_pause)
+            'play_pause_toggle', keys.SPACE, 'down',
+            root.media_control.play_pause)
 
         kbinder.add('toggle_terminal', keys.TILDE, 'down',
                            root.ids.terminal_widget.toggle_pos_multiplier)
