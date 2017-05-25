@@ -13,9 +13,9 @@
 
 
 <Jotube>:
-    side_bar_width: cm(4)
-    upper_bar_height: button_height
-    lower_bar_height: lower_bar_height
+    side_bar_width: int(cm(4))
+    upper_bar_height: app.mlayout.button_height
+    lower_bar_height: app.mlayout.playback_bar_height
     lower_bar_offset_y: 0
     side_bar_offset_x: 0
     upper_bar_offset_y: 0
@@ -25,8 +25,6 @@
     BoxLayout:
         id: sm_area
         size_hint: None, None
-        size: 100, 100
-        pos: 100, 100
         canvas.before:
             Color:
                 rgba: app.mtheme.background0
@@ -45,7 +43,7 @@
         resizable_right: True
         orientation: 'vertical'
         size_hint: None, None
-        size: root.side_bar_width, root.sm_area_height
+        size: cm(4), root.sm_area_height
         min_resizable_width: root.side_bar_width
         max_resizable_width: self.min_resizable_width * 2
         pos: 0 - root.side_bar_offset_x, root.lower_bar_height
@@ -68,9 +66,8 @@
             height: button_height15
             font_size: int(self.height * 0.4)
             text_size: self.width * 0.8, None
-            background_normal: 'data/grey_dark.png'
+            # background_normal: 'data/grey_dark.png'
             on_release: root.mgui_add_playlist()
-            background_color: app.mtheme.col_btn_normal
             canvas.after:
                 Color:
                     rgb: app.mtheme.bar_border

@@ -10,19 +10,21 @@ from .ctx_menu import open_sidebar_ctx_menu
 from kivy.app import App
 from kivy.clock import Clock
 from .viewclass import SideBarViewClass
+from app_modules.widgets_standalone.app_recycleview import (
+    SingleSelectRecycleBox)
 
 
 Builder.load_string('''
 <SideBarRecycleView>:
     viewclass: 'SideBarViewClass'
-    SingleSelectRecycleBox:
+    SideBarRecycleRecycleBox:
         orientation: 'vertical'
         size_hint: None, None
         height: self.minimum_height
         width: root.width - root.bar_width
         default_size_hint: 1, None
         default_size: None, None
-        spacing: default_spacing
+        spacing: app.mlayout.spacing
 ''')
 
 
@@ -64,29 +66,7 @@ class SideBarRecycleView(FocusBehaviorCanvas, AppRecycleView):
             return True
 
 
-class SingleSelectRecycleBox(AppRecycleBoxLayout):
-    def on_arrow_up(self):
-        data = self.parent.data
-        for i in reversed(range(self.sel_last)):
-            if self.parent.data[i]['selectable']:
-                self.update_selected_widgets_and_scroll(i)
-                break
-        self._update_selected()
-        self._scroll_to_selected()
-
-    def on_arrow_down(self):
-        data = self.parent.data
-        len_data = len(data)
-        for i in range(self.sel_last + 1, len_data):
-            if data[i]['selectable']:
-                self.update_selected_widgets_and_scroll(i)
-                break
-
-    def update_selected_widgets_and_scroll(self, new_selected):
-        self.sel_last, self.sel_first = new_selected, new_selected
-        self.selected_widgets = {new_selected}
-        self._update_selected()
-        self._scroll_to_selected()
+class SideBarRecycleRecycleBox(SingleSelectRecycleBox):
 
     def context_menu_function(self, child, index, pos):
         open_sidebar_ctx_menu(child)

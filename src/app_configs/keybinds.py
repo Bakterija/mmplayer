@@ -15,7 +15,9 @@ class Config(ConfigBase):
         app = App.get_running_app()
         # kbinder.log_keys = True
 
-        kbinder.add('sss', 268, 'down', app.mtheme.randomize)
+        kbinder.add('theme_randomize', 268, 'down', app.mtheme.randomize2)
+        kbinder.add('scale_increase', 270, 'down', app.mlayout.increase_scale)
+        kbinder.add('scale_decrease', 269, 'down', app.mlayout.decrease_scale)
 
         kbinder.add('quit', keys.ESC, 'down', app.kb_esc)
         kbinder.add('focus_next', keys.TAB, 'down', focus_behavior.focus_next)

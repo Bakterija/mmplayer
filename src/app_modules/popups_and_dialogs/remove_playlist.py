@@ -16,27 +16,29 @@ Builder.load_string('''
 #: import FocusButton app_modules.widgets_integrated.focus_button.FocusButton
 <RemovePlaylistPopup>:
     size_hint: 0.7, None
-    height: self.content.height + (button_height * 2)
+    height: self.content.height + int(app.mlayout.button_height * 2)
     title: 'Are you sure?'
     subfocus_widgets: [btn1, btn2]
-    spacing: default_spacing * 4
     StackLayout:
         size_hint: 1, None
         height: self.minimum_height
         FocusButton:
             id: btn1
             size_hint: 0.5, None
-            height: button_height
+            height: app.mlayout.button_height
             is_subfocus: True
             text: 'Yes'
-            on_press: root.remove_playlist()
+            on_release: root.remove_playlist()
+        Widget:
+            size_hint_y: None
+            height: app.mlayout.button_height
         FocusButton:
             id: btn2
             size_hint: 0.5, None
-            height: button_height
+            height: app.mlayout.button_height
             is_subfocus: True
             text: 'No'
-            on_press: root.dismiss()
+            on_release: root.dismiss()
 ''')
 
 

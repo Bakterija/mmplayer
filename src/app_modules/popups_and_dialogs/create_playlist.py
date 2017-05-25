@@ -16,35 +16,35 @@ Builder.load_string('''
 #: import FocusButton app_modules.widgets_integrated.focus_button.FocusButton
 <CreatePlaylistPopup>:
     size_hint: 0.6, None
-    height: self.content.height + (button_height * 2)
+    height: self.content.height + int(app.mlayout.button_height * 2)
     title: 'Type playlist name'
     subfocus_widgets: [inp, btn1, btn2]
     StackLayout:
         id: stack0
         size_hint: 1, None
         height: self.minimum_height
-        spacing: default_spacing * 4
+        spacing: app.mlayout.spacing * 4
         CompatTextInput:
             id: inp
             size_hint: 1, None
-            height: button_height
+            height: app.mlayout.button_height
             is_subfocus: True
             multiline: False
             on_text_validate: root.on_text_validate(self.text)
         FocusButton:
             id: btn1
             size_hint: 0.5, None
-            height: button_height
+            height: app.mlayout.button_height
             is_subfocus: True
             text: 'Create'
-            on_press: root.on_text_validate(inp.text)
+            on_release: root.on_text_validate(inp.text)
         FocusButton:
             id: btn2
             size_hint: 0.5, None
-            height: button_height
+            height: app.mlayout.button_height
             is_subfocus: True
             text: 'Cancel'
-            on_press: root.dismiss()
+            on_release: root.dismiss()
 ''')
 
 

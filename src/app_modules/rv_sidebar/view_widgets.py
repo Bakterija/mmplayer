@@ -12,6 +12,7 @@ from kivy.app import App
 
 class SideBarPlaylistButton(SideBarButton):
     path = StringProperty()
+
     def refresh_attrs(self, parent):
         self.text = parent.text
         self.selected = self.parent.selected
@@ -52,6 +53,7 @@ class SideBarScreenButton(SideBarButton):
 
 class SideBarSection(SideBarViewBase, Label):
     markup = True
+    shorten = True
 
     def refresh_attrs(self, parent):
         self.text = parent.text

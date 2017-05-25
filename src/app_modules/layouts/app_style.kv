@@ -1,45 +1,60 @@
 <RecycleView>:
     canvas.before:
         Color:
-            rgba: scrollbar_background
+            rgba: app.mtheme.scrollbar_background
         Rectangle:
-            pos: self.right - scrollbar_width, self.pos[1]
-            size: scrollbar_width, self.height
+            pos: self.right - self.bar_width, self.pos[1]
+            size: self.bar_width, self.height
 
 <Popup>:
     title_size: button_height05
     separator_height: 0
+    title_color: app.mtheme.col_text
+
+<FilterInputBox>:
+    size_hint: 1, None
+    height: app.mlayout.button_height
+    background_color: app.mtheme.bar_border
+    text_color: app.mtheme.col_text
 
 <ScrollView>:
     scroll_type: ['bars', 'content']
-    bar_width: scrollbar_width
+    bar_width: app.mlayout.scrollbar_width
     scroll_wheel_distance: scroll_wheel_distance
     bar_color: app.mtheme.scrollbar
     bar_inactive_color: scrollbar_inactive_color
 
 <CompatTextInput>:
-    font_size: button_height05
+    font_size: app.mlayout.button_height05
 
 <Label>:
     # size_hint_y: None
-    # height: 200
-    # height: app.mlayout.btn_height
-    font_size: button_height05
+    font_size: app.mlayout.font_size
     color: app.mtheme.col_text
     disabled_color: app.mtheme.col_text_disabled
+
+<FocusBehaviorCanvas>:
+    border_color: app.mtheme.focus_border
 
 <LabelInverted@Label>:
     color: 0.1, 0.1, 0.1, 1
     disabled_color: 0.5, 0.5, 0.5, 1
 
 <Button>:
-    font_size: self.height * 0.5
+    font_size: int(self.height * 0.5)
+    background_normal: ''
+    background_down: ''
+    background_color: app.mtheme.col_btn_down if self.state == 'down' else app.mtheme.col_btn_normal
 
 <SideBarViewClass>:
-    height: rv_default_height
+    height: self.minimum_height
+
+<SideBarViewBase>:
+    size_hint_y: None
+    padding: int(cm(0.5)), 0
 
 <SideBarButton>:
-    padding: int(cm(0.5)), 0
+    height: app.mlayout.button_height
     text_size: self.width, None
     font_size: int(self.height * 0.6)
     color: app.mtheme.col_theme2 if self.selected else app.mtheme.col_theme0 if self.hovering else app.mtheme.col_text
@@ -70,14 +85,15 @@
             size: int(cm(0.3)), self.height
 
 <SideBarSection>:
-    padding: int(cm(0.3)), 0
-    height: sidebar_section_height
+    height: app.mlayout.button_height07
     font_size: int(self.height * 0.6)
-    background_color: 0.2, 0.2, 0.2
     text_size: self.width, None
     canvas.before:
         Color:
-            rgb: self.background_color
+            rgba: app.mtheme.bar_border
         Rectangle:
             pos: self.pos
             size: self.size
+
+<SideBarSeparator>:
+    height: app.mlayout.button_height

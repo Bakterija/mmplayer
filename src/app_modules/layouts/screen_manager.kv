@@ -14,7 +14,7 @@
             Rectangle:
                 pos: 0, 0
                 size: self.size
-                
+
         PluginManager:
             id: plugin_manager
 
@@ -24,19 +24,20 @@
     Screen:
         id: media_screen
         name: 'media'
-        StackLayout:
-            id: mstack0
-            size_hint_y: None
-            height: button_height15
+        # StackLayout:
+        #     id: mstack0
+        #     size_hint_y: None
+        #     height: button_height15
+        #     y: root.height - self.height
+        FilterInputBox:
+            id: media_filter_widget
             y: root.height - self.height
-            FilterInputBox:
-                id: media_filter_widget
-                on_filter_text: app.root_widget.set_media_filter_text(self.filter_text)
+            on_filter_text: app.root_widget.set_media_filter_text(self.filter_text)
 
         StackLayout:
             id: media_stack
             size_hint_y: None
-            height: root.height - mstack0.height
+            height: root.height - media_filter_widget.height
 
     Screen:
         id: queue_screen

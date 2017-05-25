@@ -24,9 +24,3 @@ class SingleSelectRecycleBox(AppRecycleBoxLayout):
         self.selected_widgets = {new_selected}
         self._update_selected()
         self._scroll_to_selected()
-
-    def context_menu_function(self, child, index, pos):
-        wtype = None
-        if hasattr(child, 'wtype'):
-            wtype = child.wtype
-        open_sidebar_ctx_menu(child, None)

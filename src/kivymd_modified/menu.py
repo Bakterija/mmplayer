@@ -21,7 +21,7 @@ Builder.load_string('''
 <MDMenuItem>
     size_hint_y: None
     padding: int(cm(0.2)), 0
-    height: app.mlayout.btn_height
+    height: app.mlayout.button_height
     on_release: root.parent.parent.dismiss_ctx_menu()
     canvas.before:
         Color:
@@ -42,7 +42,7 @@ Builder.load_string('''
     size_hint: 1, None
     key_viewclass: 'viewclass'
     AppRecycleBoxLayout:
-        default_size: None, app.mlayout.btn_height
+        default_size: None, app.mlayout.button_height
         default_size_hint: 1, None
         orientation: 'vertical'
 
@@ -132,7 +132,7 @@ class MDDropdownMenu(BoxLayout):
     Set to 0 for no limit. Defaults to 0.
     '''
 
-    border_margin = NumericProperty(dp(4))
+    border_margin = NumericProperty(int(dp(4)))
     '''Margin between Window border and menu
     '''
 
@@ -162,14 +162,14 @@ class MDDropdownMenu(BoxLayout):
                              caller.center_y)  # Starting coords
 
         # ---ESTABLISH INITIAL TARGET SIZE ESTIMATE---
-        target_width = int(self.width_mult * layout_manager.btn_height)
+        target_width = int(self.width_mult * layout_manager.button_height)
         # If we're wider than the Window...
         if target_width > Window.width:
             # ...reduce our multiplier to max allowed.
             target_width = int(
-                Window.width / layout_manager.btn_height) * layout_manager.btn_height
+                Window.width / layout_manager.button_height) * layout_manager.button_height
 
-        target_height = layout_manager.btn_height * len(self.items)
+        target_height = layout_manager.button_height * len(self.items)
         # If we're over max_height...
         if 0 < self.max_height < target_height:
             target_height = self.max_height

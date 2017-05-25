@@ -20,7 +20,8 @@ Builder.load_string('''
     height: lbl2.height
     Label:
         id: lbl1
-        size_hint_x: 0.2
+        size_hint_x: None
+        width: int(root.width * 0.3)
         valign: 'top'
         height: lbl2.height
         text_size: self.size
@@ -28,7 +29,8 @@ Builder.load_string('''
 
     Label:
         id: lbl2
-        size_hint: 0.7, None
+        size_hint: None, None
+        width: int(root.width * 0.7)
         valign: 'top'
         text_size: self.width, None
         height: self.texture_size[1]
@@ -42,15 +44,16 @@ Builder.load_string('''
             size_hint_y: None
             height: self.minimum_height
             orientation: 'vertical'
+            spacing: app.mlayout.spacing
             GridLayout:
                 id: grid
                 size_hint_y: None
                 height: self.minimum_height
                 cols: 1
-                spacing: cm(0.3)
+                spacing: int(cm(0.3))
             ConditionLayout:
                 size_hint_y: None
-                height: app.mlayout.btn_height
+                height: app.mlayout.button_height
                 condition: True if root.containing_directory else False
                 FocusButton:
                     id: open_fld_button
