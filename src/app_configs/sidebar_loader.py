@@ -11,17 +11,19 @@ class Config(ConfigBase):
     root = None
 
     def set_defaults(self, root):
+        wtype = 'screen_button'
         self.default_list = [
             self.get_section('SCREENS'),
             self.get_button(
-                'Main', lambda: root.switch_screen('main'), None),
+                wtype, 'Main', lambda: root.switch_screen('main'), None),
             self.get_button(
-                'Queue', lambda: root.switch_screen('queue'), None),
+                wtype, 'Queue', lambda: root.switch_screen('queue'), None),
             self.get_button(
-                'Video', lambda: root.switch_screen('video'), None),
-            self.get_button(
-                'Browser', lambda: root.switch_screen('browser'), None),
+                wtype, 'Video', lambda: root.switch_screen('video'), None),
         ]
+        for x in self.default_list:
+            if x['viewclass'] == 'SideBarButton':
+                x['viewclass'] = 'SideBarScreenButton'
 
     def load_before(self, root_widget):
         self.root = root_widget
@@ -30,28 +32,33 @@ class Config(ConfigBase):
     def load_after(self, root_widget):
         pass
 
-    def get_button(self, name, left_click, right_click):
+    def get_button(self, wtype, name, left_click, right_click):
         return {
-            'text': name, 'wtype': 'text', 'can_select': True,
-            'func': left_click, 'func2': right_click, 'height': WIDTH_TEXT
-        }
+            'text': name, 'wtype': wtype, 'hovering': False, 'opened': False,
+            'func': left_click, 'func2': right_click, 'height': WIDTH_TEXT,
+            'viewclass': 'SideBarButton', 'selectable': True}
 
     def get_section(self, name):
-        return {'text': name, 'wtype': 'section', 'height': WIDTH_SECTION}
+        return {'text': name, 'wtype': 'section', 'height': WIDTH_SECTION,
+                'viewclass': 'SideBarSection', 'selectable': False,
+                'hovering': False, 'opened': False}
 
     def get_separator(self):
-        return {'text': '', 'wtype': 'separator', 'height': WIDTH_SEPARATOR}
+        return {'text': '', 'wtype': 'separator', 'height': WIDTH_SEPARATOR,
+                'viewclass': 'SideBarSeparator', 'selectable': False,
+                'hovering': False, 'opened': False}
 
     def get_playlist_button(self, item):
-        return self.get_button(
+        btn = self.get_button(
+            'playlist_button',
             item['name'],
             lambda : {
                 self.root.media_control.open_playlist(item),
-                self.root.switch_screen("media")
-            },
-            lambda item=item: {
-                self.root.media_control.playlist_cmenu_popup(item)
-            })
+                self.root.switch_screen("media"),},
+            None)
+        btn['path'] = item['path']
+        btn['viewclass'] = 'SideBarPlaylistButton'
+        return btn
 
     def load_with_args(self, *args, **kwargs):
         mgui_widget = args[0]

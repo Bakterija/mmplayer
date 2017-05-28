@@ -2,12 +2,13 @@ from kivy.core.audio import SoundLoader
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty
 from kivy.event import EventDispatcher
 from kivy.compat import PY2
+from time import sleep
 
 
 class AudioPlayer(EventDispatcher):
     source = StringProperty()
     length = NumericProperty(-1)
-    pause_seek = NumericProperty()
+    pause_seek = NumericProperty(-1)
     volume = NumericProperty(1.)
     loop = BooleanProperty(False)
     is_video = False
@@ -24,7 +25,7 @@ class AudioPlayer(EventDispatcher):
     def play(self):
         self.sound.play()
         self.state = 'play'
-        if self.pause_seek:
+        if self.pause_seek != -1:
             self.seek(self.pause_seek)
 
     def pause(self):
@@ -45,19 +46,30 @@ class AudioPlayer(EventDispatcher):
             if self.state in ('pause', 'stop'):
                 self.pause_seek = position
             else:
+                sleep(0.05)
                 self.sound.seek(position)
 
     def get_pos(self):
         val = -1
         try:
             if self.state == 'stop':
-                pass
+                val = -1
             elif self.state == 'pause':
                 val = self.pause_seek
             elif self.sound:
                 val = self.sound.get_pos()
-            if self.length == -1:
-                self.length = self.sound.length
+
+            if self.state == 'play':
+                if self.pause_seek != -1:
+                    if val < self.pause_seek:
+                        self.seek(self.pause_seek)
+                    else:
+                        self.pause_seek = -1
+
+                if self.length < self.sound.length -1:
+                    self.length = self.sound.length
+                elif self.length > self.sound.length + 1:
+                    self.length = self.sound.length
         except Exception as e:
             print ('AudioPlayer: %s' % (e))
         return val

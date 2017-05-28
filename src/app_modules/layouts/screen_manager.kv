@@ -1,5 +1,6 @@
 #: import VideoFrame app_modules.media_controller.videoframe.VideoFrame
 #: import FilterInputBox app_modules.filter_input.FilterInputBox
+#: import PluginManager plugin_system.plugin_manager.PluginManager
 
 
 <Jotube_SM>:
@@ -7,31 +8,32 @@
     Screen:
         id: main_screen
         name: 'main'
+        canvas.before:
+            Color:
+                rgb: 0.2, 0.2, 0.25
+            Rectangle:
+                pos: 0, 0
+                size: self.size
+
+        PluginManager:
+            id: plugin_manager
+
         Label:
             text: 'Nothing here yet \nAdd or select a playlist'
-            canvas.before:
-                Color:
-                    rgb: 0.2, 0.2, 0.25
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
 
     Screen:
         id: media_screen
         name: 'media'
-        StackLayout:
-            id: mstack0
-            size_hint_y: None
-            height: button_height15
-            y: root.height - self.height
-            FilterInputBox:
-                id: media_filter_widget
-                on_filter_text: app.root_widget.set_media_filter_text(self.filter_text)
+        FilterInputBox:
+            id: media_filter_widget
+            pos: 0, root.height - self.height
+            on_filter_text: app.root_widget.set_media_filter_text(self.filter_text)
 
         StackLayout:
             id: media_stack
             size_hint_y: None
-            height: root.height - mstack0.height
+            height: root.height - media_filter_widget.height
+            pos: 0, 0
 
     Screen:
         id: queue_screen
@@ -44,9 +46,3 @@
         name: 'video'
         VideoFrame:
             id: videoframe
-
-    Screen:
-        id: browser_screen
-        name: 'browser'
-        StackLayout:
-            id: browser_stack

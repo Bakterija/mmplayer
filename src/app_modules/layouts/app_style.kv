@@ -1,0 +1,99 @@
+<RecycleView>:
+    canvas.before:
+        Color:
+            rgba: app.mtheme.scrollbar_background
+        Rectangle:
+            pos: self.right - self.bar_width, self.pos[1]
+            size: self.bar_width, self.height
+
+<Popup>:
+    title_size: button_height05
+    separator_height: 0
+    title_color: app.mtheme.col_text
+
+<FilterInputBox>:
+    size_hint: 1, None
+    height: app.mlayout.button_height
+    background_color: app.mtheme.bar_border
+    text_color: app.mtheme.col_text
+
+<ScrollView>:
+    scroll_type: ['bars', 'content']
+    bar_width: app.mlayout.scrollbar_width
+    scroll_wheel_distance: scroll_wheel_distance
+    bar_color: app.mtheme.scrollbar
+    bar_inactive_color: scrollbar_inactive_color
+
+<CompatTextInput>:
+    font_size: app.mlayout.button_height05
+
+<Label>:
+    # size_hint_y: None
+    font_size: app.mlayout.font_size
+    color: app.mtheme.col_text
+    disabled_color: app.mtheme.col_text_disabled
+
+<FocusBehaviorCanvas>:
+    border_color: app.mtheme.focus_border
+
+<LabelInverted@Label>:
+    color: 0.1, 0.1, 0.1, 1
+    disabled_color: 0.5, 0.5, 0.5, 1
+
+<Button>:
+    font_size: int(self.height * 0.5)
+    background_normal: ''
+    background_down: ''
+    background_color: app.mtheme.col_btn_down if self.state == 'down' else app.mtheme.col_btn_normal
+
+<SideBarViewClass>:
+    height: self.minimum_height
+
+<SideBarViewBase>:
+    size_hint_y: None
+    padding: int(cm(0.5)), 0
+
+<SideBarButton>:
+    height: app.mlayout.button_height
+    text_size: self.width, None
+    font_size: int(self.height * 0.6)
+    color: app.mtheme.col_theme2 if self.selected else app.mtheme.col_theme0 if self.hovering else app.mtheme.col_text
+
+<SideBarPlaylistButton>:
+    opened: True if app.root.media_control.cur_viewed_playlist and self.path == app.root.media_control.cur_viewed_playlist.path and app.root.manager.current == 'media' else False
+    played: True if app.root.media_control.cur_played_playlist and self.path == app.root.media_control.cur_played_playlist.path and app.root.media_control.playing_state == 'play' else False
+    canvas.before:
+        Color:
+            rgba: app.mtheme.col_theme0 if self.opened else (0, 0, 0, 0)
+        Rectangle:
+            pos: self.pos
+            size: int(cm(0.3)), self.height
+        Color:
+            rgba: app.mtheme.col_text if self.played else (0, 0, 0, 0)
+        Rectangle:
+            source: 'data/volume/up.png'
+            pos: self.right - int(cm(0.45)), self.y + int(self.height * 0.5) - int(cm(0.2))
+            size: int(cm(0.4)), int(cm(0.4))
+
+<SideBarScreenButton>:
+    opened: True if self.text.lower() == app.root.manager.current else False
+    canvas.before:
+        Color:
+            rgba: app.mtheme.col_theme0 if self.opened else (0, 0, 0, 0)
+        Rectangle:
+            pos: self.pos
+            size: int(cm(0.3)), self.height
+
+<SideBarSection>:
+    height: app.mlayout.button_height07
+    font_size: int(self.height * 0.6)
+    text_size: self.width, None
+    canvas.before:
+        Color:
+            rgba: app.mtheme.bar_border
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<SideBarSeparator>:
+    height: app.mlayout.button_height

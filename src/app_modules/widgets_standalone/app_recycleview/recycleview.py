@@ -1,6 +1,5 @@
 from kivy.properties import ListProperty, StringProperty, BooleanProperty
 from kivy.uix.recycleview import RecycleView
-from app_modules import key_binder
 from kivy.clock import Clock
 from kivy.metrics import dp
 from kivy.animation import Animation
@@ -20,6 +19,10 @@ class AppRecycleView(RecycleView):
 
     def set_data(self, data_full):
         self.data_full = data_full
+        self.update_data_from_filter()
+
+    def clear_data(self):
+        self.data_full = []
         self.update_data_from_filter()
 
     def update_data_from_filter(self, *args):

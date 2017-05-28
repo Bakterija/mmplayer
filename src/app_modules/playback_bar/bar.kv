@@ -1,0 +1,73 @@
+<PlayBackButton>:
+    size_hint: None, None
+    height: int(self.parent.height) - 1
+    width: int(self.height)
+
+<PlayBackBar>:
+    background_color: app.mtheme.bar_color
+    spacing: 1
+    canvas.before:
+        Color:
+            rgb: self.background_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    PlayBackButton:
+        id: btn1
+        text: 'Previous'
+        on_release: root.on_prevbtn()
+
+    PlayBackButton:
+        id: btn2
+        text: 'Play'
+        on_release: root.on_playbtn()
+
+    PlayBackButton:
+        id: btn3
+        text: 'Next'
+        on_release: root.on_nextbtn()
+
+    Widget:
+        id: sep1
+        size_hint_x: None
+        width: int(cm(0.4))
+
+    Label:
+        id: progress_label1
+        size_hint_x: None
+        width: int(self.texture_size[0] + cm(0.5))
+        text: root.media_progress_val_readable
+    SliderProgressBar:
+        id: progress1
+        size_hint_x: None
+        width: int(root.width - btn1.width - btn2.width - btn3.width - sep1.width - sep2.width - sep3.width - vol_img.width - progress2.width - cm(0.7) - progress_label1.width - progress_label2.width)
+        max: root.media_progress_max
+    Label:
+        id: progress_label2
+        size_hint_x: None
+        width: int(self.texture_size[0] + cm(0.5))
+        text: root.media_progress_max_readable
+
+    Widget:
+        id: sep2
+        size_hint_x: None
+        width: int(cm(0.4))
+
+    Image:
+        id: vol_img
+        size_hint_x: None
+        width: int(cm(0.5))
+        source: 'data/volume/mute.png' if not root.media_volume else 'data/volume/down.png' if root.media_volume < 50.0 else 'data/volume/up.png'
+
+    Widget:
+        id: sep3
+        size_hint_x: None
+        width: int(cm(0.1))
+
+    SliderProgressBar:
+        id: progress2
+        size_hint_x: None
+        width: int(cm(2.5))
+        max: 100.0
+        value: int(self.seeking_touch_value) if self.seeking_touch else int(root.media_volume)

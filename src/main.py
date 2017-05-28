@@ -13,8 +13,6 @@ try:
 except:
     pass
 import global_vars
-# from app_modules import appworker
-# appworker.start_workers(1)
 from kivy.config import Config
 Config.set('kivy', 'exit_on_escape', 0)
 from kivy.logger import Logger, LoggerHistory
@@ -36,8 +34,12 @@ from app_modules.media_controller.media_playlist_view import MediaPlaylistView
 from app_modules.media_controller.media_queue_view import MediaQueueView
 from app_configs import AppConfigHandler
 from kivy.config import Config as KivyConfig
-from app_modules.behaviors.focus import focus
+from app_modules.kb_system import focus
 from utils import get_unicode
+from app_modules import appworker
+from app_modules.popups_and_dialogs.create_playlist import CreatePlaylistPopup
+from app_modules.popups_and_dialogs.remove_playlist import RemovePlaylistPopup
+from utils import not_implemented
 import traceback
 import sys
 
@@ -82,9 +84,18 @@ class Jotube(LayoutMethods, FloatLayout):
         self.media_control.on_dropfile(
             path, mouse_pos=mouse_pos, playlist=playlist)
 
+    def mgui_open_settings(self, *args):
+        not_implemented.show_error(feature='App settings')
+
     def mgui_add_playlist(self, *args):
         '''For adding playlists in MediaController from GUI buttons'''
-        self.media_control.create_playlist_popup()
+        popup = CreatePlaylistPopup()
+        popup.open()
+
+    def mgui_remove_playlist(self, playlist_path):
+        '''For adding playlists in MediaController from GUI buttons'''
+        popup = RemovePlaylistPopup(playlist_path)
+        popup.open()
 
     def on_video_screen(self, *args):
         '''Runs when video screen is entered and left.
@@ -115,6 +126,14 @@ class Jotube(LayoutMethods, FloatLayout):
 
     def on_screen_current(self, _, value):
         self.set_playhint_text(value, playlist=None)
+        self.update_focusable_widgets(value)
+
+    def update_focusable_widgets(self, screen):
+        for k, v in self.sc_focusable_switch.items():
+            if screen in v:
+                k.is_focusable = True
+            else:
+                k.is_focusable = False
 
     def set_playhint_text(self, screen, playlist=None):
         mcontrol = self.media_control
@@ -149,10 +168,8 @@ class Jotube(LayoutMethods, FloatLayout):
         Window.bind(on_dropfile=self.on_dropfile)
         self.app_configurator = AppConfigHandler(self)
         self.app_configurator.load_before()
-        # self.manager = Jotube_SM()
         self.manager = Jotube_SM(transition=NoTransition())
         self.manager.bind(current=self.on_screen_current)
-        # self.manager.screen_switch_modified = self.switch_screen
         self.ids.sm_area.add_widget(self.manager)
 
         self.manager.current = 'main'
@@ -163,7 +180,7 @@ class Jotube(LayoutMethods, FloatLayout):
         self.media_control.videoframe_small = self.ids.video_small
         self.media_control.bind(cur_viewed_playlist=self.on_viewed_playlist)
         self.media_control.bind(
-            videoframe_is_visible=lambda obj, val:self.on_video_screen(
+            videoframe_is_visible=lambda obj, val: self.on_video_screen(
                 val, self.media_control.playing_video))
         self.ids.sm_area.bind(
             size=lambda ob,v: self.media_control.on_video_resize(v))
@@ -207,6 +224,13 @@ class Jotube(LayoutMethods, FloatLayout):
         self.app_configurator.load_after()
         self.ids.playback_bar.media_volume = mplayer.volume * 100
 
+        self.sc_focusable_switch = {
+            self.media_control.view_playlist: ('media'),
+            self.media_control.view_queue: ('queue'),
+            self.manager.ids.media_filter_widget: ('media'),
+            self.manager.ids.plugin_manager: ('main')
+        }
+
         # For testing
         def testfunc(*a):
             self.media_control.open_playlist_by_id(3)
@@ -216,11 +240,11 @@ class Jotube(LayoutMethods, FloatLayout):
 
 class Jotube_SM(ScreenManager):
     pass
-    # def screen_switch_modified(self):
-    #     pass
 
 
 class JotubeApp(App):
+    mlayout = global_vars.layout_manager
+    mtheme = global_vars.theme_manager
     root_widget = None
 
     def build(self):
@@ -230,11 +254,20 @@ class JotubeApp(App):
 
     def on_start(self):
         self.root_widget.init_widgets()
-        Logger.info('App: on_start: %s' % (time() - TIME0))
-        Clock.schedule_once(self.on_first_frame, 0)
+        self.last_frame_time = time() - TIME0
+        Logger.info('App: on_start: %s' % (self.last_frame_time))
+        Clock.schedule_once(lambda dt: self.on_some_frame(1, 6), 0)
 
-    def on_first_frame(self, *args):
-        Logger.info('App: on_first_frame: %s' % (time() - TIME0))
+    def on_some_frame(self, current, fmax):
+        this_time = time() - TIME0
+        fps = 1 / (this_time - self.last_frame_time)
+        Logger.info('App: on_frame {0: >2}: {1: >5} - {2: >3}'.format(
+            current, round(this_time, 3), str(int(fps))))
+        current += 1
+        self.last_frame_time = this_time
+        if current != fmax:
+            Clock.schedule_once(
+                lambda dt: self.on_some_frame(current, fmax), 0)
 
     def on_pause(self):
         return True
@@ -263,7 +296,11 @@ def main_loop():
         app.run()
     except Exception as e:
         traceback.print_exc()
-    # appworker.stop()
+    appworker.stop()
+
 
 if __name__ == "__main__":
+    from multiprocessing import freeze_support
+    freeze_support()
+    appworker.start_workers(1)
     main_loop()

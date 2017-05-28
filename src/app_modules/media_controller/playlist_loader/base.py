@@ -18,6 +18,7 @@ class BasePlaylist(EventDispatcher):
     media = ListProperty()
     cur_playing = -1
     can_add = True
+    can_remove = True
     allowed_extensions = {
         '.flac', '.midi', '.webm', '.vob', '.ogv', '.mp3', '.ogg',
         '.m4a', '.mp4', '.mkv', '.mdl', '.mpg', '.mp2', '.mpeg',

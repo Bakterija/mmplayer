@@ -1,5 +1,6 @@
+#: include app_modules/layouts/app_style.kv
 #: import MultiLineLabel app_modules.widgets_standalone.multi_line_label.MultiLineLabel
-#: import SideBarRecycleView app_modules.rv_sidebar.rv_sidebar.SideBarRecycleView
+#: import SideBarRecycleView app_modules.rv_sidebar.sidebar.SideBarRecycleView
 #: import PlayBackBar app_modules.playback_bar.playback_bar.PlayBackBar
 #: import ResizableBoxLayout app_modules.widgets_integrated.resizable_boxlayout.ResizableBoxLayout
 #: import SmallVideo app_modules.widgets_integrated.small_video.SmallVideo
@@ -10,29 +11,11 @@
 #: import ContextMenuTextItem app_modules.other.garden_contextmenu.ContextMenuTextItem
 #: import TerminalWidget app_modules.widgets_standalone.terminal_widget.TerminalWidget
 
-<Popup>:
-    title_size: button_height05
-    separator_height: 0
-
-<ScrollView>:
-    scroll_type: ['bars', 'content']
-    bar_width: scrollbar_width
-    scroll_wheel_distance: scroll_wheel_distance
-    bar_color: scrollbar_color
-    bar_inactive_color: scrollbar_inactive_color
-
-<RecycleView>:
-    canvas.before:
-        Color:
-            rgba: scrollbar_background
-        Rectangle:
-            pos: self.right - scrollbar_width, self.pos[1]
-            size: scrollbar_width, self.height
 
 <Jotube>:
-    side_bar_width: cm(4)
-    upper_bar_height: button_height
-    lower_bar_height: lower_bar_height
+    side_bar_width: int(cm(4))
+    upper_bar_height: app.mlayout.button_height
+    lower_bar_height: app.mlayout.playback_bar_height
     lower_bar_offset_y: 0
     side_bar_offset_x: 0
     upper_bar_offset_y: 0
@@ -42,11 +25,9 @@
     BoxLayout:
         id: sm_area
         size_hint: None, None
-        size: 100, 100
-        pos: 100, 100
         canvas.before:
             Color:
-                rgba: app_background
+                rgba: app.mtheme.background0
             Rectangle:
                 size: self.size
                 pos: self.pos
@@ -62,7 +43,7 @@
         resizable_right: True
         orientation: 'vertical'
         size_hint: None, None
-        size: root.side_bar_width, root.sm_area_height
+        size: cm(4), root.sm_area_height
         min_resizable_width: root.side_bar_width
         max_resizable_width: self.min_resizable_width * 2
         pos: 0 - root.side_bar_offset_x, root.lower_bar_height
@@ -70,24 +51,26 @@
         resizable_border_offset: int(cm(0.4))
         canvas.before:
             Color:
-                rgb: side_bar_color
+                rgb: app.mtheme.bar_color
             Rectangle:
                 size: self.size
                 pos: self.pos
         SideBarRecycleView:
             height: self.parent.height - button_height
             data: root.sidebar_items
+            opened_path: root.media_control.cur_viewed_playlist.path if root.media_control.cur_viewed_playlist else ''
+            played_path: root.media_control.cur_played_playlist.path if root.media_control.cur_played_playlist else ''
         Button:
             text: 'Add playlist'
             size_hint_y: None
             height: button_height15
             font_size: int(self.height * 0.4)
             text_size: self.width * 0.8, None
-            background_normal: 'data/grey_dark.png'
+            # background_normal: 'data/grey_dark.png'
             on_release: root.mgui_add_playlist()
             canvas.after:
                 Color:
-                    rgb: border_color0
+                    rgb: app.mtheme.bar_border
                 Line:
                     points: self.x, self.top, self.right, self.top
                 Line:
@@ -109,7 +92,7 @@
         pos: 0, root.height - root.upper_bar_height + root.upper_bar_offset_y
         canvas:
             Color:
-                rgb: side_bar_color
+                rgb: app.mtheme.bar_color
             Rectangle:
                 size: self.size
                 pos: self.pos
@@ -121,12 +104,24 @@
             shorten: True
             text: '{}: {}'.format(root.media_control.playing_state, root.media_control.playing_name)
         Widget:
-            size_hint_x: 0.4
+            size_hint_x: 0.3
+        FocusButtonEmpty:
+            size_hint_x: None
+            width: self.height
+            # on_press: root.mgui_open_settings()
+            on_press: app.mtheme.randomize()
+            canvas:
+                Color:
+                    rgba: app.mtheme.col_btn_down if self.state == 'down' else app.mtheme.col_btn_normal
+                Rectangle:
+                    source: 'data/material/more.png'
+                    size: self.size
+                    pos: self.pos
 
     Widget:
         canvas.after:
             Color:
-                rgb: border_color0
+                rgb: app.mtheme.bar_border
             Line:
                 points: upper_bar.pos[0], upper_bar.pos[1], upper_bar.width, upper_bar.pos[1]
             Line:

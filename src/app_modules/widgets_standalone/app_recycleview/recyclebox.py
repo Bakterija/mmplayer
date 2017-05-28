@@ -1,5 +1,5 @@
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
-from app_modules import key_binder
+from app_modules import kb_system
 from kivy.clock import Clock
 
 
@@ -14,27 +14,29 @@ class AppRecycleBoxLayout(RecycleBoxLayout):
         self.selected_widgets = set()
 
     def on_data_update_sel(self, len_old, len_new):
-        def next_frame_task(*a):
-            if self.sel_last > len_new:
-                if len_new < len_old:
-                    self.sel_last = len_new - 1
-                    if self.sel_first > len_new - 1:
-                        self.sel_first = self.sel_last
-                    self.selected_widgets.add(self.sel_last)
-                    for i in list(self.selected_widgets):
-                        if i > len_new - 1:
-                            self.selected_widgets.remove(i)
-                    self._update_selected()
-                    self._scroll_to_selected()
-        Clock.schedule_once(next_frame_task, 0)
+        Clock.schedule_once(
+            lambda *a: self.on_data_next_frame_task(len_old, len_new), 0)
+
+    def on_data_next_frame_task(self, len_old, len_new):
+        if self.sel_last > len_new:
+            if len_new < len_old:
+                self.sel_last = len_new - 1
+                if self.sel_first > len_new - 1:
+                    self.sel_first = self.sel_last
+                self.selected_widgets.add(self.sel_last)
+                for i in list(self.selected_widgets):
+                    if i > len_new - 1:
+                        self.selected_widgets.remove(i)
+                self._update_selected()
+                self._scroll_to_selected()
 
     def get_modifier_mode(self):
         mode = ''
-        if key_binder.ctrl_held and key_binder.shift_held:
+        if kb_system.held_ctrl and kb_system.held_shift:
             mode = ''
-        elif key_binder.ctrl_held:
+        elif kb_system.held_ctrl:
             mode = 'ctrl'
-        elif key_binder.shift_held:
+        elif kb_system.held_shift:
             mode = 'shift'
         return mode
 
@@ -60,7 +62,6 @@ class AppRecycleBoxLayout(RecycleBoxLayout):
                 elif new_last not in self.selected_widgets:
                     self.add_remove_selected_set(new_last)
                 self.sel_last = new_last
-
         self._update_selected()
         self._scroll_to_selected()
 
@@ -118,7 +119,6 @@ class AppRecycleBoxLayout(RecycleBoxLayout):
             self.selected_widgets.add(i)
         self._update_selected()
 
-
     def deselect_all(self):
         self.selected_widgets = set()
         self.desel_index = self.sel_last
@@ -134,16 +134,19 @@ class AppRecycleBoxLayout(RecycleBoxLayout):
             self.selected_widgets.add(index)
 
     def open_context_menu(self, pos=None):
-        if not pos:
+        widget = None
+        if self.sel_last != -1:
             for x in self.children:
                 if x.index == self.sel_last:
                     pos = x.to_window(x.right, x.y)
+                    widget, widget_index = x, x.index
                     break
-        if not pos:
-            return
-        self.context_menu_function(pos)
+        if widget:
+            self.context_menu_function(widget, widget_index, pos)
+        else:
+            self.context_menu_function(self, None, self.pos)
 
-    def context_menu_function(self, pos):
+    def context_menu_function(self, child, index, pos):
         pass
 
     def get_widget_from_index(self, index):
@@ -151,6 +154,11 @@ class AppRecycleBoxLayout(RecycleBoxLayout):
             if x.index == index:
                 return x
         return None
+
+    def get_selected_widget(self):
+        for x in self.children:
+            if x.selected:
+                return x
 
     def _scroll_to_selected(self):
         self.parent.scroll_to_index(self.sel_last)

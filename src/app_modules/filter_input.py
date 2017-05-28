@@ -1,6 +1,6 @@
 from app_modules.widgets_standalone.compat_textinput import CompatTextInput
-from app_modules.behaviors.focus import FocusBehaviorCanvas
-from kivy.properties import StringProperty
+from app_modules.kb_system.canvas import FocusBehaviorCanvas
+from kivy.properties import StringProperty, BooleanProperty, ListProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder
 
@@ -10,40 +10,40 @@ Builder.load_string('''
     orientation: 'horizontal'
     canvas.before:
         Color:
-            rgba: col_dgrey
+            rgba: self.background_color
         Rectangle:
             pos: self.pos
             size: self.size
-    Label:
-        size_hint: None, 1
-        text: 'Filter'
-        font_size: int(self.height * 0.4)
-        width: self.font_size * 4
     CompatTextInput:
         id: filter_input
         size_hint: 1, 1
-        background_color: col_dgrey
+        background_color: root.background_color
         background_active: ''
         background_normal: ''
         background_disabled_normal: ''
-        text_color: col_white
+        text_color: root.text_color
         border: 0, 0, 0, 0
-        cursor_color: col_white
+        cursor_color: root.text_color
         markup: True
-        foreground_color: col_white
-        font_size: int(self.height * 0.4)
+        foreground_color: root.text_color
+        font_size: int(self.height * 0.5)
         multiline: False
         on_text_validate: root.filter_text = self.text
-        canvas.before:
-            Color:
-                rgba: col_white
-            Line:
-                points: self.x, self.y + (self.height * 0.2), self.right - (self.width * 0.05), self.y + (self.height * 0.2)
+        hint_text: '' if self.focus else 'Filter'
 ''')
 
 
 class FilterInputBox(BoxLayout):
     filter_text = StringProperty()
+    is_focusable = BooleanProperty()
+    background_color = ListProperty([0.2, 0.2, 0.2, 1])
+    text_color = ListProperty([0.9, 0.9, 0.9, 1])
+
+    def on_is_focusable(self, _, value):
+        if value:
+            self.ids.filter_input.is_focusable = True
+        else:
+            self.ids.filter_input.is_focusable = False
 
     def focus_input(self, *args):
         input_widget = self.ids.filter_input

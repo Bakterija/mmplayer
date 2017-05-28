@@ -1,11 +1,13 @@
 from kivy.core.window import Window
 from kivy.logger import Logger
 from time import time
+from . import focus as focus_behavior
+from . import keys
 
 keybinds = {}
-ctrl_held = False
-alt_held = False
-shift_held = False
+held_ctrl = False
+held_alt = False
+held_shift = False
 log_keys = False
 active = True
 disabled_categories = set()
@@ -64,62 +66,79 @@ def remove(name):
         raise e
 
 def on_key_down(win, key, *args):
-    global ctrl_held, alt_held, shift_held, last_key, last_modifier, last_time
+    global last_key, last_modifier, last_time
+    modifier = update_modifier(key, True)
     time_now = time()
-    modifier = []
-    if len(args) > 2:
-        modifier = args[2]
-
-    if last_time + 0.1 > time_now:
+    if last_time + 0.02 > time_now:
         if key == last_key and modifier == last_modifier:
             return
-
-    if not active:
-        return
 
     last_key = key
     last_modifier = modifier
     last_time = time_now
 
-    if key in (308, 1073741824):
-        alt_held = True
-    elif key in (305, 306):
-        ctrl_held = True
-    elif key in (304, 303):
-        shift_held = True
-
-    if log_keys:
-        Logger.info('KeyBinder: on_key_down: {} - {}'.format(key, modifier))
-
-    for k, v in keybinds.items():
-        if v['category'] in disabled_categories:
-            continue
-        if v['key'] == key:
-            if v['state'] in ('down', 'any', 'all'):
-                if not v['modifier'] or v['modifier'] == modifier:
-                    v['callback']()
+    on_key_event(key, modifier, True)
 
 def on_key_up(win, key, *args):
-    global ctrl_held, alt_held, shift_held
+    modifier = update_modifier(key, False)
+    on_key_event(key, modifier, False)
+
+def on_key_event(key, modifier, is_down):
+    global held_ctrl, held_alt, held_shift
     if not active:
         return
+    if is_down:
+        kstate = 'down'
+    else:
+        kstate = 'up'
 
     if log_keys:
-        Logger.info('KeyBinder: on_key___up: {} - {}'.format(key, args))
+        Logger.info('kb_dispatcher: on_key_{}: {} - {}'.format(
+            kstate, key, modifier))
 
-    if key in (308, 1073741824):
-        alt_held = False
-    elif key in (305, 306):
-        ctrl_held = False
-    elif key in (304, 303):
-        shift_held = False
+    dispatch_global = True
+    cur_focus = focus_behavior.current_focus
+    if cur_focus and key in cur_focus.grab_keys:
+        dispatch_global = dispatch_to_focused(key, modifier, is_down)
+    if dispatch_global:
+        found = False
+        for k, v in keybinds.items():
+            if v['category'] in disabled_categories:
+                continue
+            if v['key'] == key:
+                if v['state'] in (kstate, 'any', 'all'):
+                    if not v['modifier'] or v['modifier'] == modifier:
+                        v['callback']()
+                        found = True
+        if not found:
+            dispatch_to_focused(key, modifier, is_down)
 
-    for k, v in keybinds.items():
-        if v['category'] in disabled_categories:
-            continue
-        if v['key'] == key:
-            if v['state'] in ('up', 'any', 'all'):
-                v['callback']()
+def dispatch_to_focused(key, modifier, is_down):
+    cf = focus_behavior.current_focus
+    retval = None
+    if cf:
+        if is_down:
+            retval = cf.on_key_down(key, modifier)
+        else:
+            retval = cf.on_key_up(key, modifier)
+        return retval
+
+def update_modifier(key, is_down):
+    global held_alt, held_ctrl, held_shift
+    if key in (keys.ALT_L, keys.ALT_R):
+        held_alt = is_down
+    elif key in (keys.CTRL_L, keys.CTRL_R):
+        held_ctrl = is_down
+    elif key in (keys.SHIFT_L, keys.SHIFT_R):
+        held_shift = is_down
+    modifier = []
+    if held_alt:
+        modifier.append('alt')
+    if held_ctrl:
+        modifier.append('ctrl')
+    if held_shift:
+        modifier.append('shift')
+    return modifier
 
 def log_warning(text):
     if not ignore_warnings:
@@ -128,4 +147,3 @@ def log_warning(text):
 
 Window.bind(on_key_down=on_key_down)
 Window.bind(on_key_up=on_key_up)
-Logger.info('key_binder: initialised')
