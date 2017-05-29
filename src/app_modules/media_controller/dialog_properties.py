@@ -42,18 +42,21 @@ Builder.load_string('''
     title: 'Media properties dialog'
     ScrollView:
         BoxLayout:
-            size_hint_y: None
+            size_hint: 1, None
             height: self.minimum_height
             orientation: 'vertical'
-            spacing: app.mlayout.spacing
+            spacing: app.mlayout.button_height
             GridLayout:
                 id: grid
+                size_hint: 0.9, None
+                pos_hint: {'center_x': 0.5}
                 size_hint_y: None
                 height: self.minimum_height
                 cols: 1
                 spacing: int(cm(0.3))
             ConditionLayout:
-                size_hint_y: None
+                size_hint: 0.9, None
+                pos_hint: {'center_x': 0.5}
                 height: app.mlayout.button_height
                 condition: True if root.containing_directory else False
                 FocusButton:
@@ -78,31 +81,37 @@ class MediaPropertiesDialog(FocusBehaviorCanvas, AppPopup):
     containing_directory = StringProperty()
     remove_focus_on_touch_move = False
     grab_focus = True
+    ignored_properties = ['id', 'state']
 
     def __init__(self, media_dict, **kwargs):
         super(MediaPropertiesDialog, self).__init__(**kwargs)
         self.subfocus_widgets = [self.ids.open_fld_button]
 
     def add_content_widgets(self, media_dict):
+        grid = self.ids.grid
         for k, v in media_dict.items():
+            if k in self.ignored_properties:
+                continue
             btn = MediaPropertiesDialogText(k, v)
-            self.ids.grid.add_widget(btn)
-            if k == 'path':
-                self.containing_directory = get_containing_directory(v)
+            grid.add_widget(btn)
 
-                if v in media_cache and media_cache[v]:
-                    mc = media_cache[v]
-                    if 'duration' in mc:
-                        dur = seconds_to_minutes_hours(mc['duration'])
-                        btn = MediaPropertiesDialogText('duration', dur)
-                        self.ids.grid.add_widget(btn)
-                    if mc['format']:
-                        for x in ('artist', 'title', 'album', 'genre', 'date'):
-                            tagtext = ''.join(('TAG:', x))
-                            if tagtext in mc['format']:
-                                btn = MediaPropertiesDialogText(
-                                    x, mc['format'][tagtext])
-                                self.ids.grid.add_widget(btn)
+        mpath = media_dict.get('path', '')
+        if mpath:
+            self.containing_directory = get_containing_directory(mpath)
+
+            mc = media_cache.get(mpath, None)
+            if mc:
+                duration = mc.get(mpath, None)
+                if duration:
+                    duration = seconds_to_minutes_hours(duration)
+                    grid.add_widget(
+                        MediaPropertiesDialogText('duration', duration))
+                if mc['format']:
+                    for k in ('artist', 'title', 'album', 'genre', 'date'):
+                        tagtext = ''.join(('TAG:', k))
+                        val = media_cache.get(tagtext, '')
+                        if val:
+                            grid.add_widget(MediaPropertiesDialogText(k, val))
 
     def open_cont_dir(self):
         open_directory(self.containing_directory)
