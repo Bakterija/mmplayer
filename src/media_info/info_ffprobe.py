@@ -1,32 +1,31 @@
 from kivy.utils import platform
 from utils import get_unicode
-import subprocess
 from os.path import exists as path_exists
+import subprocess
+import utils
 
 cmd_ffprobe = None
+
 
 def find_ffprobe():
     global cmd_ffprobe
     found = False
-    if platform == 'linux':
-        try:
-            cmd = ('ffprobe', '-h')
-            cmd_ffprobe = (
-                'ffprobe', '-v', 'error', '-show_format', '-show_streams')
-            found = True
-        except:
-            pass
-    elif platform == 'win':
-        if path_exists('bin/ffprobe.exe'):
-            cmd_ffprobe = (
-                'bin\\ffprobe.exe', '-v', 'error', '-show_format',
-                '-show_streams')
+    cmd = ('ffprobe')
+    found = utils.which(cmd)
+    if found:
+        cmd_ffprobe = [found, '-v', 'error', '-show_format', '-show_streams']
+    else:
+        if platform == 'win':
+            fp = 'bin/ffprobe.exe'
+            if path_exists(fp):
+                cmd_ffprobe = [
+                    fp, '-v', 'error', '-show_format', '-show_streams']
             found = True
     return found
 
 def get_info(path):
     global cmd_ffprobe
-    cmd = (*cmd_ffprobe, path)
+    cmd = cmd_ffprobe + [path]
     popen = subprocess.Popen(
         cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE,
         stderr=subprocess.PIPE)

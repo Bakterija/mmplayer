@@ -46,7 +46,6 @@ import sys
 if platform in ('windows','win', 'linux'):
     from app_modules.layouts.pc_layout_methods import LayoutMethods
     KivyConfig.set( 'input', 'mouse', 'mouse,disable_multitouch')
-    sys.dont_write_bytecode = True
 
 
 class Jotube(LayoutMethods, FloatLayout):
