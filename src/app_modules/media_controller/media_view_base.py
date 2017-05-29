@@ -16,7 +16,7 @@ from kivy.logger import Logger
 from kivy.metrics import cm
 from app_modules.kb_system import keys
 from kivy.clock import Clock
-from utils import not_implemented
+from utils import not_implemented, seconds_to_minutes_hours
 import media_info
 from app_modules.popups_and_dialogs import media_context_menu
 
@@ -35,6 +35,7 @@ class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
     bg_color = ListProperty()
     in_mi = BooleanProperty(False)
     duration = NumericProperty(-1)
+    duration_readable = StringProperty('')
     is_video = BooleanProperty(False)
     artist = StringProperty()
     title = StringProperty()
@@ -52,16 +53,20 @@ class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
         else:
             self.update_media_info(media_info.cache[self.path])
 
+    def on_duration(self, _, value):
+        self.duration_readable = seconds_to_minutes_hours(value)
+
     def update_media_info(self, info):
         if info:
             self.in_mi = True
             self.is_video = info['is_video']
             self.duration = info['duration']
-            self.artist = info['format'].get('TAG:artist', '')
-            self.title = info['format'].get('TAG:title', '')
-            self.album = info['format'].get('TAG:album', '')
-            self.genre = info['format'].get('TAG:genre', '')
-            self.date = info['format'].get('TAG:date', '')
+            if 'format' in info:
+                self.artist = info['format'].get('TAG:artist', '')
+                self.title = info['format'].get('TAG:title', '')
+                self.album = info['format'].get('TAG:album', '')
+                self.genre = info['format'].get('TAG:genre', '')
+                self.date = info['format'].get('TAG:date', '')
         else:
             if media_info.worker_state[self.path] == 'waiting':
                 media_info.add_priority_path(self.path)

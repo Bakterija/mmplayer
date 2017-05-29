@@ -53,3 +53,14 @@ def which(program):
             if is_exe(exe_file):
                 return exe_file
     return None
+
+def seconds_to_minutes_hours(seconds, div_hours=True):
+    s = int(seconds)
+    m, s = divmod(s, 60)
+    if m > 59 and div_hours:
+        h, m = divmod(m, 60)
+        result = ''.join((
+            str(h).zfill(2), ':', str(m).zfill(2), ':', str(s).zfill(2)))
+    else:
+        result = ''.join((str(m).zfill(2),':', str(s).zfill(2)))
+    return result

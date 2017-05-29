@@ -15,42 +15,40 @@ except:
 import global_vars
 from kivy.config import Config
 Config.set('kivy', 'exit_on_escape', 0)
-from kivy.logger import Logger, LoggerHistory
-from kivy.compat import PY2
 from kivy import require as kivy_require
 kivy_require('1.9.2')
-from kivy.app import App
-from kivy.uix.floatlayout import FloatLayout
-from kivy.lang import Builder
-from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
-from kivy.core.clipboard import Clipboard
-from kivy.core.window import Window
-from kivy.clock import Clock, mainthread
-from kivy.utils import platform
 from kivy.properties import StringProperty, ListProperty, ObjectProperty
-from app_modules.media_player import mplayer
-from app_modules.media_controller.controller import MediaController
+from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from app_modules.media_controller.media_playlist_view import MediaPlaylistView
 from app_modules.media_controller.media_queue_view import MediaQueueView
-from app_configs import AppConfigHandler
-from kivy.config import Config as KivyConfig
-from app_modules.kb_system import focus
-from utils import get_unicode
-from app_modules import appworker
+from app_modules.media_controller.controller import MediaController
 from app_modules.popups_and_dialogs.create_playlist import CreatePlaylistPopup
 from app_modules.popups_and_dialogs.remove_playlist import RemovePlaylistPopup
+from kivy.logger import Logger, LoggerHistory
+from app_modules.media_player import mplayer
+from kivy.uix.floatlayout import FloatLayout
+from kivy.core.clipboard import Clipboard
+from kivy.clock import Clock, mainthread
+from app_configs import AppConfigHandler
+from app_modules.kb_system import focus
+from kivy.core.window import Window
+from app_modules import appworker
 from utils import not_implemented
+from kivy.utils import platform
+from utils import get_unicode
+from kivy.lang import Builder
+from kivy.compat import PY2
+from kivy.app import App
 import traceback
 import sys
 
 if platform in ('windows','win', 'linux'):
     from app_modules.layouts.pc_layout_methods import LayoutMethods
-    KivyConfig.set( 'input', 'mouse', 'mouse,disable_multitouch')
+    Config.set( 'input', 'mouse', 'mouse,disable_multitouch')
 
 
 class Jotube(LayoutMethods, FloatLayout):
     sidebar_items = ListProperty()
-    # media_control = ObjectProperty()
     media_control = MediaController(mplayer)
 
     def switch_screen(self, screen_name):

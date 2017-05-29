@@ -6,7 +6,8 @@ import global_vars as gvars
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import StringProperty
 from kivy.lang import Builder
-from utils import get_containing_directory, open_directory
+from utils import (
+    get_containing_directory, open_directory, seconds_to_minutes_hours)
 from media_info import cache as media_cache
 from app_modules.widgets_integrated.popup2 import AppPopup
 
@@ -92,7 +93,8 @@ class MediaPropertiesDialog(FocusBehaviorCanvas, AppPopup):
                 if v in media_cache and media_cache[v]:
                     mc = media_cache[v]
                     if 'duration' in mc:
-                        btn = MediaPropertiesDialogText('duration', mc['duration'])
+                        dur = seconds_to_minutes_hours(mc['duration'])
+                        btn = MediaPropertiesDialogText('duration', dur)
                         self.ids.grid.add_widget(btn)
                     if mc['format']:
                         for x in ('artist', 'title', 'album', 'genre', 'date'):

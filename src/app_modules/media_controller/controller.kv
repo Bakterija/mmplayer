@@ -35,7 +35,7 @@
         padding_x: 20
     Label:
         font_size: root.font_size
-        text: str(int(root.duration / 60.0))
+        text: root.duration_readable if root.duration != -1 else 'N/A'
         size_hint: 0.1, 1
         text_size: self.size[0], None
 

@@ -34,9 +34,11 @@ def get_info(path):
     return info
 
 def parse_output(info):
+    info_dict = {}
     info = get_unicode(info)
     lines = info.splitlines()
-    info_dict = {'is_video': False}
+    is_video = False
+    duration = -1
     stream_cnt = 0
     sub_dict = ''
     for x in lines:
@@ -56,7 +58,12 @@ def parse_output(info):
                 value = x[b+1:]
                 info_dict[sub_dict][key] = value
                 if key == 'duration':
-                    info_dict['duration'] = value
+                    try:
+                        duration = float(value)
+                    except Exception as e:
+                        Logger.error('info_ffprobe: %s' % (e))
                 elif key == 'codec_type' and value == 'video':
-                    info_dict['is_video'] = True
+                    is_video = True
+    info_dict['is_video'] = is_video
+    info_dict['duration'] = duration
     return info_dict
