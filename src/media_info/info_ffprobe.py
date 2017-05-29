@@ -1,6 +1,7 @@
 from kivy.utils import platform
 from utils import get_unicode
 from os.path import exists as path_exists
+from kivy.logger import Logger
 import subprocess
 import utils
 
@@ -23,17 +24,17 @@ def find_ffprobe():
             found = True
     return found
 
-def get_info(path):
+def get_info(mpath):
     global cmd_ffprobe
-    cmd = cmd_ffprobe + [path]
+    cmd = cmd_ffprobe + [mpath]
     popen = subprocess.Popen(
         cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE,
         stderr=subprocess.PIPE)
     info = popen.communicate()[0]
-    info = parse_output(info)
+    info = parse_output(info, mpath)
     return info
 
-def parse_output(info):
+def parse_output(info, mpath):
     info_dict = {}
     info = get_unicode(info)
     lines = info.splitlines()
@@ -61,7 +62,8 @@ def parse_output(info):
                     try:
                         duration = float(value)
                     except Exception as e:
-                        Logger.error('info_ffprobe: %s' % (e))
+                        Logger.error('info_ffprobe: could not parse duration '
+                                     'for {}'.format(mpath))
                 elif key == 'codec_type' and value == 'video':
                     is_video = True
     info_dict['is_video'] = is_video
