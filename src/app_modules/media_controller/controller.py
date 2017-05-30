@@ -32,29 +32,41 @@ import media_info
 
 class MediaController(Widget):
     playlists = DictProperty()
+    '''DictProperty with sections with lists of playlist objects'''
+
     cur_played_playlist = ObjectProperty()
+    '''ObjectProperty of currently played playlist'''
+
     cur_viewed_playlist = ObjectProperty()
-    # cur_queue = ListProperty()
+    '''ObjectProperty of last opened playlist, ignores mplayer queue'''
 
     playing_name = StringProperty()
+    '''StringProperty file name of current played media'''
+
     playing_path = StringProperty()
+    '''StringProperty file path of current played media'''
+
     playing_seek_value = NumericProperty(0)
+    '''NumericProperty seek seconds of current played media'''
+
     playing_seek_max = NumericProperty(0)
+    '''NumericProperty length of current played media in seconds'''
+
     playing_id = NumericProperty()
     playing_state = StringProperty()
     last_media = None
+    '''dict of currently played media file'''
 
-    windowpopup = None
     videoframe = None
     videoframe_is_visible = BooleanProperty(False)
-    videoframe_small = None
     playing_video = BooleanProperty(False)
+    videoframe_small = None
 
     def __init__(self, mplayer, **kwargs):
         self.register_event_type('on_playlist_update')
         super(MediaController, self).__init__(**kwargs)
         self.mplayer = mplayer
-        self.mplayer.bind(on_start=self.on_mplayer_start)
+        self.mplayer.bind(on_start=self._on_mplayer_start)
         self.mplayer.bind(on_video=self.on_mplayer_video)
         self.skip_seek, self.seek_lock = 0, 0
         # self.reset_playlists()
@@ -63,9 +75,11 @@ class MediaController(Widget):
         Clock.schedule_once(lambda *a: media_info.start_workers(2), 1)
 
     def on_playlist_update(self, *args):
+        '''Event fired when playlist DictProperty is updated'''
         pass
 
-    def on_mplayer_start(self):
+    def _on_mplayer_start(self):
+        '''Updates attributes when mplayer starts media'''
         state = self.mplayer.get_state_all()
         media = state['cur_media']
         if self.last_media:

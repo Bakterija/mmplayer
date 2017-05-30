@@ -5,29 +5,34 @@ from time import time
 import weakref
 
 _hover_widgets = []
-active = True
+'''Weak references to all HoverBehavior instances'''
+
 min_hover_height = 0
+'''Minimum widget hover_height where widget hover will be set to True'''
 
 def on_mouse_move(win, pos):
-    global _hover_widgets, active, min_hover_height
-    if not active:
-        return
+    '''Compares mouse position with widget positions
+    and sets hover to false or true'''
+    global _hover_widgets, min_hover_height
     hovered = []
     t0 = time()
     for ref in _hover_widgets:
         self = ref()
         if self:
             if self.collide_point_window(*pos):
+                # Get all widgets that are at mouse pos
                 hovered.append(self)
+            # Remove hover from all widgets that are not at mouse pos
             elif self.hovering:
                 self.hovering = False
                 self.on_leave()
 
         if hovered:
+            # Find the highest widget and set it's hover to True
+            # Set hover to False for other widgets
             highest = hovered[0]
             if len(hovered) > 1:
                 for self in hovered:
-                    # print ('HVR', self, self.hover_height, self.parent)
                     if self.hover_height > highest.hover_height:
                         if highest.hovering:
                             highest.hovering = False
@@ -49,15 +54,18 @@ Window.bind(mouse_pos=on_mouse_move)
 
 class HoverBehavior(Widget):
     hovering = BooleanProperty(False)
-    hover_resize_x = NumericProperty()
-    hover_resize_y = NumericProperty()
+    '''Hover state, is True when mouse enters it's position'''
+
     hover_height = 0
+    '''Z axis height, heighest widgets take priority in hover system'''
 
     def __init__(self, **kwargs):
         super(HoverBehavior, self).__init__(**kwargs)
-        self.bind(parent=self.on_parent_update_hover)
+        self.bind(parent=self._on_parent_update_hover)
 
-    def on_parent_update_hover(self, _, parent):
+    def _on_parent_update_hover(self, _, parent):
+        '''Adds self to hover system when has a parent,
+        otherwise removes self from hover system'''
         global _hover_widgets
         if parent:
             _hover_widgets.append(weakref.ref(self))
@@ -71,6 +79,7 @@ class HoverBehavior(Widget):
                 del _hover_widgets[d]
 
     def remove_from_hover_behavior(self):
+        '''Remove widget from hover system'''
         global _hover_widgets
         _hover_widgets.remove(self)
 
@@ -79,15 +88,13 @@ class HoverBehavior(Widget):
         on_mouse_move(None, Window.mouse_pos)
 
     def on_enter(self, *args):
+        '''Is called when mouse enters widget position'''
         pass
 
     def on_leave(self, *args):
+        '''Is called when mouse leaves widget position'''
         pass
 
     def collide_point_window(self, x, y):
         sx, sy = self.to_window(self.x, self.y)
-        sx += self.hover_resize_x
-        sy += self.hover_resize_y
-        width = self.width - self.hover_resize_x
-        height = self.height - self.hover_resize_y
-        return sx <= x <= sx + width and sy <= y <= sy + height
+        return sx <= x <= sx + self.width and sy <= y <= sy + self.height

@@ -40,6 +40,7 @@ class LayoutMethods(object):
         self.on_mouse_move(None, (-1,-1))
 
     def restore_window(self, *args):
+        '''Unmaximizes maximized window'''
         # Logger.info('ScreenManager: ids:{}'.format(self.manager.ids))
         try:
             if hasattr(self.manager.ids, 'maximized'):
@@ -50,6 +51,7 @@ class LayoutMethods(object):
                 self.__class__.__name__, traceback.format_exc()))
 
     def is_playing(self):
+        '''Returns True when video is playing or False when not'''
         return self.video_playing
 
     def on_maximize(self, *args):
@@ -78,6 +80,8 @@ class LayoutMethods(object):
             #     self.lower_bar_height - self.lower_bar_offset_y)
 
     def on_mouse_move(self, obj, pos):
+        '''Controls bar animations when video is playing
+        and viewing in video screen'''
         if not self.video_screen or not self.video_playing:
             return
 
@@ -112,6 +116,8 @@ class LayoutMethods(object):
 
 
     def on_video_screen(self, screen, playing):
+        '''Animates video in/out and updates video_screen, video_playing attrs
+        '''
         if screen and playing:
             self.full_window_video_in()
         else:

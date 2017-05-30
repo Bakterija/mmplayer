@@ -4,6 +4,9 @@ from kivy.logger import Logger
 
 
 class FileLoaderPlaylist(BasePlaylist):
+    '''Playlist that can add all files from a path and it's sub-paths,
+    files can also later be removed.
+    Useful when a playlist has to have specific files, folders'''
     can_add = True
     file_modif_time = 0
     adding_files = False
@@ -44,6 +47,7 @@ class FileLoaderPlaylist(BasePlaylist):
         self.save()
 
     def remove_indexes(self, index_list):
+        '''Delete self.media items by indexes in index_list argument'''
         for x in reversed(index_list):
             del self.media[x]
         self.refresh_media_id()
@@ -51,6 +55,7 @@ class FileLoaderPlaylist(BasePlaylist):
         self.save()
 
     def save(self):
+        '''Save playlist'''
         self.save_json({
             'name': self.name,
             'playlist_type': 'file_loader',

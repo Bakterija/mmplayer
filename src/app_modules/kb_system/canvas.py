@@ -4,13 +4,14 @@ from kivy.lang import Builder
 
 
 class FocusBehaviorCanvas(FocusBehavior):
+    '''FocusBehavior subclass with a line border
+    that is visible when self.focus is True
+    '''
     border_color = ListProperty([0.2, 0.3, 0.7, 1])
+    '''RGBA border line color'''
+
     border_width = NumericProperty(2)
-
-
-class FocusBehaviorCanvasLight(FocusBehaviorCanvas):
-    border_color = ListProperty([0.3, 0.4, 0.8, 1])
-    border_width = NumericProperty(1)
+    '''Border width in pixels'''
 
 
 Builder.load_string('''

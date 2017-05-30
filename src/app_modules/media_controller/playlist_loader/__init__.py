@@ -7,8 +7,11 @@ import json
 import os
 
 playlists = {}
+'''All loaded playlist objects in sections'''
 
 def load_from_directories(directories):
+    '''Load new playlists from directories, call playlist update() when
+    playlist is already in global playlists, then return playlist dict'''
     global playlists
 
     for directory in directories:
@@ -47,6 +50,7 @@ def load_from_directories(directories):
     return playlists
 
 def load_playlist(path, section):
+    '''Load new playlist object from path and return it'''
     playlist = None
     try:
         with open(path) as data_file:
@@ -66,6 +70,7 @@ def load_playlist(path, section):
     return playlist
 
 def create_playlist(name):
+    '''Create new FileLoaderPlaylist with arg[0] name at default path'''
     category = 'playlists'
     load_path = ''
     path = '{}{}/{}.json'.format(gvars.DIR_PLAYLISTS, category, name)
