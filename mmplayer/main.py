@@ -18,22 +18,22 @@ Config.set('kivy', 'exit_on_escape', 0)
 from kivy import require as kivy_require
 kivy_require('1.9.2')
 from kivy.properties import StringProperty, ListProperty, ObjectProperty
-from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
+from kivy.uix.screenmanager import ScreenManager, NoTransition
+from popups_and_dialogs.create_playlist import CreatePlaylistPopup
+from popups_and_dialogs.remove_playlist import RemovePlaylistPopup
 from media_controller.media_playlist_view import MediaPlaylistView
 from media_controller.media_queue_view import MediaQueueView
 from media_controller.controller import MediaController
-from popups_and_dialogs.create_playlist import CreatePlaylistPopup
-from popups_and_dialogs.remove_playlist import RemovePlaylistPopup
 from kivy.logger import Logger, LoggerHistory
-from media_player import mplayer
 from kivy.uix.floatlayout import FloatLayout
 from kivy.core.clipboard import Clipboard
 from kivy.clock import Clock, mainthread
 from app_configs import AppConfigHandler
-from kb_system import focus
 from kivy.core.window import Window
 from utils import not_implemented
+from media_player import mplayer
 from kivy.utils import platform
+from kivy_soil.kb_system import focus
 from utils import get_unicode
 from kivy.lang import Builder
 from kivy.compat import PY2

@@ -1,22 +1,21 @@
 from __future__ import print_function
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.stacklayout import StackLayout
-from kivy.uix.image import Image
+from kivy.properties import NumericProperty, BooleanProperty
+from kivy.properties import StringProperty, ListProperty
+from kivy_soil.hover_behavior import HoverBehavior
+from .slider_progress_bar import SliderProgressBar
 from kivy.uix.behaviors import ButtonBehavior
-from kivy.uix.button import Button
-from kivy.properties import (
-    NumericProperty, StringProperty, ListProperty, BooleanProperty)
+from kivy.uix.stacklayout import StackLayout
+from widgets.imagebutton import ImageButton
+from kivy.uix.boxlayout import BoxLayout
 from kivy.core.window import Window
-from kivy.clock import Clock
+from kivy.uix.button import Button
+from kivy.uix.image import Image
+from kivy.uix.label import Label
 from kivy.metrics import cm, dp
+from kivy.clock import Clock
 from kivy.lang import Builder
-from kivy.graphics import *
-from behaviors.hover_behavior import HoverBehavior
 from kivy.clock import Clock
 from sys import path
-from widgets_standalone.imagebutton import ImageButton
-from .slider_progress_bar import SliderProgressBar
-from kivy.uix.label import Label
 
 
 class PlayBackButton(HoverBehavior, ImageButton):

@@ -1,10 +1,11 @@
 from kivy.properties import StringProperty, ListProperty, DictProperty
 from kivy.event import EventDispatcher
-from kivy.compat import PY2
 from kivy.logger import Logger
+from utils import get_unicode
+from kivy.compat import PY2
 from time import time
-import os
 import json
+import os
 
 HOME_DIR = os.path.expanduser("~")+'/'
 next_id = 0
@@ -140,21 +141,10 @@ class BasePlaylist(EventDispatcher):
         if file_ext not in self.allowed_extensions:
             return None
         return {
-            'name': self.get_unicode(file_name),
-            'ext': self.get_unicode(file_ext),
-            'path': self.get_unicode(file_path),
+            'name': get_unicode(file_name),
+            'ext': get_unicode(file_ext),
+            'path': get_unicode(file_path),
             'state': 'default'}
-
-    @staticmethod
-    def get_unicode(string):
-        '''Returns unicode string from string argument'''
-        if PY2:
-            string = string.encode('utf-8')
-            string = unicode(string, 'utf-8')
-        else:
-            if isinstance(string, bytes):
-                string = string.decode('utf-8')
-        return string
 
     def refresh_media_id(self, *args):
         '''Updates id numbers for all files in self.media ListProperty'''

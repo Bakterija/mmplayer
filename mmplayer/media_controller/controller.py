@@ -1,31 +1,15 @@
 from __future__ import print_function
-from kivy.uix.widget import Widget
-from kivy.uix.stacklayout import StackLayout
-# from kivy.utils import platform
-# from kivy.lang import Builder
-from widgets_standalone.background_stacklayout import BackgroundStackLayout
-from kivy.uix.textinput import TextInput
-from kivy.metrics import cm, dp
-from kivy.uix.popup import Popup
-from kivy.uix.label import Label
-from kivy.uix.button import Button
-from kivy.properties import (
-    BooleanProperty, StringProperty, DictProperty,
-    ListProperty, NumericProperty, ObjectProperty)
-from kivy.clock import Clock
-from kivy.core.window import Window
-# import kivy.uix.filechooser as filechooser
-##from plyer.facades import FileChooser as FileChooser2
-##from plyer.platforms.linux.filechooser import instance as FileChooser3
-# from .fileadder_dialog import FileAdderDialog
-from widgets_integrated.section import rvSection
-# from . import various_functions as various
-from . import playlist_loader
+from kivy.properties import BooleanProperty, StringProperty, DictProperty
+from kivy.properties import ListProperty, NumericProperty, ObjectProperty
 from .playlist_loader.base import BasePlaylist
+from kivy.uix.widget import Widget
+from kivy.utils import platform
 from kivy.logger import Logger
-import traceback
+from . import playlist_loader
+from kivy.clock import Clock
 import global_vars as gvars
 from time import time
+import traceback
 import media_info
 
 

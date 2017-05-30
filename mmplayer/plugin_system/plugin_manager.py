@@ -1,14 +1,13 @@
-from widgets_standalone.app_recycleview import (
-AppRecycleView, AppRecycleBoxLayout, AppRecycleViewClass)
 from kivy.properties import NumericProperty, StringProperty, ListProperty
-from kivy.uix.recycleboxlayout import RecycleBoxLayout
-from kb_system.canvas import FocusBehaviorCanvas
+from kivy_soil.app_recycleview import AppRecycleView, AppRecycleBoxLayout
+from kivy_soil.app_recycleview import AppRecycleViewClass
+from kivy_soil.kb_system.canvas import FocusBehaviorCanvas
 from kivy.uix.stacklayout import StackLayout
 from kivy.uix.button import Button
 from kivy.logger import Logger
 from kivy.lang import Builder
 from kivy.clock import Clock
-from kb_system import keys
+from kivy_soil.kb_system import keys
 from kivy.app import App
 import traceback
 import importlib

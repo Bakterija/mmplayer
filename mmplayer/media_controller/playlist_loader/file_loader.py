@@ -1,5 +1,6 @@
 from .base import BasePlaylist
 from kivy.logger import Logger
+from utils import get_unicode
 
 
 class FileLoaderPlaylist(BasePlaylist):
@@ -23,13 +24,13 @@ class FileLoaderPlaylist(BasePlaylist):
         # self.media = folder_files
 
     def add_path(self, path):
-        path = self.get_unicode(path)
+        path = get_unicode(path)
         self.media = self.media + self.get_files(path)
         self.refresh_media_id()
         self.save()
 
     def add_path_async(self, path):
-        path = self.get_unicode(path)
+        path = get_unicode(path)
         start_index = 0
         if self.media:
             start_index = self.media[-1]['index']

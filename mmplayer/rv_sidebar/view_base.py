@@ -1,9 +1,9 @@
-from widgets_standalone.app_recycleview import AppRecycleViewClass
-from behaviors.hover_behavior import HoverBehavior
 from kivy.properties import StringProperty, BooleanProperty
+from kivy_soil.app_recycleview import AppRecycleViewClass
+from kivy_soil.hover_behavior import HoverBehavior
 from kivy.uix.behaviors import ButtonBehavior
-from kivy.clock import Clock
 from kivy.uix.label import Label
+from kivy.clock import Clock
 
 
 class SideBarViewBase(AppRecycleViewClass):

@@ -1,14 +1,12 @@
 from kivy.properties import NumericProperty, StringProperty
-from kivy.uix.recycleboxlayout import RecycleBoxLayout
-from kb_system.canvas import FocusBehaviorCanvas
-from widgets_standalone.app_recycleview import SingleSelectRecycleBox
-from widgets_standalone.app_recycleview import (AppRecycleView,
-                                                AppRecycleBoxLayout)
+from kivy_soil.app_recycleview import SingleSelectRecycleBox
+from kivy_soil.app_recycleview import AppRecycleView
+from kivy_soil.kb_system.canvas import FocusBehaviorCanvas
 from .ctx_menu import open_sidebar_ctx_menu
 from .viewclass import SideBarViewClass
 from kivy.lang import Builder
 from kivy.clock import Clock
-from kb_system import keys
+from kivy_soil.kb_system import keys
 from . import view_widgets
 from kivy.app import App
 

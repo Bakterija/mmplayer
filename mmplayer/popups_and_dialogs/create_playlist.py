@@ -1,19 +1,19 @@
-from kb_system.canvas import FocusBehaviorCanvas
-from kivy.uix.popup import Popup
-from kivy.metrics import dp, cm
-from kivy.uix.label import Label
-import global_vars as gvars
-from kivy.uix.boxlayout import BoxLayout
-from kivy.properties import StringProperty
-from kivy.lang import Builder
 from utils import get_containing_directory, open_directory
+from kivy_soil.kb_system.canvas import FocusBehaviorCanvas
 from media_info import cache as media_cache
-from widgets_integrated.popup2 import AppPopup
+from kivy.properties import StringProperty
+from kivy.uix.boxlayout import BoxLayout
+from widgets.popup2 import AppPopup
+from kivy.uix.popup import Popup
+from kivy.uix.label import Label
+from kivy.metrics import dp, cm
+from kivy.lang import Builder
+import global_vars as gvars
 from kivy.app import App
 
 Builder.load_string('''
-#: import ConditionLayout widgets_standalone.condition_layout.ConditionLayout
-#: import FocusButton widgets_integrated.focus_button.FocusButton
+#: import ConditionLayout widgets.condition_layout.ConditionLayout
+#: import FocusButton widgets.focus_button.FocusButton
 <CreatePlaylistPopup>:
     size_hint: 0.6, None
     height: self.content.height + int(app.mlayout.button_height * 2)

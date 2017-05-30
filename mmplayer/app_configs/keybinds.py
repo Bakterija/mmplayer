@@ -1,8 +1,8 @@
-from kb_system import focus as focus_behavior
+from kivy_soil.kb_system import focus as focus_behavior
 from .config_base import ConfigBase
-from kb_system import keys
+from kivy_soil.kb_system import keys
 from kivy.app import App
-import kb_system
+from kivy_soil import kb_system
 
 class Config(ConfigBase):
 

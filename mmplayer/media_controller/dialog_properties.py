@@ -1,19 +1,19 @@
-from kb_system.canvas import FocusBehaviorCanvas
+from utils import get_containing_directory, open_directory
+from utils import seconds_to_minutes_hours
+from kivy_soil.kb_system.canvas import FocusBehaviorCanvas
+from media_info import cache as media_cache
+from kivy.properties import StringProperty
+from kivy.uix.boxlayout import BoxLayout
+from widgets.popup2 import AppPopup
 from kivy.uix.popup import Popup
 from kivy.metrics import dp, cm
 from kivy.uix.label import Label
-import global_vars as gvars
-from kivy.uix.boxlayout import BoxLayout
-from kivy.properties import StringProperty
 from kivy.lang import Builder
-from utils import (
-    get_containing_directory, open_directory, seconds_to_minutes_hours)
-from media_info import cache as media_cache
-from widgets_integrated.popup2 import AppPopup
+import global_vars as gvars
 
 Builder.load_string('''
-#: import ConditionLayout widgets_standalone.condition_layout.ConditionLayout
-#: import FocusButton widgets_integrated.focus_button.FocusButton
+#: import ConditionLayout widgets.condition_layout.ConditionLayout
+#: import FocusButton widgets.focus_button.FocusButton
 #: import Clipboard kivy.core.clipboard.Clipboard
 
 <MediaPropertiesDialogText>:

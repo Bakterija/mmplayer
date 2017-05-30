@@ -1,27 +1,27 @@
 from __future__ import print_function
-from kivy.uix.popup import Popup
-from widgets_integrated.popup2 import AppPopup
+from kivy.uix.recycleview.views import RecycleDataViewBehavior
+from kivy.uix.recycleboxlayout import RecycleBoxLayout
+from widgets.background_label import BackgroundLabel
+from widgets.multi_line_label import MultiLineLabel
 from kivy.uix.stacklayout import StackLayout
 from kivy.uix.recycleview import RecycleView
-from kivy.uix.button import Button
-from kivy.uix.label import Label
-from kivy.clock import Clock
-from kivy.uix.recycleview.views import RecycleDataViewBehavior
-from widgets_standalone.multi_line_label import MultiLineLabel
-from widgets_standalone.background_label import BackgroundLabel
-from kivy.uix.spinner import Spinner
-from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from kivy.properties import StringProperty
 from behaviors.focus import FocusBehavior
-from kivy.metrics import cm
-from kivy.lang import Builder
-from kivy.compat import PY2
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.spinner import Spinner
+from kivy.uix.popup import Popup
+from widgets.popup2 import AppPopup
+from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.lang import Builder
+from kivy.clock import Clock
+from kivy.metrics import cm
+from kivy.compat import PY2
 import os
 
 # TODO FIX FILEADDER FOR PYTHON3
 kv = '''
-#: import aa1.widgets_standalone.background_label.BackgroundLabel
+#: import aa1.widgets.background_label.BackgroundLabel
 <FileAdderDialog>:
     title: 'FileAdderDialog'
     size_hint: 0.9, 0.7

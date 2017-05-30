@@ -1,9 +1,9 @@
 from __future__ import print_function
-from kivy.properties import (
-    BooleanProperty, NumericProperty, ListProperty, StringProperty)
-from kivy.uix.behaviors import ButtonBehavior
+from kivy.properties import BooleanProperty, NumericProperty
+from kivy.properties import ListProperty, StringProperty
 from .view_base import SideBarViewBase, SideBarButton
-from behaviors.hover_behavior import HoverBehavior
+from kivy_soil.hover_behavior import HoverBehavior
+from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivy.clock import Clock

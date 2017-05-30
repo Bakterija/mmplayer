@@ -1,6 +1,6 @@
-from widgets_standalone.app_recycleview import AppRecycleViewClass
-from behaviors.hover_behavior import HoverBehavior
 from kivy.properties import StringProperty, BooleanProperty
+from kivy_soil.app_recycleview import AppRecycleViewClass
+from kivy_soil.hover_behavior import HoverBehavior
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.clock import Clock

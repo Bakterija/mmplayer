@@ -1,24 +1,21 @@
 from kivy.properties import StringProperty, DictProperty, ListProperty
 from kivy.properties import NumericProperty, BooleanProperty
-from kivy.uix.recycleview.views import RecycleDataViewBehavior
-from widgets_standalone.app_recycleview import AppRecycleView
-from widgets_standalone.app_recycleview import AppRecycleBoxLayout
-from widgets_standalone.app_recycleview import AppRecycleViewClass
-from behaviors.hover_behavior import HoverBehavior
-from kb_system.canvas import FocusBehaviorCanvas
-from kivy.uix.recycleview import RecycleView
+from kivy_soil.app_recycleview import AppRecycleView, AppRecycleBoxLayout
+from kivy_soil.app_recycleview import AppRecycleViewClass
+from kivy_soil.hover_behavior import HoverBehavior
+from kivy_soil.kb_system.canvas import FocusBehaviorCanvas
 from kivy.uix.behaviors import ButtonBehavior
 from behaviors.button2 import ButtonBehavior2
 from kivy.uix.stacklayout import StackLayout
-from kivy.lang import Builder
 from kivy.utils import platform
 from kivy.logger import Logger
-from kivy.metrics import cm
-from kb_system import keys
+from kivy.lang import Builder
 from kivy.clock import Clock
+from kivy.metrics import cm
+from kivy_soil.kb_system import keys
 from utils import not_implemented, seconds_to_minutes_hours
-import media_info
 from popups_and_dialogs import media_context_menu
+import media_info
 
 
 class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,

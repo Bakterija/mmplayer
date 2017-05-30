@@ -1,6 +1,6 @@
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from kivy.clock import Clock
-import kb_system
+from kivy_soil import kb_system
 
 
 class AppRecycleBoxLayout(RecycleBoxLayout):

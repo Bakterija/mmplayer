@@ -1,8 +1,8 @@
-from kivy.lang import Builder
-from kivy.uix.label import Label
+from widgets.multi_line_label import MultiLineLabel
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.properties import ListProperty
-from widgets_standalone.multi_line_label import MultiLineLabel
+from kivy.uix.label import Label
+from kivy.lang import Builder
 
 
 class LabelButton(ButtonBehavior, MultiLineLabel):

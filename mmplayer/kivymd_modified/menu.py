@@ -1,19 +1,17 @@
-from kivy.properties import (
-    NumericProperty, ListProperty, OptionProperty, StringProperty)
+from kivy_soil.app_recycleview import AppRecycleView, AppRecycleViewClass
+from kivy.properties import NumericProperty, ListProperty
+from kivy.properties import OptionProperty, StringProperty
+from kivy_soil.hover_behavior import HoverBehavior
+from kivy.uix.behaviors import ButtonBehavior
+from kivy_soil.kb_system.focus import FocusBehavior
+from kivy.uix.boxlayout import BoxLayout
+from global_vars import layout_manager
 from kivy.animation import Animation
-from kivy.clock import Clock
 from kivy.core.window import Window
+from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.metrics import dp
-from kivy.uix.behaviors import ButtonBehavior
-from kivy.uix.boxlayout import BoxLayout
-from kb_system.focus import FocusBehavior
-from widgets_standalone.app_recycleview import AppRecycleView
-from widgets_standalone.app_recycleview import AppRecycleViewClass
-from behaviors.hover_behavior import HoverBehavior
-from global_vars import layout_manager
-from kb_system import keys
-
+from kivy_soil.kb_system import keys
 
 
 Builder.load_string('''

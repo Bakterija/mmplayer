@@ -1,7 +1,7 @@
-from kb_system.canvas import FocusBehaviorCanvas
+from kivy_soil.kb_system.canvas import FocusBehaviorCanvas
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.properties import StringProperty
-from kb_system import keys
+from kivy_soil.kb_system import keys
 from kivy.uix.button import Button
 from kivy.uix.widget import Widget
 
