@@ -1,11 +1,11 @@
-from app_modules.compat_queue import Queue
-from app_modules import appworker
+from compat_queue import Queue
 from kivy.logger import Logger
 from threading import Thread
 from kivy.clock import Clock
 from time import time, sleep
 from . import info_ffprobe
 from kivy.app import App
+import appworker
 
 cache = {}
 worker_state = {}

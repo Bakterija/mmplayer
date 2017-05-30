@@ -1,19 +1,18 @@
-from kivy.uix.stacklayout import StackLayout
-from kivy.lang import Builder
-from app_modules.kb_system import keys
-from app_modules.kb_system.canvas import FocusBehaviorCanvas
-from kivy.uix.recycleboxlayout import RecycleBoxLayout
-from kivy.properties import NumericProperty, StringProperty
-from kivy.properties import ListProperty
-from kivy.app import App
-from kivy.clock import Clock
-from app_modules.widgets_standalone.app_recycleview import (
+from widgets_standalone.app_recycleview import (
 AppRecycleView, AppRecycleBoxLayout, AppRecycleViewClass)
+from kivy.properties import NumericProperty, StringProperty, ListProperty
+from kivy.uix.recycleboxlayout import RecycleBoxLayout
+from kb_system.canvas import FocusBehaviorCanvas
+from kivy.uix.stacklayout import StackLayout
+from kivy.uix.button import Button
 from kivy.logger import Logger
+from kivy.lang import Builder
+from kivy.clock import Clock
+from kb_system import keys
+from kivy.app import App
 import traceback
 import importlib
 import os
-from kivy.uix.button import Button
 
 
 Builder.load_string('''

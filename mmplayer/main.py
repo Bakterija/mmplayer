@@ -19,31 +19,31 @@ from kivy import require as kivy_require
 kivy_require('1.9.2')
 from kivy.properties import StringProperty, ListProperty, ObjectProperty
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
-from app_modules.media_controller.media_playlist_view import MediaPlaylistView
-from app_modules.media_controller.media_queue_view import MediaQueueView
-from app_modules.media_controller.controller import MediaController
-from app_modules.popups_and_dialogs.create_playlist import CreatePlaylistPopup
-from app_modules.popups_and_dialogs.remove_playlist import RemovePlaylistPopup
+from media_controller.media_playlist_view import MediaPlaylistView
+from media_controller.media_queue_view import MediaQueueView
+from media_controller.controller import MediaController
+from popups_and_dialogs.create_playlist import CreatePlaylistPopup
+from popups_and_dialogs.remove_playlist import RemovePlaylistPopup
 from kivy.logger import Logger, LoggerHistory
-from app_modules.media_player import mplayer
+from media_player import mplayer
 from kivy.uix.floatlayout import FloatLayout
 from kivy.core.clipboard import Clipboard
 from kivy.clock import Clock, mainthread
 from app_configs import AppConfigHandler
-from app_modules.kb_system import focus
+from kb_system import focus
 from kivy.core.window import Window
-from app_modules import appworker
 from utils import not_implemented
 from kivy.utils import platform
 from utils import get_unicode
 from kivy.lang import Builder
 from kivy.compat import PY2
 from kivy.app import App
+import appworker
 import traceback
 import sys
 
 if platform in ('windows','win', 'linux'):
-    from app_modules.layouts.pc_layout_methods import LayoutMethods
+    from layouts.pc_layout_methods import LayoutMethods
     Config.set( 'input', 'mouse', 'mouse,disable_multitouch')
 
 
@@ -291,8 +291,8 @@ class JotubeApp(App):
 
 def main_loop():
     try:
-        Builder.load_file('app_modules/layouts/pc_layout.kv')
-        Builder.load_file('app_modules/layouts/screen_manager.kv')
+        Builder.load_file('layouts/pc_layout.kv')
+        Builder.load_file('layouts/screen_manager.kv')
         app = JotubeApp()
         app.run()
     except Exception as e:

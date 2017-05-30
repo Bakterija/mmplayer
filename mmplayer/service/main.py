@@ -7,8 +7,8 @@ from threading import Thread
 from kivy.utils import platform
 from sys import path as sysPath
 from kivy.lib import osc
-from app_modules.media_player.media_player_server import Media_Player_Server as Media_Player
-# import app_modules.youtube.yt_loader as YT_Loader
+from media_player.media_player_server import Media_Player_Server as Media_Player
+# import.youtube.yt_loader as YT_Loader
 import traceback
 if platform == 'android':
     from jnius import autoclass
