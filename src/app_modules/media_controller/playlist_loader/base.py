@@ -1,5 +1,5 @@
+from kivy.properties import StringProperty, ListProperty, DictProperty
 from kivy.event import EventDispatcher
-from kivy.properties import StringProperty, ListProperty
 from kivy.compat import PY2
 from kivy.logger import Logger
 from time import time
@@ -15,6 +15,7 @@ class BasePlaylist(EventDispatcher):
     name = StringProperty()
     path = StringProperty()
     playlist_type = StringProperty()
+    media_paths = DictProperty()
     media = ListProperty()
     cur_playing = -1
     can_add = True
@@ -30,6 +31,7 @@ class BasePlaylist(EventDispatcher):
         super(BasePlaylist, self).__init__(**kwargs)
         self.id = next_id
         next_id += 1
+        self.bind(media=self.refresh_media_id)
 
     def set_playing(self, index):
         self.remove_playing()
@@ -120,9 +122,16 @@ class BasePlaylist(EventDispatcher):
                 string = string.decode('utf-8')
         return string
 
-    def refresh_media_id(self):
+    def refresh_media_id(self, *args):
+        mp = {}
         for i, x in enumerate(self.media):
             x['id'] = i
+            mpath = x['path']
+            if mpath in mp:
+                mp[x['path']].append(i)
+            else:
+                mp[x['path']] = [i]
+        self.media_paths = mp
 
     @staticmethod
     def strreplace(string):

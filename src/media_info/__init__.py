@@ -30,7 +30,6 @@ def get_info_async_done(media_path, info):
     cache[media_path] = info
     worker_state[media_path] = 'done'
     remaining_tasks -= 1
-    # print ('VISSS', media_path[-50:], info['duration'])
     if info_update_callback:
         info_update_callback(media_path, info)
 
@@ -70,10 +69,8 @@ def _update(dt):
 def worker_thread(ind, qwork, qresults):
     while True:
         sleep (0.01)
-        mpath = _qu_worker.get()
+        mpath = qwork.get()
         info = info_ffprobe.get_info(mpath)
-        # print ('CLOCK', mpath[-50:], info['duration'])
-        # Clock.schedule_once(lambda *a: get_info_async_done())
         qresults.put((mpath, info))
 
 _qu_worker = Queue()

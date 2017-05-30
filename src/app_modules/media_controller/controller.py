@@ -51,6 +51,7 @@ class MediaController(Widget):
     playing_video = BooleanProperty(False)
 
     def __init__(self, mplayer, **kwargs):
+        self.register_event_type('on_playlist_update')
         super(MediaController, self).__init__(**kwargs)
         self.mplayer = mplayer
         self.mplayer.bind(on_start=self.on_mplayer_start)
@@ -60,6 +61,9 @@ class MediaController(Widget):
         Clock.schedule_interval(self.update_seek, 0.1)
         media_info.info_update_callback = self.on_media_info_update
         Clock.schedule_once(lambda *a: media_info.start_workers(2), 1)
+
+    def on_playlist_update(self, *args):
+        pass
 
     def on_mplayer_start(self):
         state = self.mplayer.get_state_all()
@@ -279,6 +283,7 @@ class MediaController(Widget):
         pl = playlist_loader.load_from_directories((
             'media/playlists/', gvars.DIR_PLAYLISTS))
         self.playlists = pl
+        self.dispatch('on_playlist_update', self.playlists)
         for section, playlists in self.playlists.items():
             for x in playlists:
                 x.bind(media=self.on_playlist_media)

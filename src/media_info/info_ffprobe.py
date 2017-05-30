@@ -32,7 +32,6 @@ def get_info(mpath):
         stderr=subprocess.PIPE)
     info = popen.communicate()[0]
     info = parse_output(info, mpath)
-    # print ('START', mpath[-50:], info['duration'])
     return info
 
 def parse_output(info, mpath):
@@ -58,7 +57,6 @@ def parse_output(info, mpath):
             if b != -1:
                 key = x[:b]
                 value = x[b+1:]
-                # print (mpath[-40:], key, value)
                 info_dict[sub_dict][key] = value
                 if key == 'duration':
                     try:

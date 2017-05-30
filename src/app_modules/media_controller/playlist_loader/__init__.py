@@ -1,29 +1,49 @@
 from .file_loader import FileLoaderPlaylist
 from .folder_loader import FolderLoaderPlaylist
 from kivy.logger import Logger
-from os import listdir
 import global_vars as gvars
-import json
 import traceback
+import json
+import os
 
-loaded_paths = set()
+playlists = {}
 
 def load_from_directories(directories):
-    playlists = {}
+    global playlists
 
     for directory in directories:
-        dir_list = listdir(directory)
+        dir_list = os.listdir(directory)
 
         for section in dir_list:
             if not section in playlists:
                 playlists[section] = []
-            file_list = listdir('{}{}/'.format(directory, section))
+            file_list = os.listdir('{}{}/'.format(directory, section))
 
             for f in file_list:
-                pl = load_playlist(
-                    '{}{}/{}'.format(directory, section, f), section)
-                if pl:
-                    playlists[section].append(pl)
+                found = False
+                fpath = '{}{}/{}'.format(directory, section, f)
+                for k, v in playlists.items():
+                    for pl in v:
+                        if fpath == pl.path:
+                            pl.update()
+                            found = True
+                            break
+                        if found:
+                            break
+
+                if not found:
+                    pl = load_playlist(
+                        '{}{}/{}'.format(directory, section, f), section)
+                    if pl:
+                        playlists[section].append(pl)
+
+    remlist = []
+    for k, v in playlists.items():
+        for pl in v:
+            if not os.path.exists(pl.path):
+                remlist.append((section, pl))
+    for section, pl in remlist:
+        playlists[section].remove(pl)
     return playlists
 
 def load_playlist(path, section):

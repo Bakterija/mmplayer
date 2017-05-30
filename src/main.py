@@ -194,7 +194,8 @@ class Jotube(LayoutMethods, FloatLayout):
         self.media_control.attach_playlist_view(playlistview)
         self.media_control.attach_queue_view(queueview)
 
-        self.media_control.bind(playlists=self.reset_sidebar_widgets)
+        self.media_control.bind(
+            on_playlist_update=self.reset_sidebar_widgets)
         self.media_control.reset_playlists()
         self.media_control.bind(
             playing_seek_value=self.ids.playback_bar.on_media_progress_val)
