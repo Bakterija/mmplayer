@@ -1,8 +1,9 @@
+from . import focus as focus_behavior
 from kivy.core.window import Window
 from kivy.logger import Logger
 from time import time
-from . import focus as focus_behavior
 from . import keys
+import traceback
 
 keybinds = {}
 held_ctrl = False
@@ -117,11 +118,15 @@ def dispatch_to_focused(key, modifier, is_down):
     cf = focus_behavior.current_focus
     retval = None
     if cf:
-        if is_down:
-            retval = cf.on_key_down(key, modifier)
-        else:
-            retval = cf.on_key_up(key, modifier)
-        return retval
+        try:
+            if is_down:
+                retval = cf.on_key_down(key, modifier)
+            else:
+                retval = cf.on_key_up(key, modifier)
+            return retval
+        except:
+            e = traceback.format_exc()
+            Logger.error('kb_system: dispatch_to_focused: %s' % (e))
 
 def update_modifier(key, is_down):
     global held_alt, held_ctrl, held_shift

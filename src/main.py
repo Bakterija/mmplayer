@@ -102,6 +102,9 @@ class Jotube(LayoutMethods, FloatLayout):
     def display_info(self, text):
         self.ids.info_widget.info(text)
 
+    def display_warning(self, text):
+        self.ids.info_widget.warning(text)
+
     def on_error(self, error):
         '''For showing errors in GUI'''
         self.ids.info_widget.error(error)

@@ -14,6 +14,7 @@ from app_modules.widgets_integrated.popup2 import AppPopup
 Builder.load_string('''
 #: import ConditionLayout app_modules.widgets_standalone.condition_layout.ConditionLayout
 #: import FocusButton app_modules.widgets_integrated.focus_button.FocusButton
+#:import Clipboard kivy.core.clipboard.Clipboard
 
 <MediaPropertiesDialogText>:
     orientation: 'horizontal'
@@ -59,11 +60,17 @@ Builder.load_string('''
                 pos_hint: {'center_x': 0.5}
                 height: app.mlayout.button_height
                 condition: True if root.containing_directory else False
+                spacing: app.mlayout.spacing * 4
                 FocusButton:
                     id: open_fld_button
                     is_subfocus: True
                     text: 'Open containing directory'
                     on_release: root.open_cont_dir()
+                FocusButton:
+                    id: open_fld_button
+                    is_subfocus: True
+                    text: 'Copy path'
+                    on_release: Clipboard.copy(root.mpath)
 ''')
 
 
@@ -78,8 +85,9 @@ class MediaPropertiesDialogText(BoxLayout):
 
 
 class MediaPropertiesDialog(FocusBehaviorCanvas, AppPopup):
-    containing_directory = StringProperty()
     remove_focus_on_touch_move = False
+    containing_directory = StringProperty()
+    mpath = StringProperty()
     grab_focus = True
     ignored_properties = ['id', 'state']
 
@@ -98,6 +106,7 @@ class MediaPropertiesDialog(FocusBehaviorCanvas, AppPopup):
         mpath = media_dict.get('path', '')
         if mpath:
             self.containing_directory = get_containing_directory(mpath)
+            self.mpath = mpath
 
             mc = media_cache.get(mpath, None)
             if mc:
@@ -106,7 +115,8 @@ class MediaPropertiesDialog(FocusBehaviorCanvas, AppPopup):
                     duration = seconds_to_minutes_hours(duration)
                     grid.add_widget(
                         MediaPropertiesDialogText('duration', duration))
-                if mc['format']:
+                mc_format = mc.get('format', None)
+                if mc_format:
                     for k in ('artist', 'title', 'album', 'genre', 'date'):
                         tagtext = ''.join(('TAG:', k))
                         val = media_cache.get(tagtext, '')
