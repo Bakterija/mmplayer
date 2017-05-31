@@ -50,6 +50,8 @@ if platform in ('windows','win', 'linux'):
 class Jotube(LayoutMethods, FloatLayout):
     sidebar_items = ListProperty()
     media_control = MediaController(mplayer)
+    dropped_files = ListProperty()
+    '''holds dropped file paths before media_control.on_dropfile is called'''
 
     def switch_screen(self, screen_name):
         if screen_name != self.manager.current:
@@ -65,21 +67,31 @@ class Jotube(LayoutMethods, FloatLayout):
             'sidebar_loader', media_controller, playlists)
 
     def on_dropfile(self, win, path):
-        '''Runs when a file is dropped on the window'''
-        self.display_info('DROPPED FILES: %s' % (get_unicode(path)))
-        screen = self.manager.current
-        path = get_unicode(path)
-        if screen in ('media', 'queue'):
-            pl = 'playlist'
-            if screen == 'queue':
-                pl = 'queue'
-            Clock.schedule_once(lambda *a: self.on_dropfile_after(
-                path, mouse_pos=Window.mouse_pos, playlist=pl),
-                0.2)
+        '''Is called when a file is dropped on the window'''
+        self.dropped_files.append(get_unicode(path))
+        Clock.unschedule(self.on_dropfile_after)
+        Clock.schedule_once(self.on_dropfile_after, 0)
 
-    def on_dropfile_after(self, path, mouse_pos=None, playlist=None):
-        self.media_control.on_dropfile(
-            path, mouse_pos=mouse_pos, playlist=playlist)
+    def on_dropfile_after(self, *args):
+        len_dropped_files = len(self.dropped_files)
+        if len_dropped_files > 1:
+            droptext = 'Dropped %s files' % (len_dropped_files)
+        else:
+            droptext = 'Dropped one file'
+        self.display_info(droptext)
+        Clock.schedule_once(self.add_dropped_files, 0)
+
+    def add_dropped_files(self, *args):
+        screen = self.manager.current
+        if screen in ('media', 'queue'):
+            if screen == 'queue':
+                playlist = 'queue'
+            else:
+                playlist = 'playlist'
+            for mpath in self.dropped_files:
+                self.media_control.on_dropfile(
+                    mpath, mouse_pos=Window.mouse_pos, playlist=playlist)
+        self.dropped_files = []
 
     def mgui_open_settings(self, *args):
         not_implemented.show_error(feature='App settings')
