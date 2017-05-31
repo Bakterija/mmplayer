@@ -9,13 +9,17 @@ import weakref
 
 focusable_widgets = []
 '''Storage list for references to FocusBehavior widgets without focus grab'''
+
 focus_grab_widgets = []
 '''Storage list for references to FocusBehavior widgets with focus grab'''
+
 prev_focused_widgets = []
 '''Storage list of references to previously focused widgets,
 duplicates are not inserted'''
+
 max_previous_widgets = 10
 '''Int number of max widgets, defaults to 10'''
+
 current_focus = None
 '''Reference to currently focused widget'''
 
@@ -132,6 +136,7 @@ class FocusBehavior(Widget):
     '''Focus state, default is False'''
 
     remove_focus_on_touch_move = True
+
     subfocus_widgets = ListProperty()
     '''Subfocus widgets for focus grab widgets'''
 
@@ -146,9 +151,9 @@ class FocusBehavior(Widget):
     Return True from on_key_dow or on_key_up method
     to allow calling global hotkeys'''
 
-    grab_focus = False
+    grab_focus = BooleanProperty(False)
     '''Add widget to focus_grab_widgets or focusable_widgets,
-    default it False'''
+    default is False'''
 
     is_focusable = True
 
@@ -158,7 +163,14 @@ class FocusBehavior(Widget):
         if not self.is_subfocus:
             self.bind(parent=on_parent)
             if self.grab_focus:
-                self.focus = True
+                self.focus_widget(self)
+
+    def on_grab_focus(self, _, value):
+        self.remove_from_focus()
+        if self.parent:
+            on_parent(self, parent)
+            if value:
+                self.focus_widget(self)
 
     def on_is_subfocus(self, _, value):
         if value:

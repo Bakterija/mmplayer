@@ -4,6 +4,7 @@ from kivy_soil.kb_system.canvas import FocusBehaviorCanvas
 from media_info import cache as media_cache
 from kivy.properties import StringProperty
 from kivy.uix.boxlayout import BoxLayout
+from kivy_soil.kb_system import keys
 from widgets.popup2 import AppPopup
 from kivy.uix.popup import Popup
 from kivy.metrics import dp, cm
@@ -67,7 +68,7 @@ Builder.load_string('''
                     text: 'Open containing directory'
                     on_release: root.open_cont_dir()
                 FocusButton:
-                    id: open_fld_button
+                    id: copy_path_button
                     is_subfocus: True
                     text: 'Copy path'
                     on_release: Clipboard.copy(root.mpath)
@@ -88,12 +89,13 @@ class MediaPropertiesDialog(FocusBehaviorCanvas, AppPopup):
     remove_focus_on_touch_move = False
     containing_directory = StringProperty()
     mpath = StringProperty()
-    grab_focus = True
     ignored_properties = ['id', 'state']
 
     def __init__(self, media_dict, **kwargs):
         super(MediaPropertiesDialog, self).__init__(**kwargs)
-        self.subfocus_widgets = [self.ids.open_fld_button]
+        self.grab_focus = True
+        self.subfocus_widgets = [
+            self.ids.open_fld_button, self.ids.copy_path_button]
 
     def add_content_widgets(self, media_dict):
         grid = self.ids.grid
@@ -129,7 +131,7 @@ class MediaPropertiesDialog(FocusBehaviorCanvas, AppPopup):
     def dismiss(self):
         super(MediaPropertiesDialog, self).dismiss()
         self.remove_from_focus(prev_focus=True)
-        self.parent.remove_widget(self)
+        # self.parent.remove_widget(self)
 
     @staticmethod
     def open_diag(media_dict):

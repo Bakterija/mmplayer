@@ -21,7 +21,6 @@ class AppRecycleView(RecycleView):
     data_full = ListProperty()
     '''ListProperty that stores all widget data unsorted'''
 
-
     def __init__(self, **kwargs):
         super(AppRecycleView, self).__init__(**kwargs)
         self.fbind('reverse_sorting', self.update_data_from_filter)
@@ -30,6 +29,8 @@ class AppRecycleView(RecycleView):
         self.fbind('sorting_key', self.update_data_from_filter)
 
     def set_data(self, data_full):
+        '''Sets self.data_full, call updates data from filter, then sorts.
+        Use this for updating data'''
         self.data_full = data_full
         self.update_data_from_filter()
 
@@ -51,6 +52,7 @@ class AppRecycleView(RecycleView):
 
     @staticmethod
     def get_filtered_data(data, filter_keys, find_text):
+        '''Filters a data list with dict items and returns it'''
         templist = []
         find_text = find_text.lower()
         if filter_keys:
@@ -75,6 +77,7 @@ class AppRecycleView(RecycleView):
 
     @staticmethod
     def sort_data(data, reverse_sorting, sorting_key):
+        '''Sorts a data list with dict items and returns it'''
         if sorting_key:
             data = sorted(data, key=itemgetter(sorting_key))
             if reverse_sorting:
@@ -90,18 +93,21 @@ class AppRecycleView(RecycleView):
         self._update_effect_bounds()
 
     def page_down(self):
+        '''Scrolls viewport down by it's height * 0.9'''
         scroll = RecycleView.convert_distance_to_scroll(
             self, 0, self.height)[1] * 0.9
         self.scroll_y = max(self.scroll_y - scroll, 0.0)
         self._update_effect_bounds()
 
     def page_up(self):
+        '''Scrolls viewport up by it's height * 0.9'''
         scroll = RecycleView.convert_distance_to_scroll(
             self, 0, self.height)[1] * 0.9
         self.scroll_y = min(self.scroll_y + scroll, 1.0)
         self._update_effect_bounds()
 
     def scroll_to_index(self, index):
+        '''Scrolls viewport to place where a widget with index argument is'''
         box = self.children[0]
         if box.default_size[1]:
             pos_index = (box.default_size[1] + box.spacing) * index
@@ -118,6 +124,7 @@ class AppRecycleView(RecycleView):
         self.scroll_y = 1.0 - scroll
 
     def convert_distance_to_scroll(self, dx, dy):
+        '''Modified convert_distance_to_scroll method for better reliability'''
         box = self.children[0]
         if box.default_size[1]:
             wheight = box.default_size[1] + box.spacing

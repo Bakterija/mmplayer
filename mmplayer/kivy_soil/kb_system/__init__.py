@@ -1,6 +1,6 @@
 '''A system that combines global bindable hotkeys with a widget focus behavior
 Manages kivy Window key_up, key_down events and calls methods, callbacks
-wehre necessary'''
+where necessary'''
 
 from . import focus as focus_behavior
 from kivy.core.window import Window

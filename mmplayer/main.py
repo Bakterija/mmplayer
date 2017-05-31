@@ -12,9 +12,9 @@ try:
     sys.path.append(dirname(__file__))
 except:
     pass
-import global_vars
 from kivy.config import Config
 Config.set('kivy', 'exit_on_escape', 0)
+import global_vars
 from kivy import require as kivy_require
 kivy_require('1.9.2')
 from kivy.properties import StringProperty, ListProperty, ObjectProperty
@@ -33,7 +33,7 @@ from kivy.core.window import Window
 from utils import not_implemented
 from media_player import mplayer
 from kivy.utils import platform
-from kivy_soil.kb_system import focus
+from kivy_soil import kb_system
 from utils import get_unicode
 from kivy.lang import Builder
 from kivy.compat import PY2
@@ -247,6 +247,8 @@ class JotubeApp(App):
     mlayout = global_vars.layout_manager
     mtheme = global_vars.theme_manager
     root_widget = None
+    escape_presses = 0
+    '''Tracks escape press counts for kb_quit method'''
 
     def build(self):
         self.root_widget = Jotube()
@@ -277,10 +279,16 @@ class JotubeApp(App):
         pass
 
     def kb_esc(self):
-        if focus.focusable_widgets and focus.current_focus:
-            focus.remove_focus()
-        else:
+        if self.escape_presses == 1:
             self.stop()
+        else:
+            self.root_widget.display_info('Double press escape to quit')
+        self.escape_presses += 1
+        Clock.unschedule(self.reset_escape_presses)
+        Clock.schedule_once(self.reset_escape_presses, 0.4)
+
+    def reset_escape_presses(self, *args):
+        self.escape_presses = 0
 
     def on_stop(self):
         if not hasattr(self, 'app_is_stopping_now'):
