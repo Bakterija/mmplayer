@@ -1,43 +1,16 @@
+from kivy.properties import NumericProperty, StringProperty
+from kivy.properties import BooleanProperty, ListProperty
+from kivy_soil.hover_behavior import HoverBehavior
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.label import Label
 from kivy.animation import Animation
-from kivy.properties import NumericProperty, StringProperty, ListProperty
+from kivy.core.window import Window
+from kivy.uix.label import Label
+from kivy.metrics import sp, cm
 from kivy.lang import Builder
 from kivy.clock import Clock
 from time import time
-from kivy.metrics import sp, cm
-from kivy.properties import BooleanProperty
-from kivy.uix.widget import Widget
-from kivy.core.window import Window
 
-class HoverBehavior(Widget):
-    hovering = BooleanProperty(False)
-
-    def __init__(self, **kwargs):
-        super(HoverBehavior, self).__init__(**kwargs)
-        Window.bind(mouse_pos=self.on_mouse_move)
-
-    def on_mouse_move(self, win, pos):
-        if self.hovering == False:
-            if self.collide_point_window(*pos):
-                self.hovering = True
-                self.on_enter()
-        else:
-            if self.collide_point_window(*pos) == False:
-                self.hovering = False
-                self.on_leave()
-
-    def on_enter(self, *args):
-        pass
-
-    def on_leave(self, *args):
-        pass
-
-    def collide_point_window(self, x, y):
-        sx, sy = self.to_window(self.x, self.y)
-        return sx <= x <= sx + self.width and sy <= y <= sy + self.height
-
-kv = '''
+Builder.load_string('''
 <InfoWidget>:
     orientation: 'vertical'
     size_hint: None, None
@@ -52,13 +25,14 @@ kv = '''
         Rectangle:
             size: self.width + dp(6), self.height + dp(6)
             pos: self.pos[0] - dp(3), self.pos[1] - dp(3)
-'''
+''')
 
 class InfoLabel(HoverBehavior, Label):
     ttl = NumericProperty(2)
     tp = StringProperty('info')
     col_bg = ListProperty([0.2, 0.2, 0.2])
     col_transp = NumericProperty(0.8)
+    hover_height = 200
 
     def __init__(self, **kwargs):
         super(InfoLabel, self).__init__(**kwargs)
@@ -146,6 +120,3 @@ class InfoWidget(BoxLayout):
 
     def info(self, message, ttl=default_ttl):
         self.add_label(ttl=ttl, tp='info', text=message)
-
-
-Builder.load_string(kv)

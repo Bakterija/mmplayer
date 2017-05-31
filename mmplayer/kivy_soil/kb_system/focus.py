@@ -183,6 +183,8 @@ class FocusBehavior(Widget):
         '''Remove widget from focusable_widgets or focus_grab_widgets list'''
         global current_focus, prev_focused_widgets, focus_grab_widgets
         global prev_focused_widgets
+        if current_focus == self:
+            remove_focus()
         if self.grab_focus and self in focus_grab_widgets:
             focus_grab_widgets.remove(self)
         elif self in focusable_widgets:
