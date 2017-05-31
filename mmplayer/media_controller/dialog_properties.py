@@ -5,7 +5,7 @@ from media_info import cache as media_cache
 from kivy.properties import StringProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy_soil.kb_system import keys
-from widgets.popup2 import AppPopup
+from widgets.app_popup import AppPopup
 from kivy.uix.popup import Popup
 from kivy.metrics import dp, cm
 from kivy.uix.label import Label
@@ -86,26 +86,39 @@ class MediaPropertiesDialogText(BoxLayout):
 
 
 class MediaPropertiesDialog(FocusBehaviorCanvas, AppPopup):
-    remove_focus_on_touch_move = False
+    '''Takes a dictionary as first __init__ argument and adds
+    Label widget pairs in boxlayouts to display, has handling for
+    media data'''
+
     containing_directory = StringProperty()
+    '''Stores directory path which contains media file when a path is found
+    in media_dict argument'''
+
     mpath = StringProperty()
+    '''Stores media file path when a path is found in media_dict argument'''
+
     ignored_properties = ['id', 'state']
 
     def __init__(self, media_dict, **kwargs):
         super(MediaPropertiesDialog, self).__init__(**kwargs)
+        self.remove_focus_on_touch_move = False
         self.grab_focus = True
         self.subfocus_widgets = [
             self.ids.open_fld_button, self.ids.copy_path_button]
 
     def add_content_widgets(self, media_dict):
-        '''Find all important information and add widgets to self'''
+        '''Find all important information in media_dict and add widgets to self
+        '''
         grid = self.ids.grid
+        # Adds key and value pairs from media_dict argument
         for k, v in media_dict.items():
             if k in self.ignored_properties:
                 continue
             btn = MediaPropertiesDialogText(k, v)
             grid.add_widget(btn)
 
+        # Attempts to get and add file tags
+        # and other important information from global media cache
         mpath = media_dict.get('path', '')
         if mpath:
             self.containing_directory = get_containing_directory(mpath)
@@ -137,6 +150,7 @@ class MediaPropertiesDialog(FocusBehaviorCanvas, AppPopup):
 
     @staticmethod
     def open_diag(media_dict):
+        '''Method for creating and opening dialog'''
         dialog = MediaPropertiesDialog(media_dict)
         dialog.add_content_widgets(media_dict)
 

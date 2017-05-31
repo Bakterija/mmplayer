@@ -6,9 +6,14 @@ import subprocess
 import utils
 
 cmd_ffprobe = None
+'''Command that will be run for ffprobe, default is None and gets
+updated to a list when ffprobe is found'''
 # terminal cmd - ffprobe -show_format -show_streams
 
 def find_ffprobe():
+    '''Looks for ffprobe in path (on windows os also checks bin/ffprobe.exe).
+    Updates cmd_ffprobe global and returns True/False depending on if
+    ffprobe was found'''
     global cmd_ffprobe
     found = False
     cmd = ('ffprobe')
@@ -25,6 +30,8 @@ def find_ffprobe():
     return found
 
 def get_info(mpath):
+    '''Runs subprocess ffprobe with media path argument,
+    then calls parse_output with returned data and media path arguments'''
     global cmd_ffprobe
     cmd = cmd_ffprobe + [mpath]
     popen = subprocess.Popen(
@@ -35,6 +42,9 @@ def get_info(mpath):
     return info
 
 def parse_output(info, mpath):
+    '''Parses ffprobe output, returns dict with information.
+    is_video and duration are always added, even when no stream is available,
+    default values are False for is_video and -1 for duration'''
     info_dict = {}
     info = get_unicode(info)
     lines = info.splitlines()

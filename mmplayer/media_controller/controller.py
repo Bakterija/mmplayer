@@ -330,7 +330,7 @@ class MediaController(Widget):
             print('playlist not in ids', id, self.playlist_ids)
 
     def on_media_info_update(self, path, info):
-        '''Update widget media info when media_info package parsed new info'''
+        '''Updates widget media info when media_info package loads new info'''
         pl = self.view_playlist.find_view_with_path(path)
         que = self.view_queue.find_view_with_path(path)
         if pl:

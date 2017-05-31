@@ -1,3 +1,5 @@
+'''Old unused code'''
+
 from __future__ import print_function
 from .providers import default_providers
 from .player import MediaPlayer

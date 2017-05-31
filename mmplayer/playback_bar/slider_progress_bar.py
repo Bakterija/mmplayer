@@ -7,6 +7,7 @@ from kivy.clock import Clock
 
 
 class SliderProgressBar(ProgressBar):
+    '''Progress bar for playback bar'''
     hovering = NumericProperty(0)
     seeking_touch = False
     seeking_touch_value = NumericProperty(0)
@@ -21,12 +22,14 @@ class SliderProgressBar(ProgressBar):
         Clock.schedule_once(self.after_init, 0)
 
     def after_init(self, *args):
+        '''Loads circle image widget and adds it to self'''
         circlesource = 'data/circle.png'
         self.circle = Image(source=circlesource, pos=(-999,-999), size=(
             self.circle_size, self.circle_size))
         self.add_widget(self.circle)
 
     def on_mouse_move(self, win, pos):
+        '''Moves circle to mouse position when near SliderProgressBar'''
         chalf = self.circle_size * 0.5
         if self.collide_point_window(*pos) or self.seeking_touch:
             self.move_circle_to_progress()
@@ -34,10 +37,12 @@ class SliderProgressBar(ProgressBar):
             self.hide_circle()
 
     def hide_circle(self, *args):
+        '''Moves circle off screen'''
         chalf = self.circle_size * 0.5
         self.circle.pos = (-999 - chalf, -999 - chalf)
 
     def move_circle_to_progress(self, *args):
+        '''Moves circle to progress bar current value'''
         chalf = self.circle_size * 0.5
         if not self.value:
             x_new = self.x - chalf
@@ -46,6 +51,8 @@ class SliderProgressBar(ProgressBar):
         self.circle.pos = (x_new, self.y + self.height * 0.5 - chalf)
 
     def on_value_update(self, widget, value):
+        '''Calls move_circle_to_progress if it is not being dragged by
+        touch already, otherwise sets value from touch position'''
         if self.value != value:
             if self.seeking_touch:
                 self.value = self.seeking_touch_value
@@ -55,6 +62,7 @@ class SliderProgressBar(ProgressBar):
                     self.move_circle_to_progress()
 
     def on_touch_down(self, touch):
+        '''Starts dragging bar value with touch'''
         if touch.button in ('scrollup', 'scrolldown', 'right'):
             return False
         if self.collide_point(touch.pos[0], touch.pos[1]):
@@ -66,6 +74,8 @@ class SliderProgressBar(ProgressBar):
             return True
 
     def on_touch_up(self, touch):
+        '''Stops dragging bar value with touch and calls self.on_seeking()
+        with new value argument'''
         if touch.button in ('scrollup', 'scrolldown', 'right'):
             return False
         if self.seeking_touch:
@@ -75,6 +85,7 @@ class SliderProgressBar(ProgressBar):
             return True
 
     def on_touch_move(self, touch):
+        '''Updates progress value from touch position'''
         tx = touch.pos[0]
         if self.seeking_touch:
             val = ((tx - self.x) / self.width) * self.max

@@ -2,27 +2,28 @@ from kivy.properties import StringProperty, DictProperty, ListProperty
 from kivy.properties import NumericProperty, BooleanProperty
 from kivy_soil.app_recycleview import AppRecycleView, AppRecycleBoxLayout
 from kivy_soil.app_recycleview import AppRecycleViewClass
-from kivy_soil.hover_behavior import HoverBehavior
 from kivy_soil.kb_system.canvas import FocusBehaviorCanvas
+from kivy_soil.hover_behavior import HoverBehavior
+from utils import not_implemented, seconds_to_minutes_hours
+from .dialog_properties import MediaPropertiesDialog
+from popups_and_dialogs import media_context_menu
 from kivy.uix.behaviors import ButtonBehavior
 from behaviors.button2 import ButtonBehavior2
 from kivy.uix.stacklayout import StackLayout
+from kivy_soil.kb_system import keys
 from kivy.utils import platform
 from kivy.logger import Logger
 from kivy.lang import Builder
 from kivy.clock import Clock
 from kivy.metrics import cm
-from kivy_soil.kb_system import keys
-from utils import not_implemented, seconds_to_minutes_hours
-from popups_and_dialogs import media_context_menu
 import media_info
 
 
 class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
                   StackLayout):
-    index = NumericProperty(-1)
+    '''Base view class of media buttons'''
+
     id = NumericProperty(-1)
-    rv = None
     bg_colors = DictProperty()
     state = StringProperty('default')
     mtype = StringProperty('media')
@@ -54,6 +55,7 @@ class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
         self.duration_readable = seconds_to_minutes_hours(value)
 
     def update_media_info(self, info):
+        '''Sets self.is_video, duration, tags from info dict'''
         if info:
             self.in_mi = True
             self.is_video = info['is_video']
@@ -115,8 +117,13 @@ class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
     def on_selected(self, _, value):
         self.set_bg_color()
 
+    def open_properties_dialog(self, *args):
+        '''Opens MediaPropertiesDialog with own media information'''
+        dialog = MediaPropertiesDialog.open_diag(self.rv.data[self.index])
+
 
 class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
+    '''Base recycleview of queue and playlist recycleview'''
     grab_keys = [keys.SPACE]
     mcontrol = None
 
@@ -133,17 +140,22 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
         return [self.data[i] for i in self.children[0].selected_widgets]
 
     def update_data_from_filter(self, *args):
+        '''Schedules self.log_data_update on next frame,
+        then calls super method'''
         Clock.schedule_once(self.log_data_update, 0)
         super(MediaRecycleviewBase, self).update_data_from_filter()
 
     def log_data_update(self, dt):
+        '''Logs performance of data update'''
         Logger.info('{}: loaded {} item playlist in {} sec'.format(
             self.__class__.__name__, len(self.data), round(dt, 3)))
 
     def remove_selected(self):
+        '''Stub method, updated in subclasses'''
         pass
 
     def on_kb_return(self):
+        '''Starts selected media'''
         box = self.children[0]
         if box.sel_first != -1:
             for x in box.children:

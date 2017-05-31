@@ -10,15 +10,34 @@ import traceback
 
 class MediaPlayer(object):
     cur_index = -1
+    '''Integer number of currently played queue item's index'''
+
     player = None
+    '''Object that is playing media currently'''
+
     queue = []
+    '''Queue list for media files'''
+
     is_video = False
     video_widget = None
+    '''Kivy widget that displays video when video is available'''
+
     volume = 1.0
+    '''MediaPlayer volume value before modifications'''
+
     volume_real = 1.0
+    '''MediaPlayer volume value after modifications'''
+
     pos = -1
+    '''Play position second integer or float,
+    defaults to -1 when no position is available'''
+
     length = -1
+    '''Currently played file length in seconds,
+    defaults to -1 when no length is available'''
+
     cur_media = {'name': '', 'path': ''}
+    '''Dictionary of currently played media'''
 
     def __init__(self):
         self.callbacks = {
@@ -34,10 +53,12 @@ class MediaPlayer(object):
         }
 
     def reset(self):
+        '''Unloads current player and resets queue'''
         self.unload()
         self.queue = []
 
     def unload(self):
+        '''Unloads current player, catches exceptions'''
         if self.player:
             try:
                 self.player.unload()
@@ -45,12 +66,15 @@ class MediaPlayer(object):
                 print (e)
 
     def set_volume(self, value):
+        '''Adjusts value and updates
+        self.volume, self.volume_real, self.player.volume'''
         self.volume = float(value) / 100
         self.volume_real = (float(value) * float(value)) / 10000
         if self.player:
             self.player.volume = self.volume_real
 
     def start(self, index, seek=0.0):
+        '''Starts playing media file in queue at index'''
         self.starting = True
         index = int(index)
         self.unload()
@@ -58,6 +82,7 @@ class MediaPlayer(object):
             self.cur_index = index
             self.cur_media = self.queue[index]
 
+            # Finds necessary player and loads it
             for x in providers:
                 player = x.try_loading(self, self.cur_media['path'])
                 if player:
@@ -80,18 +105,22 @@ class MediaPlayer(object):
         # self.player = ErrorPlayer()
 
     def on_stop(self,*arg):
+        '''Called when player stops, starts next media'''
         if not self.starting:
             Logger.info('%s: %s' % (self.__class__.__name__, 'on_stop'))
             if self.callbacks['next_on_stop']:
                 self.next()
 
     def play(self, *arg):
+        '''Play media, if not playing already. Call on_play callback'''
         if self.player:
             self.player.play()
             for x in self.callbacks['on_play']:
                 x(self, self.get_mediaPos())
 
     def next(self, *arg):
+        '''Attempts to start next media in queue,
+        calls self.on_error if next is not available'''
         if not self.queue:
             return self.on_error('Empty playlist')
 
@@ -103,6 +132,8 @@ class MediaPlayer(object):
             self.on_error('Done playing')
 
     def previous(self, *arg):
+        '''Attempts to start previous media in queue,
+        calls self.on_error if queue is empty'''
         if not self.queue:
             return self.on_error('Empty playlist')
 
@@ -112,6 +143,7 @@ class MediaPlayer(object):
             self.on_previous()
 
     def seek(self, value):
+        '''Seeks media to value seconds if a player is loaded'''
         if self.player:
             if value < 0.0:
                 value = 0.0
@@ -120,36 +152,49 @@ class MediaPlayer(object):
             self.player.seek(value)
 
     def seek_relative(self, value):
+        '''Seeks media to current position + value seconds '''
         value = self.get_mediaPos() + value
         self.seek(value)
 
     def stop(self, *arg):
+        '''Stops and unloads current player'''
         if self.player:
             self.player.stop()
             self.player.unload()
 
     def pause(self, *arg):
+        '''Pauses current player and calls self.on_pause'''
         if self.player:
             self.player.pause()
             for x in self.callbacks['on_pause']:
                 x(self, self.get_mediaPos())
 
     def get_mediaPos(self, *arg):
+        '''If a player is loaded, returns self.player.get_pos(),
+        otherwise returns -1'''
         if self.player:
             return self.player.get_pos()
         return -1
 
     def get_mediaDur(self, *arg):
+        '''If a player is loaded, returns self.player.length,
+        otherwise returns -1'''
         if self.player:
             return self.player.length
         return -1
 
     def get_state(self):
+        '''If player is available, returns self.player.state,
+        otherwise returns 'stop'.
+        State can be 'play', 'stop', 'pause'
+        '''
         if self.player:
             return self.player.state
         return 'stop'
 
     def get_state_all(self):
+        '''Returns all available information about current media and player
+        in a dictionary'''
         is_video = False
         if self.player:
             is_video = self.player.is_video
@@ -181,6 +226,8 @@ class MediaPlayer(object):
             x(reason)
 
     def on_video(self, value):
+        '''Sets self.video_widget, self.is_video and calls on_video callbacks
+        '''
         self.is_video = value
         if value:
             self.video_widget = self.player

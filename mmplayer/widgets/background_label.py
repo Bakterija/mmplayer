@@ -4,7 +4,11 @@ from kivy.graphics import InstructionGroup, Color, Rectangle
 
 
 class BackgroundLabel(Label):
+    '''Label that displays a canvas rectangle below itself with
+    self.background_color rgba color'''
+
     background_color = ListProperty()
+
     def __init__(self, **kwargs):
         super(BackgroundLabel, self).__init__(**kwargs)
         self.background = Rectangle(size=self.size, pos=self.pos)

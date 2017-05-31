@@ -2,12 +2,15 @@ from kivy.compat import PY2
 import os, webbrowser
 
 def get_containing_directory(file_path):
+    '''Returns directory path which contains file_path'''
     return os.path.abspath(os.path.join(file_path, os.pardir))
 
 def open_directory(path):
+    '''Calls webbrowser.open(path)'''
     webbrowser.open(path)
 
 def get_unicode(string):
+    '''Takes any bytes or str objects, then returns a unicode utf-8 string '''
     if PY2:
         try:
             string = string.encode('utf-8')
@@ -20,6 +23,7 @@ def get_unicode(string):
     return string
 
 def get_files(self, path, sort='abc'):
+    '''Finds and returns list of all files in path and sub directories in it'''
     templist = []
     time0 = time()
     if os.path.isfile(path):
@@ -39,9 +43,12 @@ def get_files(self, path, sort='abc'):
     return templist
 
 def is_exe(fpath):
+    '''Checks if file is exe, then returns bool'''
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
 def which(program):
+    '''Checks if program string name is in path.
+    If found, returns path where it is, otherwise returns nothing'''
     fpath, fname = os.path.split(program)
     if fpath:
         if is_exe(program):
@@ -55,6 +62,8 @@ def which(program):
     return None
 
 def seconds_to_minutes_hours(seconds, div_hours=True):
+    '''Divmods seconds argument into hours:minutes:seconds format, then
+    returns it'''
     s = int(seconds)
     m, s = divmod(s, 60)
     if m > 59 and div_hours:

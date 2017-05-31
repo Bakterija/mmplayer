@@ -1,3 +1,5 @@
+'''Old unused code'''
+
 from __future__ import print_function
 from .player import MediaPlayer
 from .player import Playlist

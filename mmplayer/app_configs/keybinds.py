@@ -13,7 +13,7 @@ class Config(ConfigBase):
     @staticmethod
     def load_after(root):
         app = App.get_running_app()
-        kb_system.log_keys = True
+        # kb_system.log_keys = True
 
         kb_system.add(
             'theme_randomize', keys.NUM_MULTIPLY, 'down', app.mtheme.randomize)

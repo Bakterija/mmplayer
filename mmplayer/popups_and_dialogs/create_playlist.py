@@ -3,7 +3,7 @@ from kivy_soil.kb_system.canvas import FocusBehaviorCanvas
 from media_info import cache as media_cache
 from kivy.properties import StringProperty
 from kivy.uix.boxlayout import BoxLayout
-from widgets.popup2 import AppPopup
+from widgets.app_popup import AppPopup
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.metrics import dp, cm
@@ -53,15 +53,20 @@ class CreatePlaylistPopup(FocusBehaviorCanvas, AppPopup):
     grab_focus = True
 
     def on_text_validate(self, text):
+        '''Calls MediaController.create_playlist()
+        with input widget text argument'''
         mcontrol = App.get_running_app().root.media_control
         mcontrol.create_playlist(text)
         self.dismiss()
 
     def open(self, *args):
+        '''Opens popup and schedules self.focus_input()
+        to be called on next frame with Clock '''
         Clock.schedule_once(self.focus_input, 0)
         super(CreatePlaylistPopup, self).open(*args)
 
     def focus_input(self, *a):
+        '''Focuses playlist name input widget'''
         self.ids.inp.focus_widget()
 
     def dismiss(self):

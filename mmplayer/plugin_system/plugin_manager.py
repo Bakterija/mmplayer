@@ -1,3 +1,5 @@
+'''Work in progress'''
+
 from kivy.properties import NumericProperty, StringProperty, ListProperty
 from kivy_soil.app_recycleview import AppRecycleView, AppRecycleBoxLayout
 from kivy_soil.app_recycleview import AppRecycleViewClass

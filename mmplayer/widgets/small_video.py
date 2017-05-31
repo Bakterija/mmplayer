@@ -1,10 +1,13 @@
-from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import NumericProperty, BooleanProperty
-from kivy.animation import Animation
 from behaviors.resizable.resize import ResizableBehavior
+from kivy.uix.boxlayout import BoxLayout
+from kivy.animation import Animation
 
 
 class SmallVideo(ResizableBehavior, BoxLayout):
+    '''BoxLayout with ResizableBehavior that holds media player video widget
+    when video screen is not in view'''
+
     offset_x_in = NumericProperty()
     offset_x_out = NumericProperty()
     offset_y_in = NumericProperty()

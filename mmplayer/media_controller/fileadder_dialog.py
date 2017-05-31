@@ -10,7 +10,7 @@ from behaviors.focus import FocusBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.spinner import Spinner
 from kivy.uix.popup import Popup
-from widgets.popup2 import AppPopup
+from widgets.app_popup import AppPopup
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.lang import Builder

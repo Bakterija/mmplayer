@@ -30,9 +30,11 @@ class PlayBackButton(HoverBehavior, ImageButton):
         self.update_source_bg(self.text, self.hovering, self.state)
 
     def on_state(self, _, value):
+        '''Updates images when player state changes'''
         self.update_source_bg(self.text, self.hovering, value)
 
     def update_source_bg(self, text, hover, press):
+        '''Updates playback button image paths'''
         mod = ''
         if press == 'down':
             mod = '_d'
@@ -48,12 +50,15 @@ class PlayBackButton(HoverBehavior, ImageButton):
             self.source = ''.join((self.img_pause, mod, '.png'))
 
     def on_text(self, _, text):
+        '''Calls self.update_source_bg()'''
         self.update_source_bg(text, self.hovering, self.state)
 
     def on_enter(self):
+        '''Calls self.update_source_bg()'''
         self.update_source_bg(self.text, self.hovering, self.state)
 
     def on_leave(self):
+        '''Calls self.update_source_bg()'''
         self.update_source_bg(self.text, self.hovering, self.state)
 
 
@@ -61,14 +66,39 @@ class PlayBackBar(BoxLayout):
     orientation = 'horizontal'
     background_color = ListProperty([0.1, 0.1, 0.1])
     path = path[0]+'/playback_bar/'
+    '''Path of module'''
+
     media_progress_max = NumericProperty(0)
+    '''NumericProperty of current media length in seconds'''
+
     media_progress_val = NumericProperty(0)
+    '''NumericProperty of media player positon in seconds'''
+
     media_volume = NumericProperty(50.0)
+    '''NumericProperty on which volume slider is binded'''
+
     media_progress_val_readable = StringProperty('00:00')
+    '''StringProperty of media player position,
+    divmoded and filled into hours:minutes:seconds
+    '''
+
     media_progress_max_readable = StringProperty('00:00')
+    '''StringProperty of current media length,
+    divmoded and filled into hours:minutes:seconds
+    '''
+
     dont_update_progress = False
+    '''media_progress_val updates are skipped when this is True,
+    default is False'''
+
     skip_progress2 = False
+    '''media_progress_val updates are skipped when this is True,
+    default is False'''
+
     progress_clock = None
+    '''References last clock that was or will be used to reenable
+    media_progress_val updates'''
+
 
     def __init__(self, **kwargs):
         super(PlayBackBar, self).__init__(**kwargs)

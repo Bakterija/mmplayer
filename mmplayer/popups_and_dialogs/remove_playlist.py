@@ -3,7 +3,7 @@ from kivy_soil.kb_system.canvas import FocusBehaviorCanvas
 from media_info import cache as media_cache
 from kivy.properties import StringProperty
 from kivy.uix.boxlayout import BoxLayout
-from widgets.popup2 import AppPopup
+from widgets.app_popup import AppPopup
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.metrics import dp, cm
@@ -45,12 +45,14 @@ Builder.load_string('''
 class RemovePlaylistPopup(FocusBehaviorCanvas, AppPopup):
     grab_focus = True
     pl_path = StringProperty()
+    '''StringProperty path where selected playlist is stored'''
 
     def __init__(self, playlist_path, **kwargs):
         super(RemovePlaylistPopup, self).__init__(**kwargs)
         self.pl_path = playlist_path
 
     def remove_playlist(self):
+        '''Calls MediaController.remove_playlist(self.pl_path) to delete it'''
         mcontrol = App.get_running_app().root.media_control
         mcontrol.remove_playlist(self.pl_path)
         self.dismiss()

@@ -1,36 +1,12 @@
 from utils.not_implemented import show_error as show_not_implemented
 from kivymd_modified.menu import MDDropdownMenu
-from random import randrange
 from kivy.logger import Logger
+from random import randrange
 
-# def get_ctx_items(self):
-#     selected = self.rv.get_selected_data()
-#     count_selected = len(selected)
-#     jump_index = self.rv.find_playing()
-#     if jump_index != -1:
-#         can_jump = False
-#     else:
-#         can_jump = True
-#     if count_selected:
-#         cant_remove = False
-#     else:
-#         cant_remove = True
-#
-#     ci = [
-#         {
-#             'text': 'Play', 'disabled': False,
-#             'on_press': self.start_media},
-#         {
-#             'text': 'Remove from playlist', 'disabled': cant_remove,
-#             'on_press': self.rv.remove_selected},
-#         {
-#             'text': 'Clear queue', 'disabled': False,
-#             'on_press': self.rv.mcontrol.clear_queue},
-#         {
-#             'text': 'Jump to current played', 'disabled': can_jump,
-#             'on_press': lambda *a: self.rv.scroll_to_index(jump_index)},
 
 def open_menu(self, widget, index, pos):
+    '''Builds a media list view context menu for queue or playlist,
+    then opens and returns it'''
     is_queue, is_playlist = False, False
     if self.queue_view:
         is_queue = True
@@ -64,6 +40,8 @@ def open_menu(self, widget, index, pos):
     else:
         can_remove = True
 
+    # All available button values
+    # with callbacks, names, values adding, disabling buttons after init
     all_items = [
         (True, 'Play', selected_rv, getattr(widget, 'start_media', None)),
         (is_playlist, 'Play selection', not selected_media,
@@ -80,8 +58,11 @@ def open_menu(self, widget, index, pos):
         (True, 'Select all', False, self.ids.box.select_all),
         (True, 'Deselect all', False, self.ids.box.deselect_all),
         (True, 'Properties', selected_rv,
-         getattr(widget, 'open_prop_dialog', None)),
+         getattr(widget, 'open_properties_dialog', None)),
     ]
+    # Parses all_items and adds button data for items where item[0] is True,
+    # sets disabled value, because some functions will not work
+    # or are not available at specific times
     items = []
     for i, (condition, text, disabled, func) in enumerate(all_items):
         if condition:
@@ -92,7 +73,10 @@ def open_menu(self, widget, index, pos):
     drop = MDDropdownMenu(
         items=items, width_mult=7)
 
+    # If no viewclass instance is selected, puts it on the recycleview,
+    # otherwise context menu appears on selected viewclass instance
     if selected_rv:
         drop.open(self)
     else:
         drop.open(widget)
+    return drop

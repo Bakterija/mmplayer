@@ -73,6 +73,9 @@ __set_app_globals__()
 
 
 class LayoutManager(EventDispatcher):
+    '''Global EventDispatcher for layout size values,
+    almost all widgets bind on it's properties'''
+
     button_height = NumericProperty()
     button_height12 = NumericProperty()
     button_height05 = NumericProperty()
@@ -127,6 +130,9 @@ class LayoutManager(EventDispatcher):
 
 
 class ThemeManager(EventDispatcher):
+    '''Global EventDispatcher for theme color values,
+    almost all widgets bind on it's properties'''
+    
     col_btn_normal = ListProperty(col_dgrey)
     col_btn_down = ListProperty(col_satblue2)
 

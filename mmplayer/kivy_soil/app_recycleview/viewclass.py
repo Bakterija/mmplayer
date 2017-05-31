@@ -6,9 +6,9 @@ class AppRecycleViewClass(RecycleDataViewBehavior):
     includes mandatory selection properties, index attribute and
     methods to make those work'''
 
+    selected = BooleanProperty(False)
     selected_last = BooleanProperty()
     selectable = BooleanProperty()
-    selected = BooleanProperty()
     index = None
 
     def refresh_view_attrs(self, rv, index, data):
@@ -19,3 +19,5 @@ class AppRecycleViewClass(RecycleDataViewBehavior):
     def apply_selection(self, value):
         if self.selectable:
             self.selected = value
+        elif self.selected:
+            self.selected = False

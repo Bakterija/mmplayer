@@ -5,10 +5,14 @@ if platform in ('linux', 'win'):
 
 
 class VideoFrame(BoxLayout):
+    '''BoxLayout that holds video widget in video screen'''
     orientation = 'vertical'
     full_screen_check = None
     maximized = False
+
     maximizer_mode = 0
+    '''Widget has two modes, 0 means that it will maximize window,
+    1 means that it will use app full screen mode instead'''
 
     def __init__(self, **kwargs):
         super(VideoFrame, self).__init__(**kwargs)
@@ -17,6 +21,8 @@ class VideoFrame(BoxLayout):
             Window.bind(on_restore=self.on_restore)
 
     def on_touch_down(self, touch):
+        '''Depending on self.maximizer_mode, maximizes window or sets app
+        full screen mode when widget is double tapped'''
         if platform in ('linux', 'win'):
             if touch.is_double_tap:
                 if self.full_screen_check:
@@ -27,6 +33,7 @@ class VideoFrame(BoxLayout):
                             self.maximize_full_screen()
 
     def maximize_borderless_toggle(self):
+        '''Toggles window maximize'''
         if self.maximized:
             Window.restore()
             self.maximized = False
@@ -35,6 +42,7 @@ class VideoFrame(BoxLayout):
             self.maximized = True
 
     def maximize_full_screen(self):
+        '''Toggles window full screen'''
         if self.maximized:
             Window.fullscreen = False
             self.maximized = False

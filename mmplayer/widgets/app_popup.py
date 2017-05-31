@@ -6,6 +6,9 @@ from kivy.lang import Builder
 
 
 class AppPopup(hover_behavior.HoverBehavior, Popup):
+    '''A special Popup class that integrates with kivy_soil hover_behavior
+    and increases hover_behavior.min_hover_height when it is opened'''
+
     hover_height = 20
     grab_keys = [keys.ESC]
 
