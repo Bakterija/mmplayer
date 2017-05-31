@@ -120,14 +120,16 @@ class BasePlaylist(EventDispatcher):
         templist = []
         time0 = time()
         if os.path.isfile(path):
-            return [self.get_default_media_dict(path)]
-
-        for dirname, dirnames, filenames in os.walk(path):
-            for file_name in filenames:
-                file_path = os.path.join(dirname, file_name)
-                new_file = self.get_default_media_dict(file_path)
-                if new_file:
-                    templist.append(new_file)
+            media_dict = self.get_default_media_dict(path)
+            if media_dict:
+                templist = [media_dict]
+        else:
+            for dirname, dirnames, filenames in os.walk(path):
+                for file_name in filenames:
+                    file_path = os.path.join(dirname, file_name)
+                    new_file = self.get_default_media_dict(file_path)
+                    if new_file:
+                        templist.append(new_file)
         # if sort == 'abc':
         #     templist
         if time() - time0 > 1.0:
@@ -136,6 +138,9 @@ class BasePlaylist(EventDispatcher):
         return templist
 
     def get_default_media_dict(self, file_path):
+        '''Returns a media dict with unicode values,
+        if file extension is in self.allowed_extensions,
+        otherwise returns nothing'''
         file_name = os.path.basename(file_path)
         _fp, file_ext = os.path.splitext(file_path)
         if file_ext not in self.allowed_extensions:
