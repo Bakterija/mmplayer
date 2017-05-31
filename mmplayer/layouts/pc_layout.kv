@@ -1,0 +1,153 @@
+#: include layouts/app_style.kv
+#: import MultiLineLabel widgets.multi_line_label.MultiLineLabel
+#: import SideBarRecycleView rv_sidebar.sidebar.SideBarRecycleView
+#: import PlayBackBar playback_bar.playback_bar.PlayBackBar
+#: import ResizableBoxLayout widgets.resizable_boxlayout.ResizableBoxLayout
+#: import SmallVideo widgets.small_video.SmallVideo
+#: import InfoWidget kivy_soil.info_widget.InfoWidget
+#: import AppMenu other.garden_contextmenu.AppMenu
+#: import AppMenuTextItem other.garden_contextmenu.AppMenuTextItem
+#: import ContextMenu other.garden_contextmenu.ContextMenu
+#: import ContextMenuTextItem other.garden_contextmenu.ContextMenuTextItem
+#: import TerminalWidget widgets.terminal_widget.TerminalWidget
+
+
+<Jotube>:
+    side_bar_width: int(cm(4))
+    upper_bar_height: app.mlayout.button_height
+    lower_bar_height: app.mlayout.playback_bar_height
+    lower_bar_offset_y: 0
+    side_bar_offset_x: 0
+    upper_bar_offset_y: 0
+    sm_area_width: self.width - sidebar.width
+    sm_area_height: self.height - self.upper_bar_height - self.lower_bar_height
+
+    BoxLayout:
+        id: sm_area
+        size_hint: None, None
+        canvas.before:
+            Color:
+                rgba: app.mtheme.background0
+            Rectangle:
+                size: self.size
+                pos: self.pos
+    Label:
+        id: playlisthint
+        font_size: int(self.height * 0.16)
+        size_hint: None, None
+        size: sm_area.width * 0.5, sm_area.height * 0.3
+        center: sm_area.center
+
+    ResizableBoxLayout:
+        id: sidebar
+        resizable_right: True
+        orientation: 'vertical'
+        size_hint: None, None
+        size: cm(4), root.sm_area_height
+        min_resizable_width: root.side_bar_width
+        max_resizable_width: self.min_resizable_width * 2
+        pos: 0 - root.side_bar_offset_x, root.lower_bar_height
+        resizable_border: int(cm(0.5))
+        resizable_border_offset: int(cm(0.4))
+        canvas.before:
+            Color:
+                rgb: app.mtheme.bar_color
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        SideBarRecycleView:
+            height: self.parent.height - button_height
+            data: root.sidebar_items
+            opened_path: root.media_control.cur_viewed_playlist.path if root.media_control.cur_viewed_playlist else ''
+            played_path: root.media_control.cur_played_playlist.path if root.media_control.cur_played_playlist else ''
+        Button:
+            text: 'Add playlist'
+            size_hint_y: None
+            height: button_height15
+            font_size: int(self.height * 0.4)
+            text_size: self.width * 0.8, None
+            # background_normal: 'data/grey_dark.png'
+            on_release: root.mgui_add_playlist()
+            canvas.after:
+                Color:
+                    rgb: app.mtheme.bar_border
+                Line:
+                    points: self.x, self.top, self.right, self.top
+                Line:
+                    points: self.x, self.y + 1, self.right, self.y + 1
+
+    BoxLayout:
+        id: lower_bar
+        size_hint: 1, None
+        height: root.lower_bar_height
+        pos: 0, 0 - root.lower_bar_offset_y
+        PlayBackBar:
+            id: playback_bar
+
+    BoxLayout:
+        id: upper_bar
+        size_hint: 1, None
+        orientation: 'horizontal'
+        height: root.upper_bar_height
+        pos: 0, root.height - root.upper_bar_height + root.upper_bar_offset_y
+        canvas:
+            Color:
+                rgb: app.mtheme.bar_color
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        Label:
+            size_hint_x: 0.6
+            text_size: self.width, None
+            font_size: int(self.height * 0.5)
+            padding: int(cm(0.1)), 0
+            shorten: True
+            text: '{}: {}'.format(root.media_control.playing_state, root.media_control.playing_name)
+        Widget:
+            size_hint_x: 0.3
+        # FocusButtonEmpty:
+        #     size_hint_x: None
+        #     width: self.height
+            # on_press: root.mgui_open_settings()
+            # on_press: app.mtheme.randomize()
+            # canvas:
+            #     Color:
+            #         rgba: app.mtheme.col_btn_down if self.state == 'down' else app.mtheme.col_btn_normal
+            #     Rectangle:
+            #         source: 'data/material/more.png'
+            #         size: self.size
+            #         pos: self.pos
+
+    Widget:
+        canvas.after:
+            Color:
+                rgb: app.mtheme.bar_border
+            Line:
+                points: upper_bar.pos[0], upper_bar.pos[1], upper_bar.width, upper_bar.pos[1]
+            Line:
+                points: lower_bar.pos[0], lower_bar.pos[1] + lower_bar.height, lower_bar.width, lower_bar.pos[1] + lower_bar.height
+            Line:
+                points: sidebar.width + sidebar.pos[0], sidebar.pos[1], sidebar.width + sidebar.pos[0], sidebar.pos[1] + sidebar.height
+
+    SmallVideo:
+        id: video_small
+        pos: root.width - self.offset_x, root.lower_bar_height + button_height
+        size_hint: None, None
+        size: root.width * 0.25, root.height * 0.25
+        offset_x_in: self.width + button_height
+        canvas.before:
+            Color:
+                rgba: 0.1, 0.1, 0.1, 0.8
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+    TerminalWidget:
+        id: terminal_widget
+        size: root.width, root.height * 0.4
+        pos: 0, root.height - (self.pos_multiplier * self.height)
+
+    InfoWidget:
+        id: info_widget
+        width: cm(8)
+        pos: root.width - self.width - dp(20), root.height - self.height - dp(20)
