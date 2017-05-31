@@ -28,6 +28,7 @@ Builder.load_string('''
 ''')
 
 class InfoLabel(HoverBehavior, Label):
+    '''Notification display widget'''
     ttl = NumericProperty(2)
     tp = StringProperty('info')
     col_bg = ListProperty([0.2, 0.2, 0.2])
@@ -90,6 +91,7 @@ class InfoLabel(HoverBehavior, Label):
 
 
 class InfoWidget(BoxLayout):
+    '''Notification display layout'''
     colors = {
         'error': [0.7, 0.3, 0.3],
         'warning': [0.6, 0.6, 0.3],
@@ -101,7 +103,7 @@ class InfoWidget(BoxLayout):
     font_size = sp(16)
     last_label = {'time': 0.0, 'ttl': 0.0}
 
-    def add_label(self, **kwargs):
+    def _add_label(self, **kwargs):
         timenow = int(time())
         self.msg_log.append(
             {'time':timenow, 'type':kwargs['tp'], 'message':kwargs['text']})
@@ -113,10 +115,10 @@ class InfoWidget(BoxLayout):
         self.last_label['ttl'] = kwargs['ttl']
 
     def error(self, message, ttl=default_ttl):
-        self.add_label(ttl=ttl, tp='error', text=message)
+        self._add_label(ttl=ttl, tp='error', text=message)
 
     def warning(self, message, ttl=default_ttl):
-        self.add_label(ttl=ttl, tp='warning', text=message)
+        self._add_label(ttl=ttl, tp='warning', text=message)
 
     def info(self, message, ttl=default_ttl):
-        self.add_label(ttl=ttl, tp='info', text=message)
+        self._add_label(ttl=ttl, tp='info', text=message)

@@ -129,6 +129,7 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
         media_context_menu.open_menu(self, widget, index, pos)
 
     def get_selected_data(self):
+        '''Returns list with data dicts that contain selected data'''
         return [self.data[i] for i in self.children[0].selected_widgets]
 
     def update_data_from_filter(self, *args):
@@ -195,12 +196,16 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
         self.scroll_y = skrol
 
     def find_playing(self):
+        '''Finds dict in list where state == 'playing',
+        returns -1 if not found'''
         for i, x in enumerate(self.data):
             if x['state'] == 'playing':
                 return i
         return -1
 
     def find_view_with_path(self, path):
+        '''Finds child that has path from argument,
+        returns nothing if not found'''
         for x in self.children[0].children:
             if x.path == path:
                 return x

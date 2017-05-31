@@ -98,6 +98,7 @@ class MediaPropertiesDialog(FocusBehaviorCanvas, AppPopup):
             self.ids.open_fld_button, self.ids.copy_path_button]
 
     def add_content_widgets(self, media_dict):
+        '''Find all important information and add widgets to self'''
         grid = self.ids.grid
         for k, v in media_dict.items():
             if k in self.ignored_properties:
@@ -126,6 +127,7 @@ class MediaPropertiesDialog(FocusBehaviorCanvas, AppPopup):
                             grid.add_widget(MediaPropertiesDialogText(k, val))
 
     def open_cont_dir(self):
+        '''Open directory that contains file'''
         open_directory(self.containing_directory)
 
     def dismiss(self):

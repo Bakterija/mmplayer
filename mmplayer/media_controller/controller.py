@@ -89,12 +89,14 @@ class MediaController(Widget):
         self.refresh_queue_view()
 
     def on_mplayer_video(self, value, player=None):
+        '''Updates self.playing_video property when video starts/stops'''
         if value:
             self.playing_video = True
         else:
             self.playing_video = False
 
     def on_playlist_media(self, playlist, media):
+        '''Updates playlist view when playlist changes'''
         if playlist.path == self.cur_viewed_playlist.path:
             self.view_playlist.update_data()
 
@@ -108,7 +110,8 @@ class MediaController(Widget):
         widget.mcontrol = self
 
     def start_playlist_from_index(self, name, path, index, id, btn):
-        '''Triggered when user touches a MediaButton in playlist'''
+        '''Add selected index and all indexes after it into queue,
+        then start playing'''
         self.mplayer.reset()
         self.cur_played_playlist = self.cur_viewed_playlist
         new_queue = list(self.view_playlist.data[index:])
@@ -117,10 +120,11 @@ class MediaController(Widget):
         stat = self.mplayer.start(0)
 
     def start_queue(self, index):
-        '''Triggered when user touches a MediaButton in queue'''
+        '''Start playing queue at index argument'''
         stat = self.mplayer.start(index)
 
     def start_selection(self, new_queue, cur_playlist=None):
+        '''Add list of dicts into queue and start playing at index 0'''
         self.mplayer.reset()
         if cur_playlist:
             self.cur_played_playlist = cur_playlist
@@ -129,11 +133,13 @@ class MediaController(Widget):
         self.start_queue(0)
 
     def add_to_queue(self, new_media):
+        '''Add media dicts at end of queue'''
         new_queue = self.mplayer.queue + new_media
         self.mplayer.queue = new_queue
         self.view_queue.set_data(new_queue)
 
     def queue_remove_indexes(self, index_list):
+        '''Remove media dicts from queue with index_list indexes'''
         for x in reversed(index_list):
             del self.mplayer.queue[x]
         self.view_queue.set_data(self.mplayer.queue)
@@ -141,10 +147,12 @@ class MediaController(Widget):
             len(index_list)))
 
     def clear_queue(self, *args):
+        '''Clear queue and it's view'''
         self.mplayer.reset()
         self.view_queue.clear_data()
 
     def play_pause(self):
+        '''Toggle play and pause'''
         state = self.mplayer.get_state()
         if state in ('pause', 'stop'):
             self.mplayer.play()
@@ -152,12 +160,15 @@ class MediaController(Widget):
             self.mplayer.pause()
 
     def play_next(self):
+        '''Play next in mplayer queue'''
         self.mplayer.next()
 
     def play_previous(self):
+        '''Play previous in mplayer queue'''
         self.mplayer.previous()
 
     def jump_to_current_index(self, screen):
+        '''Move view to currently played media'''
         Logger.info('MediaController: jump_to_current_index(%s)' % (screen))
         if screen == 'playlist':
             pl = self.view_playlist
@@ -174,6 +185,8 @@ class MediaController(Widget):
 
     @staticmethod
     def find_playing(playlist):
+        '''Finds dict in list where state == 'playing',
+        returns -1 nothing if not found'''
         for i, x in enumerate(playlist):
             if x['state'] == 'playing':
                 return i
@@ -185,6 +198,8 @@ class MediaController(Widget):
         self.view_queue.refresh_from_data()
 
     def update_seek(self, *arg):
+        '''Updates playing_seek_value, playing_seek_max properties and
+        playing_state'''
         pos = self.mplayer.get_mediaPos()
         dur = self.mplayer.get_mediaDur()
         self.playing_state = self.mplayer.get_state()
@@ -198,11 +213,13 @@ class MediaController(Widget):
             self.playing_seek_max = dur
 
     def on_video_resize(self, size):
+        '''Updates videoframe size when video size changes'''
         if self.playing_video:
             if self.videoframe and self.videoframe_is_visible:
                 self.videoframe.children[0].size = size
 
     def on_playing_video(self, _, value):
+        '''Adds/removes small video widget when video starts/stops'''
         if not self.videoframe_small:
             Logger.error(''.join((
                 'MediaController: on_playing_video:',
@@ -214,6 +231,7 @@ class MediaController(Widget):
                 self.video_hide()
 
     def video_show(self, widget):
+        '''Adds video to small or big layout'''
         if self.videoframe and self.videoframe_is_visible:
             self.videoframe.add_widget(widget)
         else:
@@ -221,6 +239,7 @@ class MediaController(Widget):
             self.videoframe_small.animate_in()
 
     def video_hide(self):
+        '''Removes video from layout'''
         if self.videoframe:
             self.videoframe.clear_widgets()
         if self.videoframe_small:
@@ -228,6 +247,7 @@ class MediaController(Widget):
             self.videoframe_small.animate_out()
 
     def on_videoframe_is_visible(self, obj, val):
+        '''Moves video from small videoframe and video screen'''
         if val:
             if self.videoframe_small.children:
                 temp = self.videoframe_small.children[0]
@@ -242,6 +262,7 @@ class MediaController(Widget):
             self.videoframe_small.animate_in()
 
     def on_dropfile(self, path, mouse_pos=None, playlist=None):
+        '''Adds dropped files into playlists'''
         Logger.info(
             '{}: on_dropfile: path:{} mouse_pos:{} playlist:{}'.format(
                 self.__class__.__name__, path, mouse_pos, playlist))
@@ -309,6 +330,7 @@ class MediaController(Widget):
             print('playlist not in ids', id, self.playlist_ids)
 
     def on_media_info_update(self, path, info):
+        '''Update widget media info when media_info package parsed new info'''
         pl = self.view_playlist.find_view_with_path(path)
         que = self.view_queue.find_view_with_path(path)
         if pl:
