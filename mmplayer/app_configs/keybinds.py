@@ -13,11 +13,17 @@ class Config(ConfigBase):
     @staticmethod
     def load_after(root):
         app = App.get_running_app()
-        # kb_system.log_keys = True
+        kb_system.log_keys = True
 
-        kb_system.add('theme_randomize', 268, 'down', app.mtheme.randomize)
-        kb_system.add('gui_scale+', 270, 'down', app.mlayout.increase_scale)
-        kb_system.add('gui_scale-', 269, 'down', app.mlayout.decrease_scale)
+        kb_system.add(
+            'theme_randomize', keys.NUM_MULTIPLY, 'down', app.mtheme.randomize)
+        kb_system.add(
+            'gui_scale+', keys.NUM_PLUS, 'down', app.mlayout.increase_scale)
+        kb_system.add(
+            'gui_scale-', keys.NUM_MINUS, 'down', app.mlayout.decrease_scale)
+
+        kb_system.add('add_playlist', keys.N, 'down',
+                      root.mgui_add_playlist, modifier=['ctrl'])
 
         kb_system.add('quit', keys.ESC, 'down', app.kb_esc)
         kb_system.add(
@@ -69,5 +75,6 @@ class Config(ConfigBase):
             'play_pause_toggle', keys.SPACE, 'down',
             root.media_control.play_pause)
 
-        kb_system.add('toggle_terminal', keys.TILDE, 'down',
-                           root.ids.terminal_widget.toggle_pos_multiplier)
+        kb_system.add(
+            'toggle_terminal', keys.TILDE, 'down',
+            root.ids.terminal_widget.toggle_pos_multiplier)

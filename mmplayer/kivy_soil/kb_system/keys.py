@@ -22,7 +22,10 @@ N8 = 56
 N9 = 57
 
 A = 97
+B = 98
+M = 109
 D = 100
+N = 110
 S = 115
 
 TILDE = 96
@@ -31,6 +34,10 @@ J = 106
 L = 108
 
 DEL = 127
+
+NUM_MULTIPLY = 268
+NUM_MINUS = 269
+NUM_PLUS = 270
 
 ENTER = 271
 

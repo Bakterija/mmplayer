@@ -8,6 +8,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.metrics import dp, cm
 from kivy.lang import Builder
+from kivy.clock import Clock
 import global_vars as gvars
 from kivy.app import App
 
@@ -56,13 +57,14 @@ class CreatePlaylistPopup(FocusBehaviorCanvas, AppPopup):
         mcontrol.create_playlist(text)
         self.dismiss()
 
+    def open(self, *args):
+        Clock.schedule_once(self.focus_input, 0)
+        super(CreatePlaylistPopup, self).open(*args)
+
+    def focus_input(self, *a):
+        self.ids.inp.focus_widget()
+
     def dismiss(self):
         super(CreatePlaylistPopup, self).dismiss()
         self.remove_from_focus(prev_focus=True)
         self.parent.remove_widget(self)
-
-    @staticmethod
-    def open_diag(media_dict):
-        dialog = CreatePlaylistPopup(media_dict)
-        dialog.open()
-        return dialog

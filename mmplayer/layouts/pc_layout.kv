@@ -105,18 +105,18 @@
             text: '{}: {}'.format(root.media_control.playing_state, root.media_control.playing_name)
         Widget:
             size_hint_x: 0.3
-        FocusButtonEmpty:
-            size_hint_x: None
-            width: self.height
+        # FocusButtonEmpty:
+        #     size_hint_x: None
+        #     width: self.height
             # on_press: root.mgui_open_settings()
-            on_press: app.mtheme.randomize()
-            canvas:
-                Color:
-                    rgba: app.mtheme.col_btn_down if self.state == 'down' else app.mtheme.col_btn_normal
-                Rectangle:
-                    source: 'data/material/more.png'
-                    size: self.size
-                    pos: self.pos
+            # on_press: app.mtheme.randomize()
+            # canvas:
+            #     Color:
+            #         rgba: app.mtheme.col_btn_down if self.state == 'down' else app.mtheme.col_btn_normal
+            #     Rectangle:
+            #         source: 'data/material/more.png'
+            #         size: self.size
+            #         pos: self.pos
 
     Widget:
         canvas.after:

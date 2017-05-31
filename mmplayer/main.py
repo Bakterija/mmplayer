@@ -285,7 +285,7 @@ class JotubeApp(App):
             self.root_widget.display_info('Double press escape to quit')
         self.escape_presses += 1
         Clock.unschedule(self.reset_escape_presses)
-        Clock.schedule_once(self.reset_escape_presses, 0.4)
+        Clock.schedule_once(self.reset_escape_presses, 0.5)
 
     def reset_escape_presses(self, *args):
         self.escape_presses = 0
