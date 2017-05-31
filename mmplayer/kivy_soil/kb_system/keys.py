@@ -4,6 +4,12 @@ RETURN = 13
 ESC = 27
 SPACE = 32
 
+PLUS = 43
+COMMA = 44
+MINUS = 45
+PERIOD = 46
+SLASH = 47
+
 N0 = 48
 N1 = 49
 N2 = 50
@@ -16,6 +22,8 @@ N8 = 56
 N9 = 57
 
 A = 97
+D = 100
+S = 115
 
 TILDE = 96
 

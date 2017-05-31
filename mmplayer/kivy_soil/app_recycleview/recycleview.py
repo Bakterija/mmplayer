@@ -1,21 +1,33 @@
 from kivy.properties import ListProperty, StringProperty, BooleanProperty
 from kivy.uix.recycleview import RecycleView
+from kivy.animation import Animation
+from operator import itemgetter
 from kivy.clock import Clock
 from kivy.metrics import dp
-from kivy.animation import Animation
 
 
 class AppRecycleView(RecycleView):
     reverse_sorting = BooleanProperty(False)
     filter_text = StringProperty()
+    '''StringProperty that is used to filter text,
+    self.update_data_from_filter() is called when it changes'''
+
+    filter_keys = ListProperty()
+    '''ListProperty with update_data_from_filter method data keys'''
+
     sorting_key = StringProperty()
+    '''StringProperty is used in update_data_from_filter method for sorting'''
+
     data_full = ListProperty()
-    filter_keys = None
+    '''ListProperty that stores all widget data unsorted'''
+
 
     def __init__(self, **kwargs):
         super(AppRecycleView, self).__init__(**kwargs)
         self.fbind('reverse_sorting', self.update_data_from_filter)
         self.fbind('filter_text', self.update_data_from_filter)
+        self.fbind('filter_keys', self.update_data_from_filter)
+        self.fbind('sorting_key', self.update_data_from_filter)
 
     def set_data(self, data_full):
         self.data_full = data_full
@@ -31,9 +43,11 @@ class AppRecycleView(RecycleView):
         else:
             data = self.get_filtered_data(
                 self.data_full, self.filter_keys, self.filter_text)
+        data = self.sort_data(data, self.reverse_sorting, self.sorting_key)
         if self.children:
             self.children[0].on_data_update_sel(len(self.data), len(data))
         self.data = data
+        self.refresh_from_data()
 
     @staticmethod
     def get_filtered_data(data, filter_keys, find_text):
@@ -56,7 +70,16 @@ class AppRecycleView(RecycleView):
                     if value.lower().find(find_text) != -1:
                         templist.append(item)
                         break
+
         return templist
+
+    @staticmethod
+    def sort_data(data, reverse_sorting, sorting_key):
+        if sorting_key:
+            data = sorted(data, key=itemgetter(sorting_key))
+            if reverse_sorting:
+                data = list(reversed(data))
+        return data
 
     def scroll_to_start(self):
         self.scroll_y = 1.0
