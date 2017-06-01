@@ -14,6 +14,8 @@ import media_info
 
 
 class MediaController(Widget):
+    playlist_ids = DictProperty()
+
     playlists = DictProperty()
     '''DictProperty with sections with lists of playlist objects'''
 
@@ -297,7 +299,6 @@ class MediaController(Widget):
 
     def reset_playlists(self, *args):
         time0 = time()
-        self.playlist_ids = {}
         pl = playlist_loader.load_from_directories((
             'media/playlists/', gvars.DIR_PLAYLISTS))
         self.playlists = pl

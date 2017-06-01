@@ -1,3 +1,11 @@
+<ScrollView>:
+    scroll_timeout: 0
+    scroll_type: ['bars', 'content']
+    bar_width: app.mlayout.scrollbar_width
+    scroll_wheel_distance: scroll_wheel_distance
+    bar_color: app.mtheme.scrollbar
+    bar_inactive_color: app.mtheme.scrollbar_inactive
+
 <RecycleView>:
     canvas.before:
         Color:
@@ -16,13 +24,6 @@
     height: app.mlayout.button_height
     background_color: app.mtheme.bar_border
     text_color: app.mtheme.col_text
-
-<ScrollView>:
-    scroll_type: ['bars', 'content']
-    bar_width: app.mlayout.scrollbar_width
-    scroll_wheel_distance: scroll_wheel_distance
-    bar_color: app.mtheme.scrollbar
-    bar_inactive_color: scrollbar_inactive_color
 
 <CompatTextInput>:
     font_size: app.mlayout.button_height05

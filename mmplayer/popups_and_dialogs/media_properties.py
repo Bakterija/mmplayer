@@ -23,20 +23,20 @@ Builder.load_string('''
 <MediaPropertiesDialogText>:
     orientation: 'horizontal'
     size_hint: 1, None
-    height: lbl2.height
+    height: tinput.height
     Label:
-        id: lbl1
+        id: label
         size_hint_x: None
-        width: int(root.width * 0.3)
+        width: int(root.width * 0.2)
         valign: 'top'
-        height: lbl2.height
+        height: tinput.height
         text_size: self.size
         text: root.t_key
 
-    TextInput2:
-        id: lbl2
+    CompatTextInput:
+        id: tinput
         size_hint: None, None
-        width: int(root.width * 0.7)
+        width: int(root.width * 0.8)
         text_size: self.width, None
         height: self.minimum_height
         text_size: self.width, None
@@ -51,7 +51,7 @@ Builder.load_string('''
 <MediaPropertiesDialog>:
     size_hint: 0.8, 0.7
     title: 'Media properties dialog'
-    ScrollView2:
+    ScrollView:
         id: scroller
         do_scroll_x: False
         BoxLayout:
@@ -122,12 +122,11 @@ class MediaPropertiesDialog(FocusBehaviorCanvas, AppPopup):
         '''
         grid = self.ids.grid
         # Adds key and value pairs from media_dict argument
+        button_list = []
         for k, v in media_dict.items():
             if k in self.ignored_properties:
                 continue
-            btn = MediaPropertiesDialogText(k, v)
-            btn.ids.lbl2.scroller = self.ids.scroller
-            grid.add_widget(btn)
+            button_list.append((k, v))
 
         # Attempts to get and add file tags
         # and other important information from global media cache
@@ -139,22 +138,21 @@ class MediaPropertiesDialog(FocusBehaviorCanvas, AppPopup):
             mc = media_cache.get(mpath, None)
             if mc:
                 duration = mc.get('duration', None)
-                print('IR MC', duration)
                 if duration:
                     duration = seconds_to_minutes_hours(duration)
-                    btn = MediaPropertiesDialogText('duration', duration)
-                    btn.ids.lbl2.scroller = self.ids.scroller
-                    grid.add_widget(btn)
+                    button_list.append(('duration', duration))
                 mc_format = mc.get('format', None)
                 if mc_format:
                     for k, v in mc_format.items():
-                    # for k in ('artist', 'title', 'album', 'genre', 'date'):
-                        # tagtext = ''.join(('TAG:', k))
                         if k[:4] == 'TAG:':
                             k = k[4:]
-                            btn = MediaPropertiesDialogText(k, v)
-                            btn.ids.lbl2.scroller = self.ids.scroller
-                            grid.add_widget(btn)
+                            button_list.append((k, v))
+        for k, v in button_list:
+            btn = MediaPropertiesDialogText(k, v)
+            tinput = btn.ids.tinput
+            tinput.is_subfocus = True
+            self.subfocus_widgets.insert(-2, tinput)
+            grid.add_widget(btn)
 
     def open_cont_dir(self):
         '''Open directory that contains file'''

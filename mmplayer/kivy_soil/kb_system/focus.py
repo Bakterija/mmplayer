@@ -51,7 +51,7 @@ def find_next_focusable(widget_list):
     '''Searches a list, finds currently focused widget
     and next widget with self.is_focusable set to. Returns both
     '''
-    len_widgets = len(focusable_widgets)
+    len_widgets = len(widget_list)
     previous = (-1, None)
     new = (-1, None)
     for i, widget in enumerate(widget_list):

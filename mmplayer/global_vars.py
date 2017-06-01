@@ -132,7 +132,7 @@ class LayoutManager(EventDispatcher):
 class ThemeManager(EventDispatcher):
     '''Global EventDispatcher for theme color values,
     almost all widgets bind on it's properties'''
-    
+
     col_btn_normal = ListProperty(col_dgrey)
     col_btn_down = ListProperty(col_satblue2)
 
@@ -149,6 +149,7 @@ class ThemeManager(EventDispatcher):
     col_text = ListProperty([0.9, 0.9, 0.9, 1])
     col_text_disabled = ListProperty([0.5, 0.5, 0.5, 1])
     scrollbar = ListProperty(scrollbar_color)
+    scrollbar_inactive = ListProperty(scrollbar_inactive_color)
     scrollbar_background = ListProperty(col_ncolbg)
 
     def randomize(self):
