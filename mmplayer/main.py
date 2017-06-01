@@ -67,12 +67,18 @@ class Jotube(LayoutMethods, FloatLayout):
             'sidebar_loader', media_controller, playlists)
 
     def on_dropfile(self, win, path):
-        '''Is called when a file is dropped on the window'''
+        '''Appends dropped file to self.dropped_files
+        and schedules _on_dropfile_after() for next frame.
+        App is blocking and nothing else is done
+        before this method is called for all dropped files'''
         self.dropped_files.append(get_unicode(path))
-        Clock.unschedule(self.on_dropfile_after)
-        Clock.schedule_once(self.on_dropfile_after, 0)
+        Clock.unschedule(self._on_dropfile_after)
+        Clock.schedule_once(self._on_dropfile_after, 0)
 
-    def on_dropfile_after(self, *args):
+    def _on_dropfile_after(self, *args):
+        '''Is called from Clock schedule when all dropped files have been
+        appended to self.dropped_files. Creates a file drop notification
+        and calls self.add_dropped_files()'''
         len_dropped_files = len(self.dropped_files)
         if len_dropped_files > 1:
             droptext = 'Dropped %s files' % (len_dropped_files)
@@ -82,6 +88,8 @@ class Jotube(LayoutMethods, FloatLayout):
         Clock.schedule_once(self.add_dropped_files, 0)
 
     def add_dropped_files(self, *args):
+        '''Gets mouse position and selected playlist, then
+        calls self.media_control.on_dropfile() to add new file to playlist'''
         screen = self.manager.current
         if screen in ('media', 'queue'):
             if screen == 'queue':
@@ -112,13 +120,15 @@ class Jotube(LayoutMethods, FloatLayout):
         super(Jotube, self).on_video_screen(*args)
 
     def display_info(self, text):
+        '''Displays info notification'''
         self.ids.info_widget.info(text)
 
     def display_warning(self, text):
+        '''Displays warning notification'''
         self.ids.info_widget.warning(text)
 
     def on_error(self, error):
-        '''For showing errors in GUI'''
+        '''Displays error notification'''
         self.ids.info_widget.error(error)
 
     def set_mplayer_volume(self, value):
@@ -170,6 +180,7 @@ class Jotube(LayoutMethods, FloatLayout):
             self.media_control.view_playlist.filter_text = text
 
     def jump_to_current(self):
+        '''Calls media_control.jump_to_current_index()'''
         screen = self.manager.current
         if screen in 'media':
             self.media_control.jump_to_current_index('playlist')
@@ -257,7 +268,11 @@ class Jotube_SM(ScreenManager):
 
 class JotubeApp(App):
     mlayout = global_vars.layout_manager
+    '''Global layout manager'''
+
     mtheme = global_vars.theme_manager
+    '''Global theme manager'''
+
     root_widget = None
     escape_presses = 0
     '''Tracks escape press counts for kb_quit method'''
@@ -291,6 +306,7 @@ class JotubeApp(App):
         pass
 
     def kb_esc(self):
+        '''Updates self.escape_presses, quits app when reached target value'''
         if self.escape_presses == 1:
             self.stop()
         else:
