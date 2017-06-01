@@ -14,11 +14,8 @@ import global_vars as gvars
 
 Builder.load_string('''
 #: import ConditionLayout widgets.condition_layout.ConditionLayout
-#: import FocusButton widgets.focus_button.FocusButton
+#: import FocusButtonScroller widgets.focus_button.FocusButtonScroller
 #: import Clipboard kivy.core.clipboard.Clipboard
-#: import TextInput2 widgets.textinput2.TextInput2
-#: import ScrollView2 widgets.scrollview2.ScrollView2
-
 
 <MediaPropertiesDialogText>:
     orientation: 'horizontal'
@@ -33,7 +30,7 @@ Builder.load_string('''
         text_size: self.size
         text: root.t_key
 
-    CompatTextInput:
+    CompatTextInputScroller:
         id: tinput
         size_hint: None, None
         width: int(root.width * 0.8)
@@ -73,13 +70,15 @@ Builder.load_string('''
                 height: app.mlayout.button_height
                 condition: True if root.containing_directory else False
                 spacing: app.mlayout.spacing * 4
-                FocusButton:
+                FocusButtonScroller:
                     id: open_fld_button
+                    scroll_when_focused: scroller
                     is_subfocus: True
                     text: 'Open containing directory'
                     on_release: root.open_cont_dir()
-                FocusButton:
+                FocusButtonScroller:
                     id: copy_path_button
+                    scroll_when_focused: scroller
                     is_subfocus: True
                     text: 'Copy path'
                     on_release: Clipboard.copy(root.mpath)
@@ -151,6 +150,7 @@ class MediaPropertiesDialog(FocusBehaviorCanvas, AppPopup):
             btn = MediaPropertiesDialogText(k, v)
             tinput = btn.ids.tinput
             tinput.is_subfocus = True
+            tinput.scroll_when_focused = self.ids.scroller
             self.subfocus_widgets.insert(-2, tinput)
             grid.add_widget(btn)
 

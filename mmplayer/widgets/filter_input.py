@@ -7,13 +7,13 @@ from kivy.lang import Builder
 
 Builder.load_string('''
 <FilterInputBox>:
-    orientation: 'horizontal'
-    canvas.before:
-        Color:
-            rgba: self.background_color
-        Rectangle:
-            pos: self.pos
-            size: self.size
+    # orientation: 'horizontal'
+    # canvas.before:
+    #     Color:
+    #         rgba: self.background_color
+    #     Rectangle:
+    #         pos: self.pos
+    #         size: self.size
     CompatTextInput:
         id: filter_input
         size_hint: 1, 1
@@ -21,9 +21,7 @@ Builder.load_string('''
         background_active: ''
         background_normal: ''
         background_disabled_normal: ''
-        text_color: root.text_color
         border: 0, 0, 0, 0
-        cursor_color: root.text_color
         markup: True
         foreground_color: root.text_color
         font_size: int(self.height * 0.5)
