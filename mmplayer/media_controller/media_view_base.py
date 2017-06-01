@@ -5,7 +5,7 @@ from kivy_soil.app_recycleview import AppRecycleViewClass
 from kivy_soil.kb_system.canvas import FocusBehaviorCanvas
 from kivy_soil.hover_behavior import HoverBehavior
 from utils import not_implemented, seconds_to_minutes_hours
-from .dialog_properties import MediaPropertiesDialog
+from popups_and_dialogs.media_properties import MediaPropertiesDialog
 from popups_and_dialogs import media_context_menu
 from kivy.uix.behaviors import ButtonBehavior
 from behaviors.button2 import ButtonBehavior2
