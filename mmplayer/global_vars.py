@@ -16,33 +16,49 @@ else:
 
 
 def __set_app_globals__():
-    col_grey = (0.4, 0.4, 0.4, 1)
-    col_dgrey = (0.22, 0.22, 0.22, 1)
-    col_ddgrey = (0.17, 0.17, 0.17, 1)
-    col_bgrey = (0.83, 0.83, 0.83, 1)
+    col_grey =           (0.40, 0.40, 0.40, 1)
+    col_dgrey =          (0.22, 0.22, 0.22, 1)
+    col_ddgrey =         (0.17, 0.17, 0.17, 1)
+    col_bgrey =          (0.83, 0.83, 0.83, 1)
 
-    col_blue = (0.3, 0.4, 0.5, 1)
-    col_bblue = (0.35, 0.45, 0.55, 1)
+    col_blue =           (0.30, 0.40, 0.50, 1)
+    col_bblue =          (0.35, 0.45, 0.55, 1)
     col_bblue_transp06 = (0.35, 0.45, 0.55, 0.6)
-    col_bbblue = (0.5, 0.6, 0.7, 1)
-    col_bbbblue = (0.55, 0.65, 0.8, 1)
-    col_dblue = (0.25, 0.35, 0.45, 1)
-    col_dblue2 = (0.15, 0.25, 0.35, 1)
-    col_satblue = (0.15, 0.25, 0.60, 1)
-    col_satblue2 = (0.50, 0.50, 1, 1)
-    col_satblue_dark = (0.22, 0.28, 0.50, 1)
+    col_bbblue =         (0.50, 0.60, 0.70, 1)
+    col_bbbblue =        (0.55, 0.65, 0.80, 1)
+    col_dblue =          (0.25, 0.35, 0.45, 1)
+    col_dblue2 =         (0.15, 0.25, 0.35, 1)
+    col_satblue =        (0.15, 0.25, 0.60, 1)
+    col_satblue2 =       (0.50, 0.50, 1.00, 1)
+    col_satblue_dark =   (0.22, 0.28, 0.50, 1)
 
-    col_green = (0.3, 0.5, 0.4, 1)
-    col_bgreen = (0.35, 0.55, 0.45, 1)
-    col_satgreen = (0.15, 0.60, 0.25, 1)
+    col_green =          (0.30, 0.50, 0.40, 1)
+    col_bgreen =         (0.35, 0.55, 0.45, 1)
+    col_satgreen =       (0.15, 0.60, 0.25, 1)
 
-    col_white = (0.9, 0.9, 0.9, 1)
-    col_black = (0.1, 0.1, 0.1, 1)
-    col_red = (0.8, 0.2, 0.2, 1)
-    col_orange = (0.9, 0.6, 0.3, 1)
+    col_white =          (0.90, 0.90, 0.90, 1)
+    col_black =          (0.10, 0.10, 0.10, 1)
+    col_red =            (0.80, 0.20, 0.20, 1)
+    col_orange =         (0.90, 0.60, 0.30, 1)
 
-    col_ncolbg = (0.09, 0.09, 0.1, 1)
+    col_ncolbg =         (0.09, 0.09, 0.1, 1)
 
+    col_media_normal =   (0.20, 0.20, 0.40, 1)
+    col_media_playing =  (0.50, 0.15, 0.30, 1)
+    col_media_hover =    (0.40, 0.45, 0.40, 1)
+    col_media_selected = (0.2, 0.4, 0.7, 0.45)
+    col_media_disabled = (0.20, 0.20, 0.20, 1)
+    col_media_error =    (0.10, 0.05, 0.05, 1)
+    col_media_folder =   (0.20, 0.20, 0.20, 1)
+
+    app_background =     (0.10, 0.10, 0.10, 1)
+    border_color =       (0.20, 0.20, 0.20, 1)
+    side_bar_color =     app_background
+    scrollbar_color =    (0.4, 0.4, 0.4, 1)
+    scrollbar_inactive_color = (.4, .4, .4, .7)
+    scrollbar_background = col_ncolbg
+
+    scrollbar_width =    int(cm(0.5))
     button_height = int(cm(0.75))
     button_height20 = int(button_height * 2.0)
     button_height15 = int(button_height * 1.5)
@@ -57,17 +73,11 @@ def __set_app_globals__():
     default_spacing = 1
     scroll_wheel_distance = (rv_default_height + default_spacing) * 2
 
-    app_background = (0.10, 0.10, 0.10, 1)
-    border_color = (0.20, 0.20, 0.20, 1)
-    side_bar_color = app_background
-    scrollbar_width = int(cm(0.5))
-    scrollbar_color = (0.4, 0.4, 0.4, 1)
-    scrollbar_inactive_color = (.4, .4, .4, .7)
-    scrollbar_background = col_ncolbg
 
     globals().update(locals())
-    for attr, value in locals().items():
-        Builder.load_string('#: set %s %s' % (attr, value))
+    lc = locals().items()
+    bstring = '\n'.join(['#: set %s %s' % (attr, value) for attr, value in lc])
+    Builder.load_string(bstring)
 
 __set_app_globals__()
 
@@ -104,14 +114,6 @@ class LayoutManager(EventDispatcher):
     def set_defaults(self):
         for k, v in self.default_values.items():
             setattr(self, k , v)
-        # self.button_height = button_height
-        # self.button_height12 = button_height12
-        # self.button_height05 = button_height05
-        # self.button_height07 = button_height07
-        # self.scrollbar_width = scrollbar_width
-        # self.font_size = self.button_height05
-        # self.playback_bar_height = playback_bar_height
-        # self.spacing = 1
 
     def increase_scale(self):
         self.scale += 0.1
@@ -148,6 +150,14 @@ class ThemeManager(EventDispatcher):
     col_theme2 = ListProperty(col_orange)
     col_text = ListProperty([0.9, 0.9, 0.9, 1])
     col_text_disabled = ListProperty([0.5, 0.5, 0.5, 1])
+
+    media_normal = ListProperty(col_media_normal)
+    media_playing = ListProperty(col_media_playing)
+    media_hover = ListProperty(col_media_hover)
+    media_selected = ListProperty(col_media_selected)
+    media_disabled = ListProperty(col_media_disabled)
+    media_error = ListProperty(col_media_error)
+
     scrollbar = ListProperty(scrollbar_color)
     scrollbar_inactive = ListProperty(scrollbar_inactive_color)
     scrollbar_background = ListProperty(col_ncolbg)

@@ -54,7 +54,6 @@ class MediaController(Widget):
         self.mplayer.bind(on_start=self._on_mplayer_start)
         self.mplayer.bind(on_video=self.on_mplayer_video)
         self.skip_seek, self.seek_lock = 0, 0
-        # self.reset_playlists()
         Clock.schedule_interval(self.update_seek, 0.1)
         media_info.info_update_callback = self.on_media_info_update
         Clock.schedule_once(lambda *a: media_info.start_workers(2), 1)
@@ -69,7 +68,7 @@ class MediaController(Widget):
         media = state['cur_media']
         if self.last_media:
             if self.last_media['state'] == 'playing':
-                self.last_media['state'] = 'default'
+                self.last_media['state'] = 'normal'
 
         if 'id' in media:
             index = media['id']

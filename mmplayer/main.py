@@ -246,7 +246,7 @@ class Jotube(LayoutMethods, FloatLayout):
 
         # For testing
         def testfunc(*a):
-            self.media_control.open_playlist_by_id(4)
+            self.media_control.open_playlist_by_id(3)
             self.switch_screen('media')
         Clock.schedule_once(testfunc, 1)
 

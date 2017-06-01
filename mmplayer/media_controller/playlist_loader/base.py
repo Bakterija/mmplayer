@@ -49,6 +49,8 @@ class BasePlaylist(EventDispatcher):
         '.mpe', '.mpv', '.avi', '.flv', '.wav', '.mid', '.mv2', '.m4v'
         }
 
+    ignored_media_keys = ['state']
+
     def __init__(self, **kwargs):
         global next_id
         super(BasePlaylist, self).__init__(**kwargs)
@@ -63,7 +65,7 @@ class BasePlaylist(EventDispatcher):
 
     def remove_playing(self):
         if self.cur_playing != -1:
-            self.media[self.cur_playing]['state'] = 'default'
+            self.media[self.cur_playing]['state'] = 'normal'
             self.cur_playing = -1
 
     def update(self):
@@ -74,6 +76,12 @@ class BasePlaylist(EventDispatcher):
         self.path = path
         self.name = data['name']
         self.playlist_type = data['playlist_type']
+
+    def remove_ignored_keys(self):
+        for x in self.media:
+            for key in self.ignored_media_keys:
+                if key in x:
+                    del x[key]
 
     def add_path(self, path):
         '''Add file path to playlist'''
@@ -149,7 +157,7 @@ class BasePlaylist(EventDispatcher):
             'name': get_unicode(file_name),
             'ext': get_unicode(file_ext),
             'path': get_unicode(file_path),
-            'state': 'default'}
+            'state': 'normal'}
 
     def refresh_media_id(self, *args):
         '''Updates id numbers for all files in self.media ListProperty'''
