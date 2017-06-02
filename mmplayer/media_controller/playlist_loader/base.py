@@ -48,8 +48,9 @@ class BasePlaylist(EventDispatcher):
         '.m4a', '.mp4', '.mkv', '.mdl', '.mpg', '.mp2', '.mpeg',
         '.mpe', '.mpv', '.avi', '.flv', '.wav', '.mid', '.mv2', '.m4v'
         }
-
-    ignored_media_keys = ['state']
+    saved_media_keys = {
+        'ext', 'name', 'path', 'duration'
+        }
 
     def __init__(self, **kwargs):
         global next_id
@@ -58,15 +59,15 @@ class BasePlaylist(EventDispatcher):
         next_id += 1
         self.bind(media=self.refresh_media_id)
 
-    def set_playing(self, index):
-        self.remove_playing()
-        self.cur_playing = index
-        self.media[index]['state'] = 'playing'
+    # def set_playing(self, index):
+    #     self.remove_playing()
+    #     self.cur_playing = index
+    #     self.media[index]['state'] = 'playing'
 
-    def remove_playing(self):
-        if self.cur_playing != -1:
-            self.media[self.cur_playing]['state'] = 'normal'
-            self.cur_playing = -1
+    # def remove_playing(self):
+    #     if self.cur_playing != -1:
+    #         self.media[self.cur_playing]['state'] = 'normal'
+    #         self.cur_playing = -1
 
     def update(self):
         pass
@@ -76,12 +77,8 @@ class BasePlaylist(EventDispatcher):
         self.path = path
         self.name = data['name']
         self.playlist_type = data['playlist_type']
-
-    def remove_ignored_keys(self):
-        for x in self.media:
-            for key in self.ignored_media_keys:
-                if key in x:
-                    del x[key]
+        for x in iter(self.media):
+            x['playlist_name'] = self.name
 
     def add_path(self, path):
         '''Add file path to playlist'''
@@ -157,7 +154,8 @@ class BasePlaylist(EventDispatcher):
             'name': get_unicode(file_name),
             'ext': get_unicode(file_ext),
             'path': get_unicode(file_path),
-            'state': 'normal'}
+            'state': 'normal',
+            'playlist_name': self.name}
 
     def refresh_media_id(self, *args):
         '''Updates id numbers for all files in self.media ListProperty'''
@@ -169,6 +167,9 @@ class BasePlaylist(EventDispatcher):
                 mp[x['path']].append(i)
             else:
                 mp[x['path']] = [i]
+            x['playlist_name'] = self.name
+            if not 'state' in x:
+                x['state'] = 'normal'
         self.media_paths = mp
 
     @staticmethod

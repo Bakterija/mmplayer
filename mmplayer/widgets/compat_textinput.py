@@ -6,7 +6,10 @@ __all__ = ('CompatTextInput', 'CompatTextInputScroller')
 
 
 class CompatTextInputBase(TextInput):
-    remove_focus_on_touch_move = False
+
+    def __init__(self, **kwargs):
+        super(CompatTextInputBase, self).__init__(**kwargs)
+        self.remove_focus_on_touch_move = False
 
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
         if keycode[0] == 9:

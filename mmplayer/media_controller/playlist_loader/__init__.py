@@ -9,6 +9,14 @@ import os
 playlists = {}
 '''All loaded playlist objects in sections'''
 
+def get_playlist_by_name(name):
+    global playlists
+    for section, playlist_list in playlists.items():
+        for pl in playlist_list:
+            if pl.name == name:
+                return pl
+    raise Exception('Playlist with name "%s" not found' % name)
+
 def load_from_directories(directories):
     '''Load new playlists from directories, call playlist update() when
     playlist is already in global playlists, then return playlist dict'''

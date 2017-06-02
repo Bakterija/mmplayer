@@ -102,11 +102,14 @@ class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
             self.rv.ids.box.open_context_menu()
 
     def update_bg_color(self, *args):
-        if self.hovering and self.state != 'playing':
-            self.background_color = self.background_hover
-        else:
-            cl = getattr(self, 'background_%s' % (self.state))
-            self.background_color = cl
+        try:
+            if self.hovering and self.state != 'playing':
+                self.background_color = self.background_hover
+            else:
+                cl = getattr(self, 'background_%s' % (self.state))
+                self.background_color = cl
+        except Exception as e:
+            Logger.error(e)
 
     def open_properties_dialog(self, *args):
         '''Opens MediaPropertiesDialog with own media information'''
@@ -201,10 +204,13 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
     def find_playing(self):
         '''Finds dict in list where state == 'playing',
         returns -1 if not found'''
-        for i, x in enumerate(self.data):
-            if x['state'] == 'playing':
-                return i
-        return -1
+        try:
+            for i, x in enumerate(self.data):
+                if x['state'] == 'playing':
+                    return i
+            return -1
+        except Exception as e:
+            Logger.error(e)
 
     def find_view_with_path(self, path):
         '''Finds child that has path from argument,

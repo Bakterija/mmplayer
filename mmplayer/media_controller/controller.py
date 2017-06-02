@@ -66,28 +66,40 @@ class MediaController(Widget):
         '''Updates attributes when mplayer starts media'''
         state = self.mplayer.get_state_all()
         media = state['cur_media']
-        if self.last_media:
-            if self.last_media['state'] == 'playing':
-                self.last_media['state'] = 'normal'
 
-        if 'id' in media:
-            index = media['id']
-            self.playing_id = index
-            if self.cur_played_playlist:
-                self.cur_played_playlist.set_playing(index)
-            else:
-                media['state'] = 'playing'
-        else:
-            self.playing_id = -9
-            if self.cur_played_playlist:
-                self.cur_played_playlist.remove_playing()
-            media['state'] = 'playing'
+        if self.last_media:
+            last_id = self.last_media['id']
+            plname = self.last_media.get('playlist_name', None)
+            playlist = playlist_loader.get_playlist_by_name(plname)
+            if playlist.media[last_id]['state'] == 'playing':
+                playlist.media[last_id]['state'] = 'normal'
+                self.last_media = 'normal'
+
+        self.playing_id = media.get('id')
+        plname = media.get('playlist_name', None)
+        media_playlist = playlist_loader.get_playlist_by_name(plname)
+        media_playlist.media[self.playing_id]['state'] = 'playing'
+        # if 'id' in media:
+        #     index = media['id']
+            # self.playing_id = index
+            # if self.cur_played_playlist:
+            #     self.cur_played_playlist.set_playing(index)
+            # else:
+        #     media['state'] = 'playing'
+        # else:
+        #     self.playing_id = -9
+        #     if self.cur_played_playlist:
+        #         self.cur_played_playlist.remove_playing()
+        # media['state'] = 'playing'
 
         self.playing_name = media['name']
         self.playing_path = media['path']
         self.last_media = media
         self.refresh_playlist_view()
         self.refresh_queue_view()
+
+    def on_self_playing_id(self, _, value):
+        print (self.playing_id, value)
 
     def on_mplayer_video(self, value, player=None):
         '''Updates self.playing_video property when video starts/stops'''
@@ -98,8 +110,9 @@ class MediaController(Widget):
 
     def on_playlist_media(self, playlist, media):
         '''Updates playlist view when playlist changes'''
-        if playlist.path == self.cur_viewed_playlist.path:
-            self.view_playlist.update_data()
+        if self.cur_viewed_playlist:
+            if playlist.path == self.cur_viewed_playlist.path:
+                self.view_playlist.update_data()
 
     def attach_playlist_view(self, widget):
         self.view_playlist = widget
