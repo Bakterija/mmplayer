@@ -42,6 +42,11 @@ class MediaController(Widget):
     last_media = None
     '''dict of currently played media file'''
 
+    volume = NumericProperty(100)
+    shuffle = BooleanProperty(False)
+    muted = BooleanProperty(False)
+    _volume_before_muted = 0
+
     videoframe = None
     videoframe_is_visible = BooleanProperty(False)
     playing_video = BooleanProperty(False)
@@ -57,6 +62,25 @@ class MediaController(Widget):
         Clock.schedule_interval(self.update_seek, 0.1)
         media_info.info_update_callback = self.on_media_info_update
         Clock.schedule_once(lambda *a: media_info.start_workers(2), 1)
+
+    def set_volume(self, value):
+        value = int(value)
+        self.volume = value
+        self.mplayer.set_volume(value)
+
+    def on_muted(self, _, value):
+        if value:
+            self._volume_before_muted = self.mplayer.volume
+            self.set_volume(0)
+            Logger.info('MediaController: muted')
+        else:
+            self.set_volume(self._volume_before_muted)
+            Logger.info('MediaController: unmuted')
+
+    def on_shuffle(self, _, value):
+        self.mplayer.shuffle = value
+        Logger.info(
+            'MediaController: on_shuffle: set mplayer shuffle to %s' % value)
 
     def on_playlist_update(self, *args):
         '''Event fired when playlist DictProperty is updated'''

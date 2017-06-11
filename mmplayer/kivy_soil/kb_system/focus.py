@@ -71,6 +71,8 @@ def focus_next():
     or first widget in focus_grab_widgets list, if it is not empty.
     If focus_grab_widgets list is not empty and focus widget has widgets
     in self.subfocus_widgets list, cycles focus between itself and those'''
+    global prev_focused_widgets, focus_grab_widgets, focus_grab_widgets
+    global current_focus
     new_focus = None
     if focus_grab_widgets:
         fwidget = focus_grab_widgets[0]
@@ -87,13 +89,18 @@ def focus_next():
             new_focus = fwidget
 
     elif focusable_widgets:
-        prev, new = find_next_focusable(focusable_widgets)
-        if new[0] != -1:
-            new_focus = new[1]
-        elif prev == -1:
-            remove_focus()
-        else:
-            new_focus = focusable_widgets[0]
+        if not current_focus:
+            for x in prev_focused_widgets:
+                widget = x()
+                if widget in focusable_widgets:
+                    new_focus = widget
+
+        if not new_focus:
+            prev, new = find_next_focusable(focusable_widgets)
+            if new[0] == -1:
+                new_focus = focusable_widgets[0]
+            else:
+                new_focus = new[1]
     if new_focus:
         set_focus(new_focus)
         # Logger.info('focus: focus_next: %s' % (current_focus))

@@ -30,6 +30,7 @@ def __set_app_globals__():
     col_dblue2 =         (0.15, 0.25, 0.35, 1)
     col_satblue =        (0.15, 0.25, 0.60, 1)
     col_satblue2 =       (0.50, 0.50, 1.00, 1)
+    col_satblue3 =       (0.00, 0.66, 1.00, 1)
     col_satblue_dark =   (0.22, 0.28, 0.50, 1)
 
     col_green =          (0.30, 0.50, 0.40, 1)
@@ -135,8 +136,9 @@ class ThemeManager(EventDispatcher):
     '''Global EventDispatcher for theme color values,
     almost all widgets bind on it's properties'''
 
-    col_btn_normal = ListProperty(col_dgrey)
-    col_btn_down = ListProperty(col_satblue2)
+    button_normal = ListProperty(col_dgrey)
+    button_down = ListProperty(col_satblue3)
+    button_hover = ListProperty((0.38, 0.99, 1.00, 1))
 
     background0 = ListProperty((0, 0, 0, 1))
     # background1 = ListProperty(app_background)
@@ -148,8 +150,8 @@ class ThemeManager(EventDispatcher):
     col_theme0 = ListProperty(col_satblue2)
     col_theme1 = ListProperty(col_bbblue)
     col_theme2 = ListProperty(col_orange)
-    col_text = ListProperty([0.9, 0.9, 0.9, 1])
-    col_text_disabled = ListProperty([0.5, 0.5, 0.5, 1])
+    text = ListProperty([0.9, 0.9, 0.9, 1])
+    text_disabled = ListProperty([0.5, 0.5, 0.5, 1])
 
     media_normal = ListProperty(col_media_normal)
     media_playing = ListProperty(col_media_playing)

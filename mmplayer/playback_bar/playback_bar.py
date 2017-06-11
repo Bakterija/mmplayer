@@ -1,6 +1,7 @@
 from __future__ import print_function
 from kivy.properties import NumericProperty, BooleanProperty
 from kivy.properties import StringProperty, ListProperty
+from widgets.hover_canvas_button import HoverCanvasButton
 from kivy_soil.hover_behavior import HoverBehavior
 from .slider_progress_bar import SliderProgressBar
 from kivy.uix.behaviors import ButtonBehavior
@@ -17,49 +18,32 @@ from kivy.lang import Builder
 from kivy.clock import Clock
 from sys import path
 
-
-class PlayBackButton(HoverBehavior, ImageButton):
+class PlayBackButton(HoverCanvasButton):
     img_pause = StringProperty('data/4/play4')
+    '''Path of "Pause" button image'''
+
     img_prev = StringProperty('data/4/play1')
+    '''Path of "Previous" button image'''
+
     img_play = StringProperty('data/4/play2')
+    '''Path of "Play" button image'''
+
     img_next = StringProperty('data/4/play3')
+    '''Path of "Next" button image'''
+
     text = StringProperty()
-
-    def __init__(self, **kwargs):
-        super(PlayBackButton, self).__init__(**kwargs)
-        self.update_source_bg(self.text, self.hovering, self.state)
-
-    def on_state(self, _, value):
-        '''Updates images when player state changes'''
-        self.update_source_bg(self.text, self.hovering, value)
-
-    def update_source_bg(self, text, hover, press):
-        '''Updates playback button image paths'''
-        mod = ''
-        if press == 'down':
-            mod = '_d'
-        elif hover:
-            mod = '_h'
-        if text == 'Previous':
-            self.source = ''.join((self.img_prev, mod, '.png'))
-        elif text == 'Play':
-            self.source = ''.join((self.img_play, mod, '.png'))
-        elif text == 'Next':
-            self.source = ''.join((self.img_next, mod, '.png'))
-        elif text == 'Pause':
-            self.source = ''.join((self.img_pause, mod, '.png'))
+    '''Text of button, not displayed, but used to switch images from paths'''
 
     def on_text(self, _, text):
-        '''Calls self.update_source_bg()'''
-        self.update_source_bg(text, self.hovering, self.state)
-
-    def on_enter(self):
-        '''Calls self.update_source_bg()'''
-        self.update_source_bg(self.text, self.hovering, self.state)
-
-    def on_leave(self):
-        '''Calls self.update_source_bg()'''
-        self.update_source_bg(self.text, self.hovering, self.state)
+        '''Updates source image path from text'''
+        if text == 'Previous':
+            self.source = ''.join((self.img_prev, '.png'))
+        elif text == 'Play':
+            self.source = ''.join((self.img_play, '.png'))
+        elif text == 'Next':
+            self.source = ''.join((self.img_next, '.png'))
+        elif text == 'Pause':
+            self.source = ''.join((self.img_pause, '.png'))
 
 
 class PlayBackBar(BoxLayout):
@@ -99,6 +83,8 @@ class PlayBackBar(BoxLayout):
     '''References last clock that was or will be used to reenable
     media_progress_val updates'''
 
+    shuffle = BooleanProperty(False)
+    muted = BooleanProperty(False)
 
     def __init__(self, **kwargs):
         super(PlayBackBar, self).__init__(**kwargs)

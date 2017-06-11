@@ -14,6 +14,7 @@ except:
     pass
 from kivy.config import Config
 Config.set('kivy', 'exit_on_escape', 0)
+# Config.set('kivy', 'log_level', 'debug')
 import global_vars
 from kivy import require as kivy_require
 kivy_require('1.9.2')
@@ -24,6 +25,7 @@ from popups_and_dialogs.remove_playlist import RemovePlaylistPopup
 from media_controller.media_playlist_view import MediaPlaylistView
 from media_controller.media_queue_view import MediaQueueView
 from media_controller.controller import MediaController
+from kivy_soil.kb_system import focus_behavior
 from kivy.logger import Logger, LoggerHistory
 from kivy.uix.floatlayout import FloatLayout
 from kivy.core.clipboard import Clipboard
@@ -188,6 +190,8 @@ class Jotube(LayoutMethods, FloatLayout):
             self.media_control.jump_to_current_index('queue')
 
     def init_widgets(self, *args):
+        mcontrol = self.media_control
+        playback_bar = self.ids.playback_bar
         Window.bind(on_dropfile=self.on_dropfile)
         self.app_configurator = AppConfigHandler(self)
         self.app_configurator.load_before()
@@ -199,14 +203,13 @@ class Jotube(LayoutMethods, FloatLayout):
 
         ## FIRST SCREEN MEDIA PLAYER - sc-media
         mplayer.bind(on_error=self.on_error)
-        self.media_control.videoframe = self.manager.ids.video_screen
-        self.media_control.videoframe_small = self.ids.video_small
-        self.media_control.bind(cur_viewed_playlist=self.on_viewed_playlist)
-        self.media_control.bind(
-            videoframe_is_visible=lambda obj, val: self.on_video_screen(
-                val, self.media_control.playing_video))
-        self.ids.sm_area.bind(
-            size=lambda ob,v: self.media_control.on_video_resize(v))
+        mcontrol.videoframe = self.manager.ids.video_screen
+        mcontrol.videoframe_small = self.ids.video_small
+        mcontrol.bind(cur_viewed_playlist=self.on_viewed_playlist)
+        mcontrol.bind(
+            videoframe_is_visible=lambda ob, v: self.on_video_screen(
+                val, mcontrol.playing_video))
+        self.ids.sm_area.bind(size=lambda ob, v: mcontrol.on_video_resize(v))
 
         playlistview = MediaPlaylistView()
         queueview = MediaQueueView()
@@ -214,43 +217,50 @@ class Jotube(LayoutMethods, FloatLayout):
         self.manager.ids.media_stack.add_widget(playlistview)
         self.manager.ids.queue_stack.add_widget(queueview)
 
-        self.media_control.attach_playlist_view(playlistview)
-        self.media_control.attach_queue_view(queueview)
+        mcontrol.attach_playlist_view(playlistview)
+        mcontrol.attach_queue_view(queueview)
 
-        self.media_control.bind(
-            on_playlist_update=self.reset_sidebar_widgets)
-        self.media_control.reset_playlists()
-        self.media_control.bind(
-            playing_seek_value=self.ids.playback_bar.on_media_progress_val)
-        self.media_control.bind(
-            playing_seek_max=self.ids.playback_bar.on_media_progress_max)
+        mcontrol.bind(on_playlist_update=self.reset_sidebar_widgets)
+        mcontrol.bind(playing_seek_value=playback_bar.on_media_progress_val)
+        mcontrol.bind(playing_seek_max=playback_bar.on_media_progress_max)
+        mcontrol.bind(shuffle=playback_bar.setter('shuffle'))
+        mcontrol.bind(muted=playback_bar.setter('muted'))
+        mcontrol.bind(volume=playback_bar.setter('volume'))
+        # mcontrol.bind(muted=lambda ob, v: setattr(
+        #     playback_bar, 'media_volume', ob.mplayer.volume * 1000.0))
+        # mcontrol.bind(muted=lambda ob, v: print(ob.mplayer.volume * 1000.0))
+        mcontrol.reset_playlists()
 
-        self.ids.playback_bar.on_seeking = mplayer.seek
-        self.ids.playback_bar.on_playbtn = self.media_control.play_pause
-        self.ids.playback_bar.on_prevbtn = self.media_control.play_previous
-        self.ids.playback_bar.on_nextbtn = self.media_control.play_next
+        playback_bar.on_seeking = mplayer.seek
+        playback_bar.on_playbtn = mcontrol.play_pause
+        playback_bar.on_prevbtn = mcontrol.play_previous
+        playback_bar.on_nextbtn = mcontrol.play_next
+        playback_bar.ids.btn_shuffle.bind(on_press=lambda *a: setattr(
+            mcontrol, 'shuffle', not mcontrol.shuffle))
+        playback_bar.ids.btn_volume.bind(on_press=lambda *a: setattr(
+            mcontrol, 'muted', not mcontrol.muted))
 
-        mplayer.bind(on_pause=self.ids.playback_bar.on_pause)
-        mplayer.bind(on_play=self.ids.playback_bar.on_play)
-        mplayer.bind(on_start=self.ids.playback_bar.on_play)
+        mplayer.bind(on_pause=playback_bar.on_pause)
+        mplayer.bind(on_play=playback_bar.on_play)
+        mplayer.bind(on_start=playback_bar.on_play)
 
-        self.ids.playback_bar.bind(
-            media_volume=lambda obj, val: mplayer.set_volume(val))
+        # playback_bar.bind(
+        #     media_volume=lambda ob, v: mcontrol.set_volume(v))
+        playback_bar.media_volume = mplayer.volume * 100
 
         self.ids.video_small.on_video_touch = (
             lambda: self.switch_screen('video'))
         self.ids.video_small.on_video_scroll_down = (
-            self.ids.playback_bar.volume_increase)
+            playback_bar.volume_increase)
         self.ids.video_small.on_video_scroll_up = (
-            self.ids.playback_bar.volume_decrease)
+            playback_bar.volume_decrease)
 
         super(Jotube, self).init_widgets()
         self.app_configurator.load_after()
-        self.ids.playback_bar.media_volume = mplayer.volume * 100
 
         self.sc_focusable_switch = {
-            self.media_control.view_playlist: ('media'),
-            self.media_control.view_queue: ('queue'),
+            mcontrol.view_playlist: ('media'),
+            mcontrol.view_queue: ('queue'),
             self.manager.ids.media_filter_widget: ('media'),
             self.manager.ids.plugin_manager: ('main')
         }
@@ -307,13 +317,17 @@ class JotubeApp(App):
 
     def kb_esc(self):
         '''Updates self.escape_presses, quits app when reached target value'''
-        if self.escape_presses == 1:
-            self.stop()
+        cfocus = focus_behavior.current_focus
+        if cfocus:
+            focus_behavior.remove_focus()
         else:
-            self.root_widget.display_info('Double press escape to quit')
-        self.escape_presses += 1
-        Clock.unschedule(self.reset_escape_presses)
-        Clock.schedule_once(self.reset_escape_presses, 0.5)
+            if self.escape_presses == 1:
+                self.stop()
+            else:
+                self.root_widget.display_info('Double press escape to quit')
+            self.escape_presses += 1
+            Clock.unschedule(self.reset_escape_presses)
+            Clock.schedule_once(self.reset_escape_presses, 0.7)
 
     def reset_escape_presses(self, *args):
         self.escape_presses = 0

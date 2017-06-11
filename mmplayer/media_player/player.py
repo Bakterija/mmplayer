@@ -1,16 +1,19 @@
 from __future__ import print_function
-from kivy.clock import Clock
-from kivy.logger import Logger
-from time import sleep
 from .providers import provider_list as providers
 from .providers.error_player import ErrorPlayer
 from kivy.event import EventDispatcher
+from kivy.logger import Logger
+from kivy.clock import Clock
+from random import randrange
+from time import sleep
 import traceback
 
 
 class MediaPlayer(object):
     cur_index = -1
     '''Integer number of currently played queue item's index'''
+
+    shuffle = False
 
     player = None
     '''Object that is playing media currently'''
@@ -68,8 +71,8 @@ class MediaPlayer(object):
     def set_volume(self, value):
         '''Adjusts value and updates
         self.volume, self.volume_real, self.player.volume'''
-        self.volume = float(value) / 100
-        self.volume_real = (float(value) * float(value)) / 10000
+        self.volume = float(value) / 100.0
+        self.volume_real = (float(value) * float(value)) / 10000.0
         if self.player:
             self.player.volume = self.volume_real
 
@@ -124,7 +127,10 @@ class MediaPlayer(object):
         if not self.queue:
             return self.on_error('Empty playlist')
 
-        new_index = self.cur_index + 1
+        if self.shuffle:
+            new_index = randrange(0, len(self.queue), 1)
+        else:
+            new_index = self.cur_index + 1
         if new_index < len(self.queue):
             self.start(new_index)
             self.on_next()

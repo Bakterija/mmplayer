@@ -39,7 +39,7 @@ Builder.load_string('''
         text_size: self.width, None
         text: root.t_value
         multiline: True
-        foreground_color: app.mtheme.col_text
+        foreground_color: app.mtheme.text
         background_active: ''
         background_normal: ''
         background_disabled_normal: ''
