@@ -15,7 +15,7 @@
     source: self.source_mute if not self.parent.media_volume else self.source_vol_down if self.parent.media_volume < 50.0 else self.source_vol_up
 
 <PlaybackBarShuffleButton>:
-    col_normal: app.mtheme.text
+    col_normal: app.mtheme.text_disabled
     col_hover: app.mtheme.button_hover
     col_down: app.mtheme.button_down
     color: self.col_down if self.parent.shuffle else self.col_hover if self.hovering else self.col_normal

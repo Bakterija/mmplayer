@@ -292,7 +292,7 @@ class JotubeApp(App):
         self.root_widget.init_widgets()
         self.last_frame_time = time() - TIME0
         Logger.info('App: on_start: %s' % (self.last_frame_time))
-        Clock.schedule_once(lambda dt: self.on_some_frame(1, 6), 0)
+        Clock.schedule_once(lambda dt: self.on_some_frame(1, 8), 0)
 
     def on_some_frame(self, current, fmax):
         this_time = time() - TIME0

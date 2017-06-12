@@ -63,6 +63,7 @@ class MediaController(Widget):
         self.skip_seek, self.seek_lock = 0, 0
         Clock.schedule_interval(self.update_seek, 0.1)
         media_info.info_update_callback = self.on_media_info_update
+        media_info.update_timer = 0.05
         Clock.schedule_once(lambda *a: media_info.start_workers(2), 1)
 
     def set_volume(self, value):

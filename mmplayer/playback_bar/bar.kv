@@ -48,7 +48,7 @@
     SliderProgressBar:
         id: slider_seek
         size_hint_x: None
-        width: int(root.width - btn1.width - btn2.width - btn3.width - sep1.width - sep2.width - sep3.width - btn_volume.width - slider_volume.width - cm(0.7) - progress_label1.width - progress_label2.width - btn_shuffle.width)
+        width: int(root.width - btn1.width - btn2.width - btn3.width - sep1.width - sep2.width - sep3.width - btn_volume.width - slider_volume.width - cm(0.7) - progress_label1.width - progress_label2.width - btn_shuffle.width - sep4.width)
         max: root.media_progress_max
         value2: root.media_progress_val
 
@@ -61,13 +61,6 @@
         size_hint_x: None
         width: int(cm(0.4))
 
-    PlaybackBarVolumeButton:
-        id: btn_volume
-        size_hint: None, None
-        pos_hint: {'center_y': 0.5}
-        width: int(cm(0.5))
-        height: self.width
-
     PlaybackBarShuffleButton:
         id: btn_shuffle
         size_hint: None, None
@@ -77,6 +70,18 @@
 
     Widget:
         id: sep3
+        size_hint_x: None
+        width: int(cm(0.2))
+
+    PlaybackBarVolumeButton:
+        id: btn_volume
+        size_hint: None, None
+        pos_hint: {'center_y': 0.5}
+        width: int(cm(0.5))
+        height: self.width
+
+    Widget:
+        id: sep4
         size_hint_x: None
         width: int(cm(0.1))
 
