@@ -49,10 +49,10 @@ class Config(ConfigBase):
 
         kb_system.add(
             'vol_increase', keys.UP, 'down',
-            root.ids.playback_bar.volume_increase, modifier=['ctrl'])
+            root.media_control.volume_increase, modifier=['ctrl'])
         kb_system.add(
             'vol_decrease', keys.DOWN, 'down',
-            root.ids.playback_bar.volume_decrease, modifier=['ctrl'])
+            root.media_control.volume_decrease, modifier=['ctrl'])
         kb_system.add(
             'mplayer_previous', keys.LEFT, 'down',
             root.mplayer_previous, modifier=['alt'])

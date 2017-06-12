@@ -74,7 +74,7 @@ class MediaPlayer(object):
         self.volume = float(value) / 100.0
         self.volume_real = (float(value) * float(value)) / 10000.0
         if self.player:
-            self.player.volume = self.volume_real
+            self.player.volume = round(self.volume_real, 2)
 
     def start(self, index, seek=0.0):
         '''Starts playing media file in queue at index'''

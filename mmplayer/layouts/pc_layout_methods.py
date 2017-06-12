@@ -175,9 +175,9 @@ class LayoutMethods(object):
         if self.video_screen and self.video_playing:
             if not self.hovering_side_bar and not self.hovering_lower_bar:
                 if touch.button == 'scrollup':
-                    self.ids.playback_bar.volume_decrease()
+                    self.media_control.volume_increase()
                     return True
                 elif touch.button == 'scrolldown':
-                    self.ids.playback_bar.volume_increase()
+                    self.media_control.volume_decrease()
                     return True
         super(LayoutMethods, self).on_touch_down(touch)

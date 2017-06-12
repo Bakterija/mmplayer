@@ -42,7 +42,7 @@ class MediaController(Widget):
     last_media = None
     '''dict of currently played media file'''
 
-    volume = NumericProperty(100)
+    volume = NumericProperty(-1)
     shuffle = BooleanProperty(False)
     muted = BooleanProperty(False)
     _volume_before_muted = 0
@@ -51,6 +51,8 @@ class MediaController(Widget):
     videoframe_is_visible = BooleanProperty(False)
     playing_video = BooleanProperty(False)
     videoframe_small = None
+
+    default_relative_volume = 10
 
     def __init__(self, mplayer, **kwargs):
         self.register_event_type('on_playlist_update')
@@ -65,12 +67,32 @@ class MediaController(Widget):
 
     def set_volume(self, value):
         value = int(value)
+        if value < 0:
+            value = 0
+        elif value > 100:
+            value = 100
+        if self.muted and value > 0:
+            self.muted = False
         self.volume = value
         self.mplayer.set_volume(value)
+        Logger.info('MediaController: set_volume: %s' % (value))
+
+    def set_volume_relative(self, value):
+        value = int(value)
+        if self.muted:
+            self.set_volume(self._volume_before_muted + value)
+        else:
+            self.set_volume(self.volume + value)
+
+    def volume_increase(self, *args):
+        self.set_volume_relative(self.default_relative_volume)
+
+    def volume_decrease(self, *args):
+        self.set_volume_relative(-self.default_relative_volume)
 
     def on_muted(self, _, value):
         if value:
-            self._volume_before_muted = self.mplayer.volume
+            self._volume_before_muted = self.volume
             self.set_volume(0)
             Logger.info('MediaController: muted')
         else:

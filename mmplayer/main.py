@@ -134,7 +134,7 @@ class Jotube(LayoutMethods, FloatLayout):
         self.ids.info_widget.error(error)
 
     def set_mplayer_volume(self, value):
-        mplayer.set_volume(value)
+        self.media_control.set_volume(value)
 
     def mplayer_seek_relative(self, value):
         mplayer.seek_relative(value)
@@ -221,39 +221,35 @@ class Jotube(LayoutMethods, FloatLayout):
         mcontrol.attach_queue_view(queueview)
 
         mcontrol.bind(on_playlist_update=self.reset_sidebar_widgets)
-        mcontrol.bind(playing_seek_value=playback_bar.on_media_progress_val)
-        mcontrol.bind(playing_seek_max=playback_bar.on_media_progress_max)
+        mcontrol.bind(
+            playing_seek_value=playback_bar.setter('media_progress_val'))
+        mcontrol.bind(
+            playing_seek_max=playback_bar.setter('media_progress_max'))
         mcontrol.bind(shuffle=playback_bar.setter('shuffle'))
         mcontrol.bind(muted=playback_bar.setter('muted'))
-        mcontrol.bind(volume=playback_bar.setter('volume'))
-        # mcontrol.bind(muted=lambda ob, v: setattr(
-        #     playback_bar, 'media_volume', ob.mplayer.volume * 1000.0))
-        # mcontrol.bind(muted=lambda ob, v: print(ob.mplayer.volume * 1000.0))
+        mcontrol.bind(volume=playback_bar.setter('media_volume'))
         mcontrol.reset_playlists()
 
-        playback_bar.on_seeking = mplayer.seek
         playback_bar.on_playbtn = mcontrol.play_pause
         playback_bar.on_prevbtn = mcontrol.play_previous
         playback_bar.on_nextbtn = mcontrol.play_next
-        playback_bar.ids.btn_shuffle.bind(on_press=lambda *a: setattr(
+        playback_bar.bind(on_set_volume=lambda ob, v: mcontrol.set_volume(v))
+        playback_bar.bind(on_set_seek=lambda ob, v: mplayer.seek(v))
+        playback_bar.bind(on_toggle_shuffle=lambda *a: setattr(
             mcontrol, 'shuffle', not mcontrol.shuffle))
-        playback_bar.ids.btn_volume.bind(on_press=lambda *a: setattr(
+        playback_bar.bind(on_toggle_mute=lambda *a: setattr(
             mcontrol, 'muted', not mcontrol.muted))
 
         mplayer.bind(on_pause=playback_bar.on_pause)
         mplayer.bind(on_play=playback_bar.on_play)
         mplayer.bind(on_start=playback_bar.on_play)
 
-        # playback_bar.bind(
-        #     media_volume=lambda ob, v: mcontrol.set_volume(v))
-        playback_bar.media_volume = mplayer.volume * 100
-
         self.ids.video_small.on_video_touch = (
             lambda: self.switch_screen('video'))
         self.ids.video_small.on_video_scroll_down = (
-            playback_bar.volume_increase)
+            mcontrol.volume_increase)
         self.ids.video_small.on_video_scroll_up = (
-            playback_bar.volume_decrease)
+            mcontrol.volume_decrease)
 
         super(Jotube, self).init_widgets()
         self.app_configurator.load_after()
