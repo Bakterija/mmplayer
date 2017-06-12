@@ -74,6 +74,7 @@ class SliderProgressBar(HoverBehavior, ProgressBar):
             return False
         if self.collide_point(*touch.pos):
             touch.grab(self)
+            self.grab_hover()
             self.touching = True
             self.update_value_from_touch(touch)
             return True
@@ -84,9 +85,10 @@ class SliderProgressBar(HoverBehavior, ProgressBar):
         if touch.button in ('scrollup', 'scrolldown', 'right'):
             return False
         if self.touching:
-            self.update_value_from_touch(touch)
-            self.touching = False
             touch.ungrab(self)
+            self.ungrab_hover()
+            self.touching = False
+            self.update_value_from_touch(touch)
             if self.callback:
                 self.callback(self.value)
             return True
