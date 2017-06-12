@@ -208,7 +208,7 @@ class Jotube(LayoutMethods, FloatLayout):
         mcontrol.bind(cur_viewed_playlist=self.on_viewed_playlist)
         mcontrol.bind(
             videoframe_is_visible=lambda ob, v: self.on_video_screen(
-                val, mcontrol.playing_video))
+                v, mcontrol.playing_video))
         self.ids.sm_area.bind(size=lambda ob, v: mcontrol.on_video_resize(v))
 
         playlistview = MediaPlaylistView()
