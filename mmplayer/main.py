@@ -1,9 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+
+__version__ = 11.0
+__url__ = 'https://github.com/Bakterija/mmplayer'
+__description__ = 'A Kivy media player'
+__author_email__ ='atiskrp@gmail.com'
+__author__ = 'Atis K.'
+__icon_path__ = 'data/icon.png'
+
 from time import time
 TIME0 = time()
-__VERSION__ = 11
 from os import chdir
 from os.path import dirname
 import sys
@@ -49,7 +56,7 @@ if platform in ('windows','win', 'linux'):
     Config.set( 'input', 'mouse', 'mouse,disable_multitouch')
 
 
-class Jotube(LayoutMethods, FloatLayout):
+class MMplayer(LayoutMethods, FloatLayout):
     sidebar_items = ListProperty()
     media_control = MediaController(mplayer)
     dropped_files = ListProperty()
@@ -119,7 +126,7 @@ class Jotube(LayoutMethods, FloatLayout):
     def on_video_screen(self, *args):
         '''Runs when video screen is entered and left.
         Moves small video in or out, among other things'''
-        super(Jotube, self).on_video_screen(*args)
+        super(MMplayer, self).on_video_screen(*args)
 
     def display_info(self, text):
         '''Displays info notification'''
@@ -195,7 +202,7 @@ class Jotube(LayoutMethods, FloatLayout):
         Window.bind(on_dropfile=self.on_dropfile)
         self.app_configurator = AppConfigHandler(self)
         self.app_configurator.load_before()
-        self.manager = Jotube_SM(transition=NoTransition())
+        self.manager = MMplayer_SM(transition=NoTransition())
         self.manager.bind(current=self.on_screen_current)
         self.ids.sm_area.add_widget(self.manager)
 
@@ -251,7 +258,7 @@ class Jotube(LayoutMethods, FloatLayout):
         self.ids.video_small.on_video_scroll_up = (
             mcontrol.volume_decrease)
 
-        super(Jotube, self).init_widgets()
+        super(MMplayer, self).init_widgets()
         self.app_configurator.load_after()
 
         self.sc_focusable_switch = {
@@ -268,11 +275,11 @@ class Jotube(LayoutMethods, FloatLayout):
         Clock.schedule_once(testfunc, 1)
 
 
-class Jotube_SM(ScreenManager):
+class MMplayer_SM(ScreenManager):
     pass
 
 
-class JotubeApp(App):
+class MMplayerApp(App):
     mlayout = global_vars.layout_manager
     '''Global layout manager'''
 
@@ -284,8 +291,8 @@ class JotubeApp(App):
     '''Tracks escape press counts for kb_quit method'''
 
     def build(self):
-        self.root_widget = Jotube()
-        self.icon = 'data/icon.png'
+        self.root_widget = MMplayer()
+        self.icon = __icon_path__
         return self.root_widget
 
     def on_start(self):
@@ -337,9 +344,10 @@ class JotubeApp(App):
 
 def main_loop():
     try:
+        appworker.start_workers(1)
         Builder.load_file('layouts/pc_layout.kv')
         Builder.load_file('layouts/screen_manager.kv')
-        app = JotubeApp()
+        app = MMplayerApp()
         app.run()
     except Exception as e:
         traceback.print_exc()
@@ -349,5 +357,4 @@ def main_loop():
 if __name__ == "__main__":
     from multiprocessing import freeze_support
     freeze_support()
-    appworker.start_workers(1)
     main_loop()

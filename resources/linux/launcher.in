@@ -1,0 +1,4 @@
+#!/usr/bin/env python
+from %APP_NAME% import main
+
+main.main_loop()

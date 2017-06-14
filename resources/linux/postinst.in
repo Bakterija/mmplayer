@@ -1,0 +1,3 @@
+echo chmodding bin launcher
+sudo pip install kivy
+chmod +x /usr/local/bin/%APP_NAME%
