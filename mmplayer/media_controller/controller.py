@@ -60,7 +60,6 @@ class MediaController(Widget):
         self.mplayer = mplayer
         self.mplayer.bind(on_start=self._on_mplayer_start)
         self.mplayer.bind(on_video=self.on_mplayer_video)
-        self.skip_seek, self.seek_lock = 0, 0
         Clock.schedule_interval(self.update_seek, 0.1)
         media_info.info_update_callback = self.on_media_info_update
         media_info.update_timer = 0.05

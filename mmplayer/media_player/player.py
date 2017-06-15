@@ -155,6 +155,7 @@ class MediaPlayer(object):
                 value = 0.0
             elif value > self.get_mediaDur():
                 value = self.get_mediaDur() - 0.2
+            Logger.info('MediaPlayer: seek: %s' % (value))
             self.player.seek(value)
 
     def seek_relative(self, value):

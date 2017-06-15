@@ -42,6 +42,8 @@ class AudioPlayer(EventDispatcher):
         self.state = 'stop'
 
     def seek(self, position):
+        if self.sound:
+            self.length = self.sound.length
         if self.length > 0:
             if self.state in ('pause', 'stop'):
                 self.pause_seek = position
@@ -78,7 +80,7 @@ class AudioPlayer(EventDispatcher):
         if PY2 and type(path) == unicode:
             path = path.encode('utf-8')
         self.sound = SoundLoader.load(path)
-        self.sound.bind(on_stop= self.on_stop)
+        self.sound.bind(on_stop=self.on_stop)
         self.bind(volume=self.on_volume)
 
     def unload(self):

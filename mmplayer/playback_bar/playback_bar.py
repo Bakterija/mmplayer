@@ -17,6 +17,7 @@ from kivy.metrics import cm, dp
 from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.clock import Clock
+from time import time
 from sys import path
 
 class PlayBackButton(HoverCanvasButton):
