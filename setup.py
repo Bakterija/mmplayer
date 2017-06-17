@@ -1,14 +1,22 @@
 #!/usr/bin/env python
-from kivy.config import Config
-# Avoid kivy log spam when importing main
-Config.set('kivy', 'log_level', 'error')
-from mmplayer.main import __version__, __author__, __author_email__
-from mmplayer.main import __description__, __url__, __icon_path__
-from mmplayer.utils import get_files
-Config.set('kivy', 'log_level', 'debug')
 from setuptools import setup, find_packages
 from distutils.core import setup
+from kivy.config import Config
+from kivy.logger import Logger
+import sys
 import os
+# Avoid kivy log spam when importing main
+# Config.set('kivy', 'log_level', 'error')
+try:
+    os.chdir('mmplayer/')
+    sys.path.append(os.getcwd())
+    from mmplayer.app import __version__, __author__, __author_email__
+    from mmplayer.app import __description__, __url__, __icon_path__
+    from mmplayer.utils import get_files
+except Exception as e:
+    Logger.exception('setup: %s' % (e))
+    raise Exception(e)
+Config.set('kivy', 'log_level', 'info')
 os.chdir('..')
 
 packages = find_packages()

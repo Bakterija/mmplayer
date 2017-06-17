@@ -1,20 +1,27 @@
 from __future__ import print_function
 from kivy.config import Config
-# Avoid kivy log spam when importing main
-Config.set('kivy', 'log_level', 'error')
-
-from mmplayer.main import __version__, __author__, __author_email__
-from mmplayer.main import __description__, __url__, __icon_path__
 from kivy.logger import Logger
-Config.set('kivy', 'log_level', 'info')
 from zipfile import ZipFile
 import subprocess
 import shutil
+import sys
 import os
+
+# Avoid kivy log spam when importing main
+Config.set('kivy', 'log_level', 'error')
+try:
+    os.chdir('mmplayer/')
+    sys.path.append(os.getcwd())
+    from mmplayer.app import __version__, __author__, __author_email__
+    from mmplayer.app import __description__, __url__, __icon_path__
+except Exception as e:
+    Logger.exception('make_deb_package: %s' % (e))
+    raise Exception(e)
+Config.set('kivy', 'log_level', 'info')
 os.chdir('..')
 
 Logger.info('Running setup.py')
-subprocess.call(['python', 'setup.py', 'bdist', '--format=zip'])
+subprocess.check_call(['python', 'setup.py', 'bdist', '--format=zip'])
 Logger.info('Done setup.py')
 
 APP_NAME = 'mmplayer'
@@ -38,9 +45,7 @@ MAKEDIRS = (DIR_BIN, DIR_SHARE, DIR_APPS, DIR_DEBIAN)
 if os.path.exists(DIR_ROOT):
     shutil.rmtree(DIR_ROOT)
 
-for x in MAKEDIRS:
-    p = x + '/'
-    d = os.path.dirname(p)
+for d in MAKEDIRS:
     if not os.path.exists(d):
         os.makedirs(d)
         Logger.info('Made missing dir {}'.format(d))
@@ -107,7 +112,8 @@ subprocess.call(cmd_dpkg)
 
 Logger.info('Cleaning up')
 for x in ('build', DIR_ROOT, APP_NAME + '.egg-info'):
-    shutil.rmtree(x)
+    if os.path.exists(x):
+        shutil.rmtree(x)
 
 deb_name = '%s_%s.deb' % (APP_NAME, APP_VERSION)
 shutil.move(deb_name, 'dist/' + deb_name)
