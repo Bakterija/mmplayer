@@ -13,7 +13,6 @@
 
 
 <MMplayer>:
-    side_bar_width: int(cm(4))
     upper_bar_height: app.mlayout.button_height
     lower_bar_height: app.mlayout.playback_bar_height
     lower_bar_offset_y: 0
@@ -43,8 +42,8 @@
         resizable_right: True
         orientation: 'vertical'
         size_hint: None, None
-        size: cm(4), root.sm_area_height
-        min_resizable_width: root.side_bar_width
+        size: app.mlayout.sidebar_width, root.sm_area_height
+        min_resizable_width: app.mlayout.defaults['sidebar_width']
         max_resizable_width: self.min_resizable_width * 2
         pos: 0 - root.side_bar_offset_x, root.lower_bar_height
         resizable_border: int(cm(0.5))

@@ -7,6 +7,8 @@ from kivy.clock import Clock
 from time import time
 import weakref
 
+active = True
+
 focusable_widgets = []
 '''Storage list for references to FocusBehavior widgets without focus grab'''
 
@@ -123,7 +125,9 @@ def set_focus_previous(*args):
 
 def set_focus(widget, change_previous=True):
     '''Focus a widget and update prev_focused_widgets'''
-    global current_focus, prev_focused_widgets, max_previous_widgets
+    global current_focus, prev_focused_widgets, max_previous_widgets, active
+    if not active:
+        return
     widget.focus = True
     if current_focus and change_previous:
         if not widget.is_subfocus:
@@ -136,8 +140,20 @@ def set_focus(widget, change_previous=True):
     # Logger.info('focus: set_focus: %s - %s' % (
     #     time(), current_focus.__class__.__name__))
 
+def activate(*args):
+    global active
+    active = True
+
+def on_window_focus(_, value):
+    global active
+    if value:
+        Clock.schedule_once(activate, 0.1)
+    else:
+        active = False
+        remove_focus()
+
 Window.bind(mouse_pos=on_mouse_move)
-Window.bind(focus=remove_focus)
+Window.bind(focus=on_window_focus)
 
 
 class FocusBehavior(Widget):

@@ -1,4 +1,5 @@
 from kivy.properties import NumericProperty, ListProperty
+from utils.settings import SettingHandler
 from kivy.event import EventDispatcher
 from kivy.utils import platform
 from kivy.metrics import cm, dp
@@ -84,7 +85,7 @@ def __set_app_globals__():
 __set_app_globals__()
 
 
-class LayoutManager(EventDispatcher):
+class LayoutManager(SettingHandler, EventDispatcher):
     '''Global EventDispatcher for layout size values,
     almost all widgets bind on it's properties'''
 
@@ -96,11 +97,12 @@ class LayoutManager(EventDispatcher):
     playback_bar_height = NumericProperty()
     font_size = NumericProperty()
     spacing = NumericProperty()
+    sidebar_width = NumericProperty()
     scale = NumericProperty()
 
     def __init__(self, **kwargs):
         super(LayoutManager, self).__init__(**kwargs)
-        self.default_values = {
+        self.defaults = {
             'button_height': button_height,
             'button_height12': button_height12,
             'button_height05': button_height05,
@@ -108,13 +110,17 @@ class LayoutManager(EventDispatcher):
             'scrollbar_width': scrollbar_width,
             'font_size': button_height05,
             'playback_bar_height': playback_bar_height,
-            'spacing': 1
+            'sidebar_width': int(cm(4)),
+            'spacing': 1,
+            'scale': 1.0
         }
-        self.scale = 1.0
         self.set_defaults()
+        self.store_properties = self.defaults.items()
+        self.store_name = 'LayoutManager'
+        self.update_store_properties()
 
     def set_defaults(self):
-        for k, v in self.default_values.items():
+        for k, v in self.defaults.items():
             setattr(self, k , v)
 
     def increase_scale(self):
@@ -125,15 +131,17 @@ class LayoutManager(EventDispatcher):
 
     def on_scale(self, _, value):
         Logger.info('LayoutManager: set scale to %s' % (value))
-        self.set_defaults()
+        for k, v in self.defaults.items():
+            if k != 'scale':
+                setattr(self, k , v)
         for x in self.properties():
             if x != 'scale':
-                def_val = self.default_values[x]
+                def_val = self.defaults[x]
                 new_val = int(def_val * self.scale)
                 setattr(self, x, new_val)
 
 
-class ThemeManager(EventDispatcher):
+class ThemeManager(SettingHandler, EventDispatcher):
     '''Global EventDispatcher for theme color values,
     almost all widgets bind on it's properties'''
 
@@ -164,6 +172,35 @@ class ThemeManager(EventDispatcher):
     scrollbar = ListProperty(scrollbar_color)
     scrollbar_inactive = ListProperty(scrollbar_inactive_color)
     scrollbar_background = ListProperty(col_ncolbg)
+
+    def __init__(self, **kwargs):
+        super(ThemeManager, self).__init__(**kwargs)
+        self.store_properties = [
+            ('button_normal', col_dgrey),
+            ('button_down', col_satblue3),
+            ('button_hover', (0.38, 0.99, 1.00, 1)),
+            ('background0', (0, 0, 0, 1)),
+            ('background2', (0.15, 0.15, 0.15, 1)),
+            ('bar_color', app_background),
+            ('bar_border', border_color),
+            ('focus_border', col_bbbblue),
+            ('col_theme0', col_satblue2),
+            ('col_theme1', col_bbblue),
+            ('col_theme2', col_orange),
+            ('text', (0.9, 0.9, 0.9, 1)),
+            ('text_disabled', (0.5, 0.5, 0.5, 1)),
+            ('media_normal', col_media_normal),
+            ('media_playing', col_media_playing),
+            ('media_hover', col_media_hover),
+            ('media_selected', col_media_selected),
+            ('media_disabled', col_media_disabled),
+            ('media_error', col_media_error),
+            ('scrollbar', scrollbar_color),
+            ('scrollbar_inactive', scrollbar_inactive_color),
+            ('scrollbar_background', col_ncolbg)
+        ]
+        self.store_name = 'ThemeManager'
+        self.update_store_properties()
 
     def randomize(self):
         for x in self.properties():

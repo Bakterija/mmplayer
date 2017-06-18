@@ -3,7 +3,7 @@ from .user_settings import Config as UserConfig
 from .keybinds import Config as KeybindConfig
 from .sidebar_loader import Config as SidebarLoader
 from .terminal_input_handler import Config as TerminalConfig
-
+import importlib
 
 class AppConfigHandler(object):
     root_widget = None

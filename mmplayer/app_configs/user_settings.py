@@ -1,8 +1,8 @@
 from .config_base import ConfigBase
+from utils import logs, settings
 from kivy.utils import platform
 from kivy.logger import Logger
 from kivy.app import App
-from utils import logs
 
 
 class Config(ConfigBase):
@@ -10,9 +10,15 @@ class Config(ConfigBase):
 
     def load_before(self, root):
         self.app = App.get_running_app()
+        settings.update_callbacks.append(self.update_defaults)
         self.defaults = {
             'volume': ('media_controller', 100, root.media_control.set_volume)
         }
+        if settings.store:
+            self.update_defaults(settings.store)
+
+    def update_defaults(self, new_dict):
+        self.defaults.update(new_dict)
 
     def load_after(self, root):
         store = self.app.store
@@ -26,18 +32,25 @@ class Config(ConfigBase):
                 ldict = store[section]
                 try:
                     value = ldict[attr]
-                    call(value)
+                    if section[:3] == 'ED_':
+                        call(None, value)
+                    else:
+                        call(value)
                     success = True
                 except KeyError:
                     pass
             if not success:
                 missing.append((section, attr, value_default))
-                call(value_default)
+                if section[:3] == 'ED_':
+                    call(None, value_default)
+                else:
+                    call(value_default)
 
-        for section, attr, value in missing:
-            self.update_store(section, attr, value)
-            logs.info(('UserConfig: setting {} did not exist, '
-                'loaded and stored with default value {}').format(attr, value))
+        if missing:
+            for section, attr, value in missing:
+                self.update_store(section, attr, value)
+            logs.info(('UserConfig: found {} missing settings,'
+                'saved to file').format(len(missing)))
 
     def update_store(self, section, attr, value):
         store = self.app.store
@@ -47,6 +60,9 @@ class Config(ConfigBase):
         else:
             new = {attr:value}
         store.put(section, **new)
+
+    def save_defaults(self):
+        self.save_defaults(self.defaults.items())
 
     def save_settings(self, setting_list):
         Logger.info('UserConfig: saving settings')

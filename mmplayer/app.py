@@ -54,6 +54,10 @@ class MMplayer(LayoutMethods, FloatLayout):
     dropped_files = ListProperty()
     '''holds dropped file paths before media_control.on_dropfile is called'''
 
+    def __init__(self, app, **kwargs):
+        super(MMplayer, self).__init__(**kwargs)
+        self.app = app
+
     def switch_screen(self, screen_name):
         if screen_name != self.manager.current:
             self.manager.current = screen_name
@@ -243,6 +247,8 @@ class MMplayer(LayoutMethods, FloatLayout):
         mplayer.bind(on_play=playback_bar.on_play)
         mplayer.bind(on_start=playback_bar.on_play)
 
+        self.ids.sidebar.bind(width=self.app.mlayout.setter('sidebar_width'))
+
         self.ids.video_small.on_video_touch = (
             lambda: self.switch_screen('video'))
         self.ids.video_small.on_video_scroll_down = (
@@ -284,10 +290,10 @@ class MMplayerApp(App):
     root_widget = None
 
     store_path = global_vars.DIR_CONF + '/mmplayer.json'
-    store = JsonStore(store_path, indent=4)
+    store = JsonStore(store_path, indent=4, sort_keys=True)
 
     def build(self):
-        self.root_widget = MMplayer()
+        self.root_widget = MMplayer(self)
         self.icon = __icon_path__
         return self.root_widget
 
