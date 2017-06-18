@@ -5,8 +5,8 @@ from kivy.config import Config
 from kivy.logger import Logger
 import sys
 import os
-# Avoid kivy log spam when importing main
-# Config.set('kivy', 'log_level', 'error')
+
+Config.set('kivy', 'log_level', 'error')
 try:
     os.chdir('mmplayer/')
     sys.path.append(os.getcwd())
