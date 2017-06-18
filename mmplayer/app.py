@@ -17,29 +17,29 @@ from kivy.config import Config
 Config.set('kivy', 'exit_on_escape', 0)
 # Config.set('kivy', 'log_level', 'debug')
 from kivy import require as kivy_require
-from kivy.logger import Logger, LoggerHistory
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.screenmanager import ScreenManager, NoTransition
-from kivy.properties import StringProperty, ListProperty, ObjectProperty
-from media_controller.controller import MediaController
-from media_player import mplayer
-from utils import not_implemented
-from utils import get_unicode
-from kivy.lang import Builder
-from kivy.compat import PY2
-from kivy.app import App
-import global_vars
 kivy_require('1.9.2')
-from kivy.core.window import Window
+import global_vars
+from kivy.logger import Logger, LoggerHistory
+from kivy.properties import StringProperty, ListProperty, ObjectProperty
 from popups_and_dialogs.create_playlist import CreatePlaylistPopup
 from popups_and_dialogs.remove_playlist import RemovePlaylistPopup
+from kivy.uix.screenmanager import ScreenManager, NoTransition
 from media_controller.media_playlist_view import MediaPlaylistView
 from media_controller.media_queue_view import MediaQueueView
+from media_controller.controller import MediaController
 from kivy_soil.kb_system import focus_behavior
+from kivy.uix.floatlayout import FloatLayout
+from kivy.storage.jsonstore import JsonStore
 from kivy.core.clipboard import Clipboard
 from kivy.clock import Clock, mainthread
 from app_configs import AppConfigHandler
+from kivy.core.window import Window
+from utils import get_unicode, logs
+from media_player import mplayer
 from kivy_soil import kb_system
+from kivy.lang import Builder
+from kivy.compat import PY2
+from kivy.app import App
 import traceback
 import sys
 
@@ -103,7 +103,7 @@ class MMplayer(LayoutMethods, FloatLayout):
         self.dropped_files = []
 
     def mgui_open_settings(self, *args):
-        not_implemented.show_error(feature='App settings')
+        logs.not_implemented(feature='App settings')
 
     def mgui_add_playlist(self, *args):
         '''For adding playlists in MediaController from GUI buttons'''
@@ -128,7 +128,7 @@ class MMplayer(LayoutMethods, FloatLayout):
         '''Displays warning notification'''
         self.ids.info_widget.warning(text)
 
-    def on_error(self, error):
+    def display_error(self, error):
         '''Displays error notification'''
         self.ids.info_widget.error(error)
 
@@ -201,7 +201,7 @@ class MMplayer(LayoutMethods, FloatLayout):
         self.manager.current = 'main'
 
         ## FIRST SCREEN MEDIA PLAYER - sc-media
-        mplayer.bind(on_error=self.on_error)
+        mplayer.bind(on_error=self.display_error)
         mcontrol.videoframe = self.manager.ids.video_screen
         mcontrol.videoframe_small = self.ids.video_small
         mcontrol.bind(cur_viewed_playlist=self.on_viewed_playlist)
@@ -278,9 +278,13 @@ class MMplayerApp(App):
     mtheme = global_vars.theme_manager
     '''Global theme manager'''
 
-    root_widget = None
     escape_presses = 0
     '''Tracks escape press counts for kb_quit method'''
+
+    root_widget = None
+
+    store_path = global_vars.DIR_CONF + '/mmplayer.json'
+    store = JsonStore(store_path, indent=4)
 
     def build(self):
         self.root_widget = MMplayer()
@@ -330,9 +334,10 @@ class MMplayerApp(App):
     def on_stop(self):
         if not hasattr(self, 'app_is_stopping_now'):
             self.app_is_stopping_now = True
-            settings = {'volume': str(mplayer.volume)}
+            root = self.root_widget
+            new_settings = [('volume', root.media_control.volume)]
             self.root_widget.app_configurator.load_with_args(
-                'user_settings', 'save', settings)
+                'user_settings', 'save', new_settings)
 
 def main_loop():
     try:

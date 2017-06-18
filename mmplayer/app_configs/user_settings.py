@@ -1,52 +1,59 @@
 from .config_base import ConfigBase
 from kivy.utils import platform
 from kivy.logger import Logger
-from kivy.compat import PY2
-if PY2:
-    import ConfigParser as configparser
-else:
-    import configparser as configparser
+from kivy.app import App
+from utils import logs
 
 
 class Config(ConfigBase):
     name = 'UserConfig', 'user_settings'
-    config = configparser.ConfigParser()
-    confpath = 'app_configs/settings.ini'
-
-    def __init__(self):
-        loaded_files = self.config.read(self.confpath)
-        if loaded_files:
-            Logger.info('{}: loaded settings.ini'.format(self.name[0]) )
-        else:
-            Logger.error('{}: did not load settings.ini'.format(self.name[0]) )
 
     def load_before(self, root):
-        self.loader_switch = {
-            'volume': lambda val: root.set_mplayer_volume(float(val) * 100.0)
+        self.app = App.get_running_app()
+        self.defaults = {
+            'volume': ('media_controller', 100, root.media_control.set_volume)
         }
 
     def load_after(self, root):
-        if platform in ('linux', 'win', 'windows'):
-            from kivy.core.window import Window
-            Window.set_icon('data/icon.png')
+        store = self.app.store
+        missing = []
+        for attr, items in self.defaults.items():
+            success = False
+            section = items[0]
+            value_default = items[1]
+            call = items[2]
+            if store.exists(section):
+                ldict = store[section]
+                try:
+                    value = ldict[attr]
+                    call(value)
+                    success = True
+                except KeyError:
+                    pass
+            if not success:
+                missing.append((section, attr, value_default))
+                call(value_default)
 
-        self.load_configs(root)
+        for section, attr, value in missing:
+            self.update_store(section, attr, value)
+            logs.info(('UserConfig: setting {} did not exist, '
+                'loaded and stored with default value {}').format(attr, value))
 
-    def load_configs(self, root):
-        try:
-            for key, value in self.config.items('MAIN'):
-                self.loader_switch[key](value)
-        except configparser.NoSectionError:
-            return
+    def update_store(self, section, attr, value):
+        store = self.app.store
+        if store.exists(section):
+            new = store.get(section)
+            new.update({attr:value})
+        else:
+            new = {attr:value}
+        store.put(section, **new)
+
+    def save_settings(self, setting_list):
+        Logger.info('UserConfig: saving settings')
+        for attr, value in setting_list:
+            section = self.defaults[attr][0]
+            self.update_store(section, attr, value)
 
     def load_with_args(self, *args, **kwargs):
         if args[0] == 'save':
-            try:
-                for key, value in args[1].items():
-                    self.config.set('MAIN', key, value)
-            except configparser.NoSectionError:
-                self.config.add_section('MAIN')
-                self.load_with_args(*args)
-
-            with open(self.confpath, 'w') as configfile:
-                self.config.write(configfile)
+            self.save_settings(args[1])

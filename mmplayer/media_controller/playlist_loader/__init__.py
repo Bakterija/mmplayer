@@ -2,7 +2,7 @@ from .file_loader import FileLoaderPlaylist
 from .folder_loader import FolderLoaderPlaylist
 from kivy.logger import Logger
 import global_vars as gvars
-import traceback
+from utils import logs
 import json
 import os
 
@@ -72,8 +72,7 @@ def load_playlist(path, section):
         playlist.load(path, data)
         playlist.section = section
     except:
-        Logger.error('playlist_loader: failed to load playlist: %s' % (
-            traceback.format_exc()))
+        logs.error('playlist_loader: failed to load playlist: ', trace=True)
 
     return playlist
 
@@ -82,4 +81,9 @@ def create_playlist(name):
     category = 'playlists'
     load_path = ''
     path = '{}{}/{}.json'.format(gvars.DIR_PLAYLISTS, category, name)
-    playlist = FileLoaderPlaylist.create(name, path, load_path)
+    if os.path.exists(path):
+        logs.error(
+            'create_playlist: Playlist "{}" already exists, skipping'.format(
+                name))
+    else:
+        playlist = FileLoaderPlaylist.create(name, path, load_path)

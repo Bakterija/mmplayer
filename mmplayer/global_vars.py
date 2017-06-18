@@ -9,10 +9,11 @@ import os
 
 DIR_HOME = os.path.expanduser("~")+'/'
 if platform == 'linux':
-    DIR_PLAYLISTS = '%s.config/github_bakterija/mmplayer/playlists/' % (
-        DIR_HOME)
+    DIR_CONF = '%s.config/github_bakterija' % (DIR_HOME)
+    DIR_PLAYLISTS = '%s/mmplayer/playlists/' % (DIR_CONF)
 else:
-    DIR_PLAYLISTS = '%sgithub_bakterija/mmplayer/playlists/' % (DIR_HOME)
+    DIR_CONF = '%sgithub_bakterija' % (DIR_HOME)
+    DIR_PLAYLISTS = '%s/mmplayer/playlists/' % (DIR_CONF)
 
 
 def __set_app_globals__():

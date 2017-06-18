@@ -4,12 +4,12 @@ from kivy_soil.app_recycleview import AppRecycleView, AppRecycleBoxLayout
 from kivy_soil.app_recycleview import AppRecycleViewClass
 from kivy_soil.kb_system.canvas import FocusBehaviorCanvas
 from kivy_soil.hover_behavior import HoverBehavior
-from utils import not_implemented, seconds_to_minutes_hours
 from popups_and_dialogs.media_properties import MediaPropertiesDialog
 from popups_and_dialogs import media_context_menu
 from kivy.uix.behaviors import ButtonBehavior
 from behaviors.button2 import ButtonBehavior2
 from kivy.uix.stacklayout import StackLayout
+from utils import seconds_to_minutes_hours
 from kivy.clock import Clock, mainthread
 from kivy_soil.kb_system import keys
 from kivy.utils import platform

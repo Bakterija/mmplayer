@@ -1,4 +1,4 @@
-from utils.not_implemented import show_error as show_not_implemented
+from utils.logs import not_implemented as show_not_implemented
 from kivymd_modified.menu import MDDropdownMenu
 from kivy.logger import Logger
 from random import randrange

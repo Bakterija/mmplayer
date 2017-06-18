@@ -29,7 +29,6 @@ def on_mouse_move(window, pos):
     '''
     if current_focus and current_focus.remove_focus_on_touch_move:
         remove_focus()
-Window.bind(mouse_pos=on_mouse_move)
 
 def on_parent(self, parent):
     '''Adds widget with parent to focusable_widgets or focus_grab_widgets
@@ -105,7 +104,7 @@ def focus_next():
         set_focus(new_focus)
         # Logger.info('focus: focus_next: %s' % (current_focus))
 
-def remove_focus():
+def remove_focus(*args):
     '''Remove focus from current_focus widget'''
     global current_focus
     # Logger.info('focus: removing focus %s' % (current_focus))
@@ -136,6 +135,9 @@ def set_focus(widget, change_previous=True):
     current_focus = widget
     # Logger.info('focus: set_focus: %s - %s' % (
     #     time(), current_focus.__class__.__name__))
+
+Window.bind(mouse_pos=on_mouse_move)
+Window.bind(focus=remove_focus)
 
 
 class FocusBehavior(Widget):
