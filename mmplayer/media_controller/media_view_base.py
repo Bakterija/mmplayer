@@ -124,7 +124,7 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
     def __init__(self, **kwargs):
         super(MediaRecycleviewBase, self).__init__(**kwargs)
         self.ids.box.context_menu_function = self.context_menu_function
-        self.filter_keys = ['name', 'title', 'text']
+        self.filter_keys = ['name', 'title', 'text', 'path']
 
     def context_menu_function(self, widget, index, pos):
         media_context_menu.open_menu(self, widget, index, pos)

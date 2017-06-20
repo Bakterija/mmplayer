@@ -3,6 +3,7 @@ from kivy.event import EventDispatcher
 from kivy.logger import Logger
 from utils import get_unicode
 from kivy.compat import PY2
+from utils import logs
 from time import time
 import json
 import os
@@ -95,10 +96,13 @@ class BasePlaylist(EventDispatcher):
         Logger.error('{} has an empty create method'.format(self))
 
     def save_json(self, playlist_dict):
-        with open(self.path, 'w') as outfile:
-            json.dump(
-                playlist_dict, outfile, indent=4,
-                sort_keys=True, separators=(',', ':'))
+        try:
+            with open(self.path, 'w') as outfile:
+                json.dump(
+                    playlist_dict, outfile, indent=4,
+                    sort_keys=True, separators=(',', ':'))
+        except:
+            logs.error('Playlist: failed to save "%s"\n' % self.name, trace=True)
 
     def remove(self):
         '''Delete playlist'''

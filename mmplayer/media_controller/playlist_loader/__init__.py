@@ -72,7 +72,7 @@ def load_playlist(path, section):
         playlist.load(path, data)
         playlist.section = section
     except:
-        logs.error('playlist_loader: failed to load playlist: ', trace=True)
+        logs.error('playlist_loader: failed to load playlist \n', trace=True)
 
     return playlist
 

@@ -11,13 +11,13 @@ import copy
 import os
 
 DIR_HOME = os.path.expanduser("~")+'/'
+APP_NAME = 'mmplayer'
 if platform == 'linux':
-    DIR_CONF = '%s.config/github_bakterija' % (DIR_HOME)
-    DIR_PLAYLISTS = '%s/mmplayer/playlists/' % (DIR_CONF)
+    DIR_CONF = '%s.config/github_bakterija/%s' % (DIR_HOME, APP_NAME)
+    DIR_PLAYLISTS = '%s/playlists/' % (DIR_CONF)
 else:
-    DIR_CONF = '%sgithub_bakterija' % (DIR_HOME)
-    DIR_PLAYLISTS = '%s/mmplayer/playlists/' % (DIR_CONF)
-
+    DIR_CONF = '%s/%s/github_bakterija' % (DIR_HOME, APP_NAME)
+    DIR_PLAYLISTS = '%s/playlists/' % (DIR_CONF)
 
 def __set_app_globals__():
     col_grey =           (0.40, 0.40, 0.40, 1)
