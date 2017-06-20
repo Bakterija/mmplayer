@@ -1,4 +1,6 @@
 from kivy.logger import Logger
+from functools import partial
+from kivy.clock import Clock
 from kivy.app import App
 import traceback
 
@@ -23,7 +25,7 @@ def not_implemented(feature=None):
 def error(text, trace=False):
     if trace:
         text = ''.join((text, traceback.format_exc()))
-    display_toast(text, 'error')
+    Clock.schedule_once(lambda dt: display_toast(text, 'error'), 0)
     Logger.error(text)
 
 def warning(text):

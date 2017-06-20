@@ -40,6 +40,7 @@ from kivy_soil import kb_system
 from kivy.lang import Builder
 from kivy.compat import PY2
 from kivy.app import App
+from utils import logs
 import traceback
 import sys
 
@@ -290,7 +291,13 @@ class MMplayerApp(App):
     root_widget = None
 
     store_path = global_vars.DIR_CONF + '/mmplayer.json'
-    store = JsonStore(store_path, indent=4, sort_keys=True)
+    try:
+        store = JsonStore(store_path, indent=4, sort_keys=True)
+    except:
+        store = None
+        logs.error(
+            'MMplayerApp: failed to load JsonStore at path {}\n'.format(
+                store_path))
 
     def build(self):
         self.root_widget = MMplayer(self)
@@ -339,6 +346,7 @@ class MMplayerApp(App):
 
     def on_stop(self):
         if not hasattr(self, 'app_is_stopping_now'):
+            Logger.info('MMplayerApp: on_stop')
             self.app_is_stopping_now = True
             root = self.root_widget
             new_settings = [('volume', root.media_control.volume)]

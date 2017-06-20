@@ -25,7 +25,7 @@ class SettingHandler(object):
 
     def update_store_properties(self):
         global update_callbacks, store
-        name = 'ED_' + self.store_name
+        name = ''.join(('ED_', self.store_name))
         if name:
             for attr, default_value in self.store_properties:
                 setter = self.setter(attr)
