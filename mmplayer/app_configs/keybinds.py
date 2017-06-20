@@ -13,10 +13,15 @@ class Config(ConfigBase):
     @staticmethod
     def load_after(root):
         app = App.get_running_app()
-        # kb_system.log_keys = True
+        kb_system.log_keys = True
 
         kb_system.add(
-            'theme_randomize', keys.NUM_MULTIPLY, 'down', app.mtheme.randomize)
+            'theme_randomize', keys.NUM_MULTIPLY, 'down', app.mtheme.randomize,
+            modifier=['none'])
+        kb_system.add(
+            'theme_reset', keys.NUM_MULTIPLY, 'down', app.mtheme.set_defaults,
+            modifier=['ctrl'])
+
         kb_system.add(
             'gui_scale+', keys.NUM_PLUS, 'down', app.mlayout.increase_scale)
         kb_system.add(

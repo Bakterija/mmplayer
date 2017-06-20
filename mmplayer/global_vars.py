@@ -202,6 +202,10 @@ class ThemeManager(SettingHandler, EventDispatcher):
         self.store_name = 'ThemeManager'
         self.update_store_properties()
 
+    def set_defaults(self):
+        for attr, value in self.store_properties:
+            setattr(self, attr, value)
+
     def randomize(self):
         for x in self.properties():
             nc = self.get_random_color()

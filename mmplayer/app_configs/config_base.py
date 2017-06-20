@@ -1,5 +1,5 @@
 class ConfigBase(object):
-    # critical = 
+    critical = False
 
     def load_before(self, root_widget):
         pass
