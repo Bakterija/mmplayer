@@ -136,7 +136,7 @@ def on_key_event(key, modifier, is_down):
                     if v['modifier'] == ['none'] and not modifier:
                         v['callback']()
                         found = True
-                    if not v['modifier'] or v['modifier'] == modifier:
+                    elif not v['modifier'] or v['modifier'] == modifier:
                         v['callback']()
                         found = True
         if not found:

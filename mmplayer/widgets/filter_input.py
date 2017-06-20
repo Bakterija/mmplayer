@@ -24,7 +24,7 @@ Builder.load_string('''
         border: 0, 0, 0, 0
         markup: True
         foreground_color: root.text_color
-        font_size: int(self.height * 0.5)
+        font_size: int(self.height * 0.45)
         multiline: False
         on_text_validate: root.filter_text = self.text
         hint_text: '' if self.focus else 'Filter'

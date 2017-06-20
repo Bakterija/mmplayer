@@ -6,6 +6,8 @@ from kivy.metrics import cm, dp
 from kivy.logger import Logger
 from kivy.lang import Builder
 from random import randrange
+from utils import logs
+import copy
 import os
 
 DIR_HOME = os.path.expanduser("~")+'/'
@@ -114,32 +116,38 @@ class LayoutManager(SettingHandler, EventDispatcher):
             'spacing': 1,
             'scale': 1.0
         }
-        self.set_defaults()
+        self.set_defaults(ignore_scale=True)
         self.store_properties = self.defaults.items()
         self.store_name = 'LayoutManager'
         self.update_store_properties()
 
-    def set_defaults(self):
+    def set_defaults(self, ignore_scale=False):
         for k, v in self.defaults.items():
+            if k == 'scale' and ignore_scale:
+                continue
             setattr(self, k , v)
 
     def increase_scale(self):
-        self.scale += 0.1
+        self.set_scale(self.scale + 0.1)
 
     def decrease_scale(self):
-        self.scale -= 0.1
+        self.set_scale(self.scale - 0.1)
 
-    def on_scale(self, _, value):
-        Logger.info('LayoutManager: set scale to %s' % (value))
-        for k, v in self.defaults.items():
+    def set_scale(self, value):
+        value = round(value, 1)
+        if value == self.scale:
+            Logger.info('LayoutManager: set_scale: same value, ignoring')
+            return
+        logs.info('LayoutManager: set scale to %s' % (value))
+        defaults = copy.copy(self.defaults)
+        for k, v in defaults.items():
             if k != 'scale':
-                setattr(self, k , v)
+                defaults[k] = int(v * value)
+
         for x in self.properties():
             if x != 'scale':
-                def_val = self.defaults[x]
-                new_val = int(def_val * self.scale)
-                setattr(self, x, new_val)
-
+                setattr(self, x, defaults[x])
+        self.scale = value
 
 class ThemeManager(SettingHandler, EventDispatcher):
     '''Global EventDispatcher for theme color values,

@@ -111,7 +111,7 @@ class InfoWidget(BoxLayout):
         if self.last_label['time'] + self.last_label['ttl'] > timenow:
             kwargs['ttl'] = (timenow - self.last_label['time'] +
                              self.last_label['ttl'] + kwargs['ttl'])
-        self.add_widget(InfoLabel(**kwargs))
+        self.add_widget(InfoLabel(**kwargs), index=len(self.children))
         self.last_label['time'] = timenow
         self.last_label['ttl'] = kwargs['ttl']
 
