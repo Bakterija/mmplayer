@@ -12,8 +12,7 @@
 #: import TerminalWidget widgets.terminal_widget.TerminalWidget
 
 
-<Jotube>:
-    side_bar_width: int(cm(4))
+<MMplayer>:
     upper_bar_height: app.mlayout.button_height
     lower_bar_height: app.mlayout.playback_bar_height
     lower_bar_offset_y: 0
@@ -25,6 +24,8 @@
     BoxLayout:
         id: sm_area
         size_hint: None, None
+        size: root.sm_area_width, root.sm_area_height
+        pos: sidebar.width, root.lower_bar_height
         canvas.before:
             Color:
                 rgba: app.mtheme.background0
@@ -43,8 +44,8 @@
         resizable_right: True
         orientation: 'vertical'
         size_hint: None, None
-        size: cm(4), root.sm_area_height
-        min_resizable_width: root.side_bar_width
+        size: app.mlayout.sidebar_width, root.sm_area_height
+        min_resizable_width: app.mlayout.defaults['sidebar_width']
         max_resizable_width: self.min_resizable_width * 2
         pos: 0 - root.side_bar_offset_x, root.lower_bar_height
         resizable_border: int(cm(0.5))
@@ -112,7 +113,7 @@
             # on_press: app.mtheme.randomize()
             # canvas:
             #     Color:
-            #         rgba: app.mtheme.col_btn_down if self.state == 'down' else app.mtheme.col_btn_normal
+            #         rgba: app.mtheme.button_down if self.state == 'down' else app.mtheme.button_normal
             #     Rectangle:
             #         source: 'data/material/more.png'
             #         size: self.size

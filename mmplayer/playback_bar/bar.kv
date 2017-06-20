@@ -3,9 +3,16 @@
     height: int(self.parent.height) - 1
     width: int(self.height)
 
+<PlaybackBarVolumeButton@HoverCanvasButton>
+<PlaybackBarShuffleButton@HoverCanvasButton>
+
+<PlaybackSliderLabel@Label>
+    size_hint_x: None
+    width: int(max(self.texture_size[0],  self.font_size * 5))
+
 <PlayBackBar>:
     background_color: app.mtheme.bar_color
-    spacing: 1
+    spacing: app.mlayout.spacing
     canvas.before:
         Color:
             rgb: self.background_color
@@ -33,20 +40,20 @@
         size_hint_x: None
         width: int(cm(0.4))
 
-    Label:
+    PlaybackSliderLabel:
         id: progress_label1
-        size_hint_x: None
-        width: int(self.texture_size[0] + cm(0.5))
         text: root.media_progress_val_readable
+        halign: 'right'
+
     SliderProgressBar:
-        id: progress1
+        id: slider_seek
         size_hint_x: None
-        width: int(root.width - btn1.width - btn2.width - btn3.width - sep1.width - sep2.width - sep3.width - vol_img.width - progress2.width - cm(0.7) - progress_label1.width - progress_label2.width)
+        width: int(root.width - btn1.width - btn2.width - btn3.width - sep1.width - sep2.width - sep3.width - btn_volume.width - slider_volume.width - cm(0.7) - progress_label1.width - progress_label2.width - btn_shuffle.width - sep4.width)
         max: root.media_progress_max
-    Label:
+        value2: root.media_progress_val
+
+    PlaybackSliderLabel:
         id: progress_label2
-        size_hint_x: None
-        width: int(self.texture_size[0] + cm(0.5))
         text: root.media_progress_max_readable
 
     Widget:
@@ -54,20 +61,33 @@
         size_hint_x: None
         width: int(cm(0.4))
 
-    Image:
-        id: vol_img
-        size_hint_x: None
+    PlaybackBarShuffleButton:
+        id: btn_shuffle
+        size_hint: None, None
+        pos_hint: {'center_y': 0.5}
         width: int(cm(0.5))
-        source: 'data/volume/mute.png' if not root.media_volume else 'data/volume/down.png' if root.media_volume < 50.0 else 'data/volume/up.png'
+        height: self.width
 
     Widget:
         id: sep3
         size_hint_x: None
+        width: int(cm(0.2))
+
+    PlaybackBarVolumeButton:
+        id: btn_volume
+        size_hint: None, None
+        pos_hint: {'center_y': 0.5}
+        width: int(cm(0.5))
+        height: self.width
+
+    Widget:
+        id: sep4
+        size_hint_x: None
         width: int(cm(0.1))
 
     SliderProgressBar:
-        id: progress2
+        id: slider_volume
         size_hint_x: None
         width: int(cm(2.5))
         max: 100.0
-        value: int(self.seeking_touch_value) if self.seeking_touch else int(root.media_volume)
+        value2: root.media_volume

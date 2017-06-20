@@ -1,6 +1,7 @@
 from .base import BasePlaylist
 from kivy.logger import Logger
 from utils import get_unicode
+from copy import deepcopy
 
 
 class FileLoaderPlaylist(BasePlaylist):
@@ -18,14 +19,11 @@ class FileLoaderPlaylist(BasePlaylist):
 
     def update(self):
         pass
-        # folder_files = self.get_files(self.load_path)
-        # for i, x in enumerate(folder_files):
-        #     folder_files[i]['index'] = i
-        # self.media = folder_files
 
     def add_path(self, path):
         path = get_unicode(path)
-        self.media = self.media + self.get_files(path)
+        new_files = self.get_files(path)
+        self.media = self.media + new_files
         self.refresh_media_id()
         self.save()
 
@@ -56,10 +54,17 @@ class FileLoaderPlaylist(BasePlaylist):
 
     def save(self):
         '''Save playlist'''
+        save_list = []
+        for i, mdict in enumerate(self.media):
+            new_dict = {}
+            for k, v in mdict.items():
+                if k in self.saved_media_keys:
+                    new_dict[k] = v
+            save_list.append(new_dict)
         self.save_json({
             'name': self.name,
             'playlist_type': 'file_loader',
-            'media': self.media
+            'media': save_list
         })
 
     @staticmethod

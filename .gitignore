@@ -93,7 +93,6 @@ bin/
 *.apk
 *.pyc
 *.pyo
-*.sh
 *.spec
 
 settings.ini

@@ -14,8 +14,12 @@ import appworker
 cache = {}
 '''Dict stores all loaded media information in dicts with media path keys'''
 
-_qu_worker = Queue()
+_qu_worker = []
+_qu_worker_current_index = 0
 _qu_results = Queue()
+
+update_timer = 0.1
+
 worker_state = {}
 '''Dict stores media path key and state string pares,
 state can be "waiting", "working", "done"
@@ -67,6 +71,7 @@ def _update(dt):
     Then puts new tasks into worker queue, if remaining_tasks is low'''
     t0 = time()
     global scheduled_paths, _qu_worker, _qu_results, remaining_tasks
+    global worker_state, _qu_worker_current_index, update_timer
     for i in range(20):
         try:
             result = _qu_results.get_nowait()
@@ -78,19 +83,29 @@ def _update(dt):
         t_paths = []
         remlist = []
         for i, x in enumerate(reversed(scheduled_paths)):
-            if x not in t_paths:
-                t_paths.append(x)
-                worker_state[x] = 'working'
-            if len(t_paths) == 10:
-                break
+            if x in worker_state and worker_state[x] == 'done':
+                pass
+            else:
+                if x not in t_paths:
+                    t_paths.append(x)
+                    worker_state[x] = 'working'
+                if len(t_paths) == 10:
+                    break
             remlist.append(i)
 
         for x in remlist:
             del scheduled_paths[-1]
 
+        len_worker_queue = len(_qu_worker) - 1
         for x in reversed(t_paths):
-            _qu_worker.put(x)
+            _qu_worker[_qu_worker_current_index].put(x)
+            _qu_worker_current_index += 1
+            if _qu_worker_current_index > len_worker_queue:
+                _qu_worker_current_index = 0
             remaining_tasks += 1
+
+    if update_timer != -1:
+        Clock.schedule_once(_update, update_timer)
     # print (time() - t0, remaining_tasks, len(scheduled_paths))
 
 def worker_thread(ind, qwork, qresults):
@@ -104,11 +119,13 @@ def worker_thread(ind, qwork, qresults):
 
 def start_workers(count):
     '''Starts workers and schedules _update function with interval'''
-    global _qu_worker, _qu_results
+    global _qu_worker, _qu_results, update_timer
     if info_ffprobe.find_ffprobe():
-        Clock.schedule_interval(_update, 0.2)
+        Clock.schedule_once(_update, update_timer)
         for i in range(count):
-            t = Thread(target=worker_thread, args=(i, _qu_worker, _qu_results))
+            new_queue = Queue()
+            _qu_worker.append(new_queue)
+            t = Thread(target=worker_thread, args=(i, new_queue, _qu_results))
             t.daemon = True
             t.start()
     else:

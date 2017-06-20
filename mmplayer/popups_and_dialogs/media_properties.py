@@ -14,35 +14,43 @@ import global_vars as gvars
 
 Builder.load_string('''
 #: import ConditionLayout widgets.condition_layout.ConditionLayout
-#: import FocusButton widgets.focus_button.FocusButton
+#: import FocusButtonScroller widgets.focus_button.FocusButtonScroller
 #: import Clipboard kivy.core.clipboard.Clipboard
 
 <MediaPropertiesDialogText>:
     orientation: 'horizontal'
     size_hint: 1, None
-    height: lbl2.height
+    height: tinput.height
     Label:
-        id: lbl1
+        id: label
         size_hint_x: None
-        width: int(root.width * 0.3)
+        width: int(root.width * 0.2)
         valign: 'top'
-        height: lbl2.height
+        height: tinput.height
         text_size: self.size
         text: root.t_key
 
-    Label:
-        id: lbl2
+    CompatTextInputScroller:
+        id: tinput
         size_hint: None, None
-        width: int(root.width * 0.7)
-        valign: 'top'
+        width: int(root.width * 0.8)
         text_size: self.width, None
-        height: self.texture_size[1]
+        height: self.minimum_height
+        text_size: self.width, None
         text: root.t_value
+        multiline: True
+        foreground_color: app.mtheme.text
+        background_active: ''
+        background_normal: ''
+        background_disabled_normal: ''
+        background_color: (0.3, 0.3, 0.8, 0.15)
 
 <MediaPropertiesDialog>:
     size_hint: 0.8, 0.7
     title: 'Media properties dialog'
     ScrollView:
+        id: scroller
+        do_scroll_x: False
         BoxLayout:
             size_hint: 1, None
             height: self.minimum_height
@@ -62,13 +70,15 @@ Builder.load_string('''
                 height: app.mlayout.button_height
                 condition: True if root.containing_directory else False
                 spacing: app.mlayout.spacing * 4
-                FocusButton:
+                FocusButtonScroller:
                     id: open_fld_button
+                    scroll_when_focused: scroller
                     is_subfocus: True
                     text: 'Open containing directory'
                     on_release: root.open_cont_dir()
-                FocusButton:
+                FocusButtonScroller:
                     id: copy_path_button
+                    scroll_when_focused: scroller
                     is_subfocus: True
                     text: 'Copy path'
                     on_release: Clipboard.copy(root.mpath)
@@ -111,11 +121,11 @@ class MediaPropertiesDialog(FocusBehaviorCanvas, AppPopup):
         '''
         grid = self.ids.grid
         # Adds key and value pairs from media_dict argument
+        button_list = []
         for k, v in media_dict.items():
             if k in self.ignored_properties:
                 continue
-            btn = MediaPropertiesDialogText(k, v)
-            grid.add_widget(btn)
+            button_list.append((k, v))
 
         # Attempts to get and add file tags
         # and other important information from global media cache
@@ -126,18 +136,23 @@ class MediaPropertiesDialog(FocusBehaviorCanvas, AppPopup):
 
             mc = media_cache.get(mpath, None)
             if mc:
-                duration = mc.get(mpath, None)
+                duration = mc.get('duration', None)
                 if duration:
                     duration = seconds_to_minutes_hours(duration)
-                    grid.add_widget(
-                        MediaPropertiesDialogText('duration', duration))
+                    button_list.append(('duration', duration))
                 mc_format = mc.get('format', None)
                 if mc_format:
-                    for k in ('artist', 'title', 'album', 'genre', 'date'):
-                        tagtext = ''.join(('TAG:', k))
-                        val = media_cache.get(tagtext, '')
-                        if val:
-                            grid.add_widget(MediaPropertiesDialogText(k, val))
+                    for k, v in mc_format.items():
+                        if k[:4] == 'TAG:':
+                            k = k[4:]
+                            button_list.append((k, v))
+        for k, v in button_list:
+            btn = MediaPropertiesDialogText(k, v)
+            tinput = btn.ids.tinput
+            tinput.is_subfocus = True
+            tinput.scroll_when_focused = self.ids.scroller
+            self.subfocus_widgets.insert(-2, tinput)
+            grid.add_widget(btn)
 
     def open_cont_dir(self):
         '''Open directory that contains file'''

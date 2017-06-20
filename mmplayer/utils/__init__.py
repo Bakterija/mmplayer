@@ -1,5 +1,6 @@
 from kivy.compat import PY2
 import os, webbrowser
+from time import time
 
 def get_containing_directory(file_path):
     '''Returns directory path which contains file_path'''
@@ -22,24 +23,23 @@ def get_unicode(string):
             string = string.decode('utf-8')
     return string
 
-def get_files(self, path, sort='abc'):
+def get_files(path, filter_ext=None):
     '''Finds and returns list of all files in path and sub directories in it'''
     templist = []
-    time0 = time()
-    if os.path.isfile(path):
-        return [get_default_media_dict(path)]
-
     for dirname, dirnames, filenames in os.walk(path):
         for file_name in filenames:
             file_path = os.path.join(dirname, file_name)
-            new_file = get_default_media_dict(file_path)
-            if new_file:
-                templist.append(new_file)
-    # if sort == 'abc':
-    #     templist
-    if time() - time0 > 1.0:
-        Logger.info('get_files: found {} files in {} seconds'.format(
-            len(templist), time() - time0))
+            if filter_ext:
+                can_add = False
+                for ext in filter_ext:
+                    len_ext = len(ext)
+                    if file_path[-len_ext:] == ext:
+                        can_add = True
+                    if can_add:
+                        templist.append(file_path)
+                        break
+            else:
+                templist.append(file_path)
     return templist
 
 def is_exe(fpath):

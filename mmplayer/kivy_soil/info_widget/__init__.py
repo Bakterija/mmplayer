@@ -104,13 +104,14 @@ class InfoWidget(BoxLayout):
     last_label = {'time': 0.0, 'ttl': 0.0}
 
     def _add_label(self, **kwargs):
+        kwargs['text'] = str(kwargs['text'])
         timenow = int(time())
         self.msg_log.append(
             {'time':timenow, 'type':kwargs['tp'], 'message':kwargs['text']})
         if self.last_label['time'] + self.last_label['ttl'] > timenow:
             kwargs['ttl'] = (timenow - self.last_label['time'] +
                              self.last_label['ttl'] + kwargs['ttl'])
-        self.add_widget(InfoLabel(**kwargs))
+        self.add_widget(InfoLabel(**kwargs), index=len(self.children))
         self.last_label['time'] = timenow
         self.last_label['ttl'] = kwargs['ttl']
 

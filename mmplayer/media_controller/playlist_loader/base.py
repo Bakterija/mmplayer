@@ -3,6 +3,7 @@ from kivy.event import EventDispatcher
 from kivy.logger import Logger
 from utils import get_unicode
 from kivy.compat import PY2
+from utils import logs
 from time import time
 import json
 import os
@@ -48,6 +49,9 @@ class BasePlaylist(EventDispatcher):
         '.m4a', '.mp4', '.mkv', '.mdl', '.mpg', '.mp2', '.mpeg',
         '.mpe', '.mpv', '.avi', '.flv', '.wav', '.mid', '.mv2', '.m4v'
         }
+    saved_media_keys = {
+        'ext', 'name', 'path', 'duration'
+        }
 
     def __init__(self, **kwargs):
         global next_id
@@ -56,15 +60,15 @@ class BasePlaylist(EventDispatcher):
         next_id += 1
         self.bind(media=self.refresh_media_id)
 
-    def set_playing(self, index):
-        self.remove_playing()
-        self.cur_playing = index
-        self.media[index]['state'] = 'playing'
+    # def set_playing(self, index):
+    #     self.remove_playing()
+    #     self.cur_playing = index
+    #     self.media[index]['state'] = 'playing'
 
-    def remove_playing(self):
-        if self.cur_playing != -1:
-            self.media[self.cur_playing]['state'] = 'default'
-            self.cur_playing = -1
+    # def remove_playing(self):
+    #     if self.cur_playing != -1:
+    #         self.media[self.cur_playing]['state'] = 'normal'
+    #         self.cur_playing = -1
 
     def update(self):
         pass
@@ -74,6 +78,8 @@ class BasePlaylist(EventDispatcher):
         self.path = path
         self.name = data['name']
         self.playlist_type = data['playlist_type']
+        for x in iter(self.media):
+            x['playlist_name'] = self.name
 
     def add_path(self, path):
         '''Add file path to playlist'''
@@ -90,10 +96,13 @@ class BasePlaylist(EventDispatcher):
         Logger.error('{} has an empty create method'.format(self))
 
     def save_json(self, playlist_dict):
-        with open(self.path, 'w') as outfile:
-            json.dump(
-                playlist_dict, outfile, indent=4,
-                sort_keys=True, separators=(',', ':'))
+        try:
+            with open(self.path, 'w') as outfile:
+                json.dump(
+                    playlist_dict, outfile, indent=4,
+                    sort_keys=True, separators=(',', ':'))
+        except:
+            logs.error('Playlist: failed to save "%s"\n' % self.name, trace=True)
 
     def remove(self):
         '''Delete playlist'''
@@ -120,14 +129,16 @@ class BasePlaylist(EventDispatcher):
         templist = []
         time0 = time()
         if os.path.isfile(path):
-            return [self.get_default_media_dict(path)]
-
-        for dirname, dirnames, filenames in os.walk(path):
-            for file_name in filenames:
-                file_path = os.path.join(dirname, file_name)
-                new_file = self.get_default_media_dict(file_path)
-                if new_file:
-                    templist.append(new_file)
+            media_dict = self.get_default_media_dict(path)
+            if media_dict:
+                templist = [media_dict]
+        else:
+            for dirname, dirnames, filenames in os.walk(path):
+                for file_name in filenames:
+                    file_path = os.path.join(dirname, file_name)
+                    new_file = self.get_default_media_dict(file_path)
+                    if new_file:
+                        templist.append(new_file)
         # if sort == 'abc':
         #     templist
         if time() - time0 > 1.0:
@@ -136,6 +147,9 @@ class BasePlaylist(EventDispatcher):
         return templist
 
     def get_default_media_dict(self, file_path):
+        '''Returns a media dict with unicode values,
+        if file extension is in self.allowed_extensions,
+        otherwise returns nothing'''
         file_name = os.path.basename(file_path)
         _fp, file_ext = os.path.splitext(file_path)
         if file_ext not in self.allowed_extensions:
@@ -144,7 +158,8 @@ class BasePlaylist(EventDispatcher):
             'name': get_unicode(file_name),
             'ext': get_unicode(file_ext),
             'path': get_unicode(file_path),
-            'state': 'default'}
+            'state': 'normal',
+            'playlist_name': self.name}
 
     def refresh_media_id(self, *args):
         '''Updates id numbers for all files in self.media ListProperty'''
@@ -156,6 +171,9 @@ class BasePlaylist(EventDispatcher):
                 mp[x['path']].append(i)
             else:
                 mp[x['path']] = [i]
+            x['playlist_name'] = self.name
+            if not 'state' in x:
+                x['state'] = 'normal'
         self.media_paths = mp
 
     @staticmethod

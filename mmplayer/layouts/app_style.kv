@@ -1,3 +1,53 @@
+<PlayBackButton>:
+    col_normal: app.mtheme.text
+    col_hover: app.mtheme.button_hover
+    col_down: app.mtheme.button_down
+    color: self.col_down if self.state == 'down' else self.col_hover if self.hovering else self.col_normal
+
+<PlaybackBarVolumeButton>:
+    source_vol_down: 'data/volume/down.png'
+    source_vol_up: 'data/volume/up.png'
+    source_mute: 'data/volume/mute.png'
+    col_normal: app.mtheme.text
+    col_hover: app.mtheme.button_hover
+    col_muted: app.mtheme.text_disabled
+    color: self.col_muted if self.parent.muted else self.col_hover if self.hovering else self.col_normal
+    source: self.source_mute if not self.parent.media_volume else self.source_vol_down if self.parent.media_volume < 50.0 else self.source_vol_up
+
+<PlaybackBarShuffleButton>:
+    col_normal: app.mtheme.text_disabled
+    col_hover: app.mtheme.button_hover
+    col_down: app.mtheme.button_down
+    color: self.col_down if self.parent.shuffle else self.col_hover if self.hovering else self.col_normal
+    source: 'data/material/shuffle.png'
+
+<MediaButton>:
+    background_normal: app.mtheme.media_normal
+    background_playing: app.mtheme.media_playing
+    background_hover: app.mtheme.media_hover
+    background_selected: app.mtheme.media_selected
+    background_error: app.mtheme.media_error
+    background_disabled: app.mtheme.media_disabled
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        Color:
+            rgba: self.background_selected if self.selected and self.state != 'playing' else (0, 0, 0, 0)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<ScrollView>:
+    scroll_timeout: 0
+    scroll_type: ['bars', 'content']
+    bar_width: app.mlayout.scrollbar_width
+    scroll_wheel_distance: scroll_wheel_distance
+    bar_color: app.mtheme.scrollbar
+    bar_inactive_color: app.mtheme.scrollbar_inactive
+
 <RecycleView>:
     canvas.before:
         Color:
@@ -6,23 +56,19 @@
             pos: self.right - self.bar_width, self.pos[1]
             size: self.bar_width, self.height
 
+<TextInput>:
+    cursor_color: self.foreground_color
+
 <Popup>:
     title_size: button_height05
     separator_height: 0
-    title_color: app.mtheme.col_text
+    title_color: app.mtheme.text
 
 <FilterInputBox>:
     size_hint: 1, None
     height: app.mlayout.button_height
     background_color: app.mtheme.bar_border
-    text_color: app.mtheme.col_text
-
-<ScrollView>:
-    scroll_type: ['bars', 'content']
-    bar_width: app.mlayout.scrollbar_width
-    scroll_wheel_distance: scroll_wheel_distance
-    bar_color: app.mtheme.scrollbar
-    bar_inactive_color: scrollbar_inactive_color
+    text_color: app.mtheme.text
 
 <CompatTextInput>:
     font_size: app.mlayout.button_height05
@@ -30,8 +76,8 @@
 <Label>:
     # size_hint_y: None
     font_size: app.mlayout.font_size
-    color: app.mtheme.col_text
-    disabled_color: app.mtheme.col_text_disabled
+    color: app.mtheme.text
+    disabled_color: app.mtheme.text_disabled
 
 <FocusBehaviorCanvas>:
     border_color: app.mtheme.focus_border
@@ -44,7 +90,7 @@
     font_size: int(self.height * 0.5)
     background_normal: ''
     background_down: ''
-    background_color: app.mtheme.col_btn_down if self.state == 'down' else app.mtheme.col_btn_normal
+    background_color: app.mtheme.button_down if self.state == 'down' else app.mtheme.button_normal
 
 <SideBarViewClass>:
     height: self.minimum_height
@@ -57,7 +103,7 @@
     height: app.mlayout.button_height
     text_size: self.width, None
     font_size: int(self.height * 0.6)
-    color: app.mtheme.col_theme2 if self.selected else app.mtheme.col_theme0 if self.hovering else app.mtheme.col_text
+    color: app.mtheme.col_theme2 if self.selected else app.mtheme.col_theme0 if self.hovering else app.mtheme.text
 
 <SideBarPlaylistButton>:
     opened: True if app.root.media_control.cur_viewed_playlist and self.path == app.root.media_control.cur_viewed_playlist.path and app.root.manager.current == 'media' else False
@@ -69,7 +115,7 @@
             pos: self.pos
             size: int(cm(0.3)), self.height
         Color:
-            rgba: app.mtheme.col_text if self.played else (0, 0, 0, 0)
+            rgba: app.mtheme.text if self.played else (0, 0, 0, 0)
         Rectangle:
             source: 'data/volume/up.png'
             pos: self.right - int(cm(0.45)), self.y + int(self.height * 0.5) - int(cm(0.2))

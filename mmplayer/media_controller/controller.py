@@ -14,6 +14,8 @@ import media_info
 
 
 class MediaController(Widget):
+    playlist_ids = DictProperty()
+
     playlists = DictProperty()
     '''DictProperty with sections with lists of playlist objects'''
 
@@ -40,10 +42,17 @@ class MediaController(Widget):
     last_media = None
     '''dict of currently played media file'''
 
+    volume = NumericProperty(-1)
+    shuffle = BooleanProperty(False)
+    muted = BooleanProperty(False)
+    _volume_before_muted = 0
+
     videoframe = None
     videoframe_is_visible = BooleanProperty(False)
     playing_video = BooleanProperty(False)
     videoframe_small = None
+
+    default_relative_volume = 10
 
     def __init__(self, mplayer, **kwargs):
         self.register_event_type('on_playlist_update')
@@ -51,11 +60,49 @@ class MediaController(Widget):
         self.mplayer = mplayer
         self.mplayer.bind(on_start=self._on_mplayer_start)
         self.mplayer.bind(on_video=self.on_mplayer_video)
-        self.skip_seek, self.seek_lock = 0, 0
-        # self.reset_playlists()
         Clock.schedule_interval(self.update_seek, 0.1)
         media_info.info_update_callback = self.on_media_info_update
+        media_info.update_timer = 0.05
         Clock.schedule_once(lambda *a: media_info.start_workers(2), 1)
+
+    def set_volume(self, value):
+        value = int(value)
+        if value < 0:
+            value = 0
+        elif value > 100:
+            value = 100
+        if self.muted and value > 0:
+            self.muted = False
+        self.volume = value
+        self.mplayer.set_volume(value)
+        Logger.info('MediaController: set_volume: %s' % (value))
+
+    def set_volume_relative(self, value):
+        value = int(value)
+        if self.muted:
+            self.set_volume(self._volume_before_muted + value)
+        else:
+            self.set_volume(self.volume + value)
+
+    def volume_increase(self, *args):
+        self.set_volume_relative(self.default_relative_volume)
+
+    def volume_decrease(self, *args):
+        self.set_volume_relative(-self.default_relative_volume)
+
+    def on_muted(self, _, value):
+        if value:
+            self._volume_before_muted = self.volume
+            self.set_volume(0)
+            Logger.info('MediaController: muted')
+        else:
+            self.set_volume(self._volume_before_muted)
+            Logger.info('MediaController: unmuted')
+
+    def on_shuffle(self, _, value):
+        self.mplayer.shuffle = value
+        Logger.info(
+            'MediaController: on_shuffle: set mplayer shuffle to %s' % value)
 
     def on_playlist_update(self, *args):
         '''Event fired when playlist DictProperty is updated'''
@@ -65,28 +112,40 @@ class MediaController(Widget):
         '''Updates attributes when mplayer starts media'''
         state = self.mplayer.get_state_all()
         media = state['cur_media']
-        if self.last_media:
-            if self.last_media['state'] == 'playing':
-                self.last_media['state'] = 'default'
 
-        if 'id' in media:
-            index = media['id']
-            self.playing_id = index
-            if self.cur_played_playlist:
-                self.cur_played_playlist.set_playing(index)
-            else:
-                media['state'] = 'playing'
-        else:
-            self.playing_id = -9
-            if self.cur_played_playlist:
-                self.cur_played_playlist.remove_playing()
-            media['state'] = 'playing'
+        if self.last_media:
+            last_id = self.last_media['id']
+            plname = self.last_media.get('playlist_name', None)
+            playlist = playlist_loader.get_playlist_by_name(plname)
+            if playlist.media[last_id]['state'] == 'playing':
+                playlist.media[last_id]['state'] = 'normal'
+                self.last_media = 'normal'
+
+        self.playing_id = media.get('id')
+        plname = media.get('playlist_name', None)
+        media_playlist = playlist_loader.get_playlist_by_name(plname)
+        media_playlist.media[self.playing_id]['state'] = 'playing'
+        # if 'id' in media:
+        #     index = media['id']
+            # self.playing_id = index
+            # if self.cur_played_playlist:
+            #     self.cur_played_playlist.set_playing(index)
+            # else:
+        #     media['state'] = 'playing'
+        # else:
+        #     self.playing_id = -9
+        #     if self.cur_played_playlist:
+        #         self.cur_played_playlist.remove_playing()
+        # media['state'] = 'playing'
 
         self.playing_name = media['name']
         self.playing_path = media['path']
         self.last_media = media
         self.refresh_playlist_view()
         self.refresh_queue_view()
+
+    def on_self_playing_id(self, _, value):
+        print (self.playing_id, value)
 
     def on_mplayer_video(self, value, player=None):
         '''Updates self.playing_video property when video starts/stops'''
@@ -97,8 +156,9 @@ class MediaController(Widget):
 
     def on_playlist_media(self, playlist, media):
         '''Updates playlist view when playlist changes'''
-        if playlist.path == self.cur_viewed_playlist.path:
-            self.view_playlist.update_data()
+        if self.cur_viewed_playlist:
+            if playlist.path == self.cur_viewed_playlist.path:
+                self.view_playlist.update_data()
 
     def attach_playlist_view(self, widget):
         self.view_playlist = widget
@@ -297,7 +357,6 @@ class MediaController(Widget):
 
     def reset_playlists(self, *args):
         time0 = time()
-        self.playlist_ids = {}
         pl = playlist_loader.load_from_directories((
             'media/playlists/', gvars.DIR_PLAYLISTS))
         self.playlists = pl

@@ -7,6 +7,8 @@ from kivy.clock import Clock
 from time import time
 import weakref
 
+active = True
+
 focusable_widgets = []
 '''Storage list for references to FocusBehavior widgets without focus grab'''
 
@@ -29,7 +31,6 @@ def on_mouse_move(window, pos):
     '''
     if current_focus and current_focus.remove_focus_on_touch_move:
         remove_focus()
-Window.bind(mouse_pos=on_mouse_move)
 
 def on_parent(self, parent):
     '''Adds widget with parent to focusable_widgets or focus_grab_widgets
@@ -51,7 +52,7 @@ def find_next_focusable(widget_list):
     '''Searches a list, finds currently focused widget
     and next widget with self.is_focusable set to. Returns both
     '''
-    len_widgets = len(focusable_widgets)
+    len_widgets = len(widget_list)
     previous = (-1, None)
     new = (-1, None)
     for i, widget in enumerate(widget_list):
@@ -71,6 +72,8 @@ def focus_next():
     or first widget in focus_grab_widgets list, if it is not empty.
     If focus_grab_widgets list is not empty and focus widget has widgets
     in self.subfocus_widgets list, cycles focus between itself and those'''
+    global prev_focused_widgets, focus_grab_widgets, focus_grab_widgets
+    global current_focus
     new_focus = None
     if focus_grab_widgets:
         fwidget = focus_grab_widgets[0]
@@ -87,18 +90,23 @@ def focus_next():
             new_focus = fwidget
 
     elif focusable_widgets:
-        prev, new = find_next_focusable(focusable_widgets)
-        if new[0] != -1:
-            new_focus = new[1]
-        elif prev == -1:
-            remove_focus()
-        else:
-            new_focus = focusable_widgets[0]
+        if not current_focus:
+            for x in prev_focused_widgets:
+                widget = x()
+                if widget in focusable_widgets:
+                    new_focus = widget
+
+        if not new_focus:
+            prev, new = find_next_focusable(focusable_widgets)
+            if new[0] == -1:
+                new_focus = focusable_widgets[0]
+            else:
+                new_focus = new[1]
     if new_focus:
         set_focus(new_focus)
         # Logger.info('focus: focus_next: %s' % (current_focus))
 
-def remove_focus():
+def remove_focus(*args):
     '''Remove focus from current_focus widget'''
     global current_focus
     # Logger.info('focus: removing focus %s' % (current_focus))
@@ -117,7 +125,9 @@ def set_focus_previous(*args):
 
 def set_focus(widget, change_previous=True):
     '''Focus a widget and update prev_focused_widgets'''
-    global current_focus, prev_focused_widgets, max_previous_widgets
+    global current_focus, prev_focused_widgets, max_previous_widgets, active
+    if not active:
+        return
     widget.focus = True
     if current_focus and change_previous:
         if not widget.is_subfocus:
@@ -129,6 +139,21 @@ def set_focus(widget, change_previous=True):
     current_focus = widget
     # Logger.info('focus: set_focus: %s - %s' % (
     #     time(), current_focus.__class__.__name__))
+
+def activate(*args):
+    global active
+    active = True
+
+def on_window_focus(_, value):
+    global active
+    if value:
+        Clock.schedule_once(activate, 0.1)
+    else:
+        active = False
+        remove_focus()
+
+Window.bind(mouse_pos=on_mouse_move)
+Window.bind(focus=on_window_focus)
 
 
 class FocusBehavior(Widget):

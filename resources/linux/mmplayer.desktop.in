@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=%APP_NAME%
+Comment=%DESCRIPTION%
+Exec=python %PATH_EXEC%
+Icon=%PATH_ICON%
+Type=Application
+StartupNotify=true
+Categories=Application;

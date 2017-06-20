@@ -1,4 +1,3 @@
-from utils.not_implemented import show_error as show_not_implemented
 from .media_view_base import MediaRecycleviewBase
 from .media_view_base import MediaButton
 from kivy.logger import Logger

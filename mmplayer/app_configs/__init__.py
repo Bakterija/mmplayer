@@ -3,7 +3,8 @@ from .user_settings import Config as UserConfig
 from .keybinds import Config as KeybindConfig
 from .sidebar_loader import Config as SidebarLoader
 from .terminal_input_handler import Config as TerminalConfig
-
+from utils import logs
+import importlib
 
 class AppConfigHandler(object):
     root_widget = None
@@ -21,11 +22,29 @@ class AppConfigHandler(object):
 
     def load_before(self):
         for name in self.config_instances:
-            self.config_instances[name].load_before(self.root_widget)
+            try:
+                self.config_instances[name].load_before(self.root_widget)
+            except Exception as e:
+                if self.config_instances[name].critical:
+                    raise e
+                else:
+                    logs.error('AppConfigHandler: load_before \n', trace=True)
 
     def load_after(self):
         for name in self.config_instances:
-            self.config_instances[name].load_after(self.root_widget)
+            try:
+                self.config_instances[name].load_after(self.root_widget)
+            except Exception as e:
+                if self.config_instances[name].critical:
+                    raise e
+                else:
+                    logs.error('AppConfigHandler: load_after \n', trace=True)
 
     def load_with_args(self, name, *args, **kwargs):
-        self.config_instances[name].load_with_args(*args, **kwargs)
+        try:
+            self.config_instances[name].load_with_args(*args, **kwargs)
+        except Exception as e:
+            if self.config_instances[name].critical:
+                raise e
+            else:
+                logs.error('AppConfigHandler: load_with_args \n', trace=True)

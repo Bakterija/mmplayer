@@ -16,11 +16,18 @@ class Config(ConfigBase):
         # kb_system.log_keys = True
 
         kb_system.add(
-            'theme_randomize', keys.NUM_MULTIPLY, 'down', app.mtheme.randomize)
+            'theme_randomize', keys.NUM_MULTIPLY, 'down', app.mtheme.randomize,
+            modifier=['none'])
         kb_system.add(
-            'gui_scale+', keys.NUM_PLUS, 'down', app.mlayout.increase_scale)
+            'theme_reset', keys.NUM_MULTIPLY, 'down', app.mtheme.set_defaults,
+            modifier=['ctrl'])
+
         kb_system.add(
-            'gui_scale-', keys.NUM_MINUS, 'down', app.mlayout.decrease_scale)
+            'gui_scale+', keys.NUM_PLUS, 'down', app.mlayout.increase_scale,
+            modifier=['ctrl'])
+        kb_system.add(
+            'gui_scale-', keys.NUM_MINUS, 'down', app.mlayout.decrease_scale,
+            modifier=['ctrl'])
 
         kb_system.add('add_playlist', keys.N, 'down',
                       root.mgui_add_playlist, modifier=['ctrl'])
@@ -49,10 +56,10 @@ class Config(ConfigBase):
 
         kb_system.add(
             'vol_increase', keys.UP, 'down',
-            root.ids.playback_bar.volume_increase, modifier=['ctrl'])
+            root.media_control.volume_increase, modifier=['ctrl'])
         kb_system.add(
             'vol_decrease', keys.DOWN, 'down',
-            root.ids.playback_bar.volume_decrease, modifier=['ctrl'])
+            root.media_control.volume_decrease, modifier=['ctrl'])
         kb_system.add(
             'mplayer_previous', keys.LEFT, 'down',
             root.mplayer_previous, modifier=['alt'])

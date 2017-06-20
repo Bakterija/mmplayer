@@ -4,6 +4,9 @@ from kivy.core.window import Window
 from time import time
 import weakref
 
+_hover_grab_widget = None
+'''Weak reference to widget which has grabbed hover'''
+
 _hover_widgets = []
 '''Weak references to all HoverBehavior instances'''
 
@@ -13,10 +16,14 @@ min_hover_height = 0
 def on_mouse_move(win, pos):
     '''Compares mouse position with widget positions
     and sets hover to false or true'''
-    global _hover_widgets, min_hover_height
+    global _hover_widgets, min_hover_height, _hover_grab_widget
     hovered = []
+    if _hover_grab_widget:
+        hover_widget_refs = [_hover_grab_widget]
+    else:
+        hover_widget_refs = _hover_widgets
     t0 = time()
-    for ref in _hover_widgets:
+    for ref in hover_widget_refs:
         self = ref()
         if self:
             if self.collide_point_window(*pos):
@@ -99,6 +106,15 @@ class HoverBehavior(Widget):
     def on_leave(self, *args):
         '''Is called when mouse leaves widget position'''
         pass
+
+    def grab_hover(self, *args):
+        global _hover_grab_widget
+        _hover_grab_widget = weakref.ref(self)
+
+    def ungrab_hover(self, *args):
+        global _hover_grab_widget
+        if _hover_grab_widget() == self:
+            _hover_grab_widget = None
 
     def collide_point_window(self, x, y):
         sx, sy = self.to_window(self.x, self.y)

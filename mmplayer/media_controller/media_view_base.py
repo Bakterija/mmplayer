@@ -4,17 +4,17 @@ from kivy_soil.app_recycleview import AppRecycleView, AppRecycleBoxLayout
 from kivy_soil.app_recycleview import AppRecycleViewClass
 from kivy_soil.kb_system.canvas import FocusBehaviorCanvas
 from kivy_soil.hover_behavior import HoverBehavior
-from utils import not_implemented, seconds_to_minutes_hours
-from .dialog_properties import MediaPropertiesDialog
+from popups_and_dialogs.media_properties import MediaPropertiesDialog
 from popups_and_dialogs import media_context_menu
 from kivy.uix.behaviors import ButtonBehavior
 from behaviors.button2 import ButtonBehavior2
 from kivy.uix.stacklayout import StackLayout
+from utils import seconds_to_minutes_hours
+from kivy.clock import Clock, mainthread
 from kivy_soil.kb_system import keys
 from kivy.utils import platform
 from kivy.logger import Logger
 from kivy.lang import Builder
-from kivy.clock import Clock
 from kivy.metrics import cm
 import media_info
 
@@ -22,10 +22,9 @@ import media_info
 class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
                   StackLayout):
     '''Base view class of media buttons'''
-
     id = NumericProperty(-1)
-    bg_colors = DictProperty()
-    state = StringProperty('default')
+    background_color = ListProperty([0.2, 0.2, 0.2, 1])
+    state = StringProperty('normal')
     mtype = StringProperty('media')
     name = StringProperty()
     text = StringProperty()
@@ -41,10 +40,17 @@ class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
     genre = StringProperty()
     date = StringProperty()
 
+    def __init__(self, **kwargs):
+        super(MediaButton, self).__init__(**kwargs)
+        for x in ('state', 'hovering', 'background_normal'
+                  'background_playing', 'background_hover',
+                  'background_selected', 'background_error',
+                  'background_disabled',):
+            self.fbind(x, self.update_bg_color)
+        self.update_bg_color()
+
     def refresh_view_attrs(self, rv, index, data):
         super(MediaButton, self).refresh_view_attrs(rv, index, data)
-        self.hovering = False
-        self.set_bg_color()
         if self.path not in media_info.cache:
             media_info.get_info_async(self.path)
             self.update_media_info(None)
@@ -95,27 +101,15 @@ class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
                 self.parent.select_with_touch(self.index)
             self.rv.ids.box.open_context_menu()
 
-    def set_bg_color(self, *args):
-        if self.hovering and self.state != 'playing':
-            self.bg_color = self.bg_colors['hover']
-        else:
-            if self.mtype == 'media':
-                self.bg_color = self.bg_colors[self.state]
-            elif self.mtype == 'folder':
-                self.bg_color = self.bg_colors['folder']
-            elif self.mtype == 'disabled':
-                self.bg_color = self.bg_colors['folder']
-
-    def on_enter(self, *args):
-        if self.state != 'playing':
-            self.set_bg_color()
-
-    def on_leave(self, *args):
-        if self.state != 'playing':
-            self.set_bg_color()
-
-    def on_selected(self, _, value):
-        self.set_bg_color()
+    def update_bg_color(self, *args):
+        try:
+            if self.hovering and self.state != 'playing':
+                self.background_color = self.background_hover
+            else:
+                cl = getattr(self, 'background_%s' % (self.state))
+                self.background_color = cl
+        except Exception as e:
+            Logger.error(e)
 
     def open_properties_dialog(self, *args):
         '''Opens MediaPropertiesDialog with own media information'''
@@ -130,7 +124,7 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
     def __init__(self, **kwargs):
         super(MediaRecycleviewBase, self).__init__(**kwargs)
         self.ids.box.context_menu_function = self.context_menu_function
-        self.filter_keys = ['name']
+        self.filter_keys = ['name', 'title', 'text', 'path']
 
     def context_menu_function(self, widget, index, pos):
         media_context_menu.open_menu(self, widget, index, pos)
@@ -210,10 +204,13 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
     def find_playing(self):
         '''Finds dict in list where state == 'playing',
         returns -1 if not found'''
-        for i, x in enumerate(self.data):
-            if x['state'] == 'playing':
-                return i
-        return -1
+        try:
+            for i, x in enumerate(self.data):
+                if x['state'] == 'playing':
+                    return i
+            return -1
+        except Exception as e:
+            Logger.error(e)
 
     def find_view_with_path(self, path):
         '''Finds child that has path from argument,
@@ -221,6 +218,7 @@ class MediaRecycleviewBase(FocusBehaviorCanvas, AppRecycleView):
         for x in self.children[0].children:
             if x.path == path:
                 return x
+
 
 if platform == 'android':
     Builder.load_file('media_controller/controller.kv')

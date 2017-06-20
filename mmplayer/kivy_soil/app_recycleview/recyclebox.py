@@ -128,7 +128,7 @@ class AppRecycleBoxLayout(RecycleBoxLayout):
             self.selected_widgets = set()
             for x in range(start, end+1):
                 self.selected_widgets.add(x)
-        self.parent.refresh_from_layout()
+        self.update_selected()
 
     def select_all(self):
         for i in range(len(self.parent.data)):

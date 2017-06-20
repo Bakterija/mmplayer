@@ -1,0 +1,8 @@
+Package: %APP_NAME%
+Version: %APP_VERSION%
+Depends: python, python-pip, cython, build-essential, git, python-dev, ffmpeg, libsdl2-dev, libsdl2-image-dev, libsdl2-mixer-dev, libsdl2-ttf-dev, libportmidi-dev, libswscale-dev, libavformat-dev, libavcodec-dev, zlib1g-dev, libgstreamer1.0-dev, gstreamer1.0-plugins-good, gstreamer1.0-plugins-base, gstreamer1.0-plugins-bad, gstreamer1.0-plugins-ugly, xclip
+Section: base
+Priority: optional
+Architecture: amd64
+Maintainer: %AUTHOR% %AUTHOR_EMAIL%
+Description: %DESCRIPTION%
