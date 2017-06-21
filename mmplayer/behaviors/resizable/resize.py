@@ -73,8 +73,13 @@ from kivy.uix.modalview import ModalView
 from kivy.logger import Logger
 from kivy.app import App
 from time import time
+from kivy.logger import Logger
 import os
-path = os.path.split(os.path.realpath(__file__))[0]
+try:
+    path = os.path.split(os.path.realpath(__file__))[0]
+except Exception as e:
+    Logger.exception('resize: Failed to get path\n%s' % (e))
+    path = ''
 
 __all__ = ('ResizableBehavior', )
 

@@ -67,20 +67,20 @@ class Worker(object):
                     'text': 'Worker: task started: %s-%s' % (
                         task['task_id'], task['method'])})
 
-                if task['method'] == 'playlist_from_path':
-                    plbase = BasePlaylist()
-                    files = plbase.get_files(task['path'])
-                    index = task['start_index']
-                    for i, f in enumerate(files):
-                        f['index'] = index + i
-                    result = {
-                        'method': 'task_done', 'task_id': task['task_id'],
-                        'playlist': files}
-                    self.tasks_done.put({
-                        'method': 'Logger_info',
-                        'text': 'Worker: task done: %s-%s' % (
-                            task['task_id'], task['method'])})
-                    self.tasks_done.put(result)
+                # if task['method'] == 'playlist_from_path':
+                #     plbase = BasePlaylist()
+                #     files = plbase.get_files(task['path'])
+                #     index = task['start_index']
+                #     for i, f in enumerate(files):
+                #         f['index'] = index + i
+                #     result = {
+                #         'method': 'task_done', 'task_id': task['task_id'],
+                #         'playlist': files}
+                #     self.tasks_done.put({
+                #         'method': 'Logger_info',
+                #         'text': 'Worker: task done: %s-%s' % (
+                #             task['task_id'], task['method'])})
+                #     self.tasks_done.put(result)
             sleep(0.01)
 
 
