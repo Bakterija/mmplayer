@@ -1,5 +1,6 @@
 from kivy.properties import NumericProperty, StringProperty
 from kivy_soil.app_recycleview import SingleSelectRecycleBox
+from kivy_soil.app_recycleview.behaviors.quickfind import AppRecycleViewQuickFind
 from kivy_soil.app_recycleview import AppRecycleView
 from kivy_soil.kb_system.canvas import FocusBehaviorCanvas
 from .ctx_menu import open_sidebar_ctx_menu
@@ -25,8 +26,9 @@ Builder.load_string('''
 ''')
 
 
-class SideBarRecycleView(FocusBehaviorCanvas, AppRecycleView):
-    grab_keys = [keys.TAB]
+class SideBarRecycleView(FocusBehaviorCanvas, AppRecycleViewQuickFind,
+                         AppRecycleView):
+    grab_keys = [keys.TAB, keys.ESC]
 
     def __init__(self, **kwargs):
         super(SideBarRecycleView, self).__init__(**kwargs)
@@ -59,6 +61,9 @@ class SideBarRecycleView(FocusBehaviorCanvas, AppRecycleView):
         elif key in (keys.MENU, keys.MENU_WIN):
             box.open_context_menu()
         elif key == keys.TAB:
+            box.deselect_all()
+            return True
+        elif key == keys.ESC:
             box.deselect_all()
             return True
 

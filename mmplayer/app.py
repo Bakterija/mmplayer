@@ -17,6 +17,7 @@ from kivy.config import Config
 Config.set('kivy', 'exit_on_escape', 0)
 # Config.set('kivy', 'log_level', 'debug')
 from kivy import require as kivy_require
+from utils import window_patch
 kivy_require('1.9.2')
 import global_vars
 from kivy.logger import Logger, LoggerHistory
@@ -293,11 +294,10 @@ class MMplayerApp(App):
     store_path = global_vars.DIR_CONF + '/mmplayer.json'
     try:
         store = JsonStore(store_path, indent=4, sort_keys=True)
-    except:
+    except Exception as e:
         store = None
         logs.error(
-            'MMplayerApp: failed to load JsonStore at path {}\n'.format(
-                store_path))
+            'MMplayerApp: failed to load JsonStore \n{}'.format(str(e)))
 
     def build(self):
         self.root_widget = MMplayer(self)

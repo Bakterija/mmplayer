@@ -182,7 +182,10 @@ class FocusBehavior(Widget):
 
     is_focusable = True
 
+    receive_textinput = False
+
     def __init__(self, **kwargs):
+        self.register_event_type('on_focus_textinput')
         super(FocusBehavior, self).__init__(**kwargs)
         self.bind(focus=self.remove_other_focused)
         if not self.is_subfocus:
@@ -238,4 +241,7 @@ class FocusBehavior(Widget):
         pass
 
     def on_key_up(self, key, *args):
+        pass
+
+    def on_focus_textinput(self, text):
         pass

@@ -69,7 +69,7 @@ class Config(ConfigBase):
     #     self.save_defaults(self.defaults.items())
 
     def _save_settings(self, setting_list):
-        Logger.info('UserConfig: saving settings for %s')
+        Logger.info('UserConfig: saving settings')
         for attr, value in setting_list:
             section = self.defaults[attr][0]
             self.update_store(section, attr, value)

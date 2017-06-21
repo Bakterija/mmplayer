@@ -4,7 +4,9 @@ where necessary'''
 
 from . import focus as focus_behavior
 from kivy.core.window import Window
+from kivy.core.window import Keyboard
 from kivy.logger import Logger
+from kivy.clock import Clock
 from time import time
 from . import keys
 import traceback
@@ -83,7 +85,7 @@ def remove(name):
         Logger.error('key_binder: key "%s" is not in keybinds' % (name))
         raise e
 
-def on_key_down(win, key, *args):
+def on_key_down(window, key, scan, text, modifier):
     '''Detects pressed keys, modifiers and calls on_key_event'''
     global last_key, last_modifier, last_time
     modifier = _update_modifier(key, True)
@@ -96,14 +98,14 @@ def on_key_down(win, key, *args):
     last_modifier = modifier
     last_time = time_now
 
-    on_key_event(key, modifier, True)
+    on_key_event(key, modifier, True, text=text)
 
-def on_key_up(win, key, *args):
+def on_key_up(window, key, *args):
     '''Detects released keys, modifiers and calls on_key_event'''
     modifier = _update_modifier(key, False)
     on_key_event(key, modifier, False)
 
-def on_key_event(key, modifier, is_down):
+def on_key_event(key, modifier, is_down, text=None):
     '''Logs keys(if log_keys is True),
     updates global modifiers,
     does global hotkey callbacks, calls focused widget
@@ -122,11 +124,13 @@ def on_key_event(key, modifier, is_down):
         Logger.info('kb_dispatcher: on_key_{}: {} - {}'.format(
             kstate, key, modifier))
 
-    dispatch_global = True
+    disp_global = True
     cur_focus = focus_behavior.current_focus
+    if text and cur_focus and cur_focus.receive_textinput:
+        return
     if cur_focus and key in cur_focus.grab_keys:
-        dispatch_global = dispatch_to_focused(key, modifier, is_down)
-    if dispatch_global:
+        disp_global = dispatch_to_focused(key, modifier, is_down)
+    if disp_global:
         found = False
         for k, v in keybinds.items():
             if v['category'] in disabled_categories:
@@ -156,6 +160,18 @@ def dispatch_to_focused(key, modifier, is_down):
             e = traceback.format_exc()
             Logger.error('kb_system: dispatch_to_focused: %s' % (e))
 
+def on_textinput(window, text):
+    global log_keys
+    if log_keys:
+        Logger.info('kb_dispatcher: on_textinput: %s' % (text))
+    cf = focus_behavior.current_focus
+    if cf:
+        try:
+            retval = cf.dispatch('on_focus_textinput', text)
+        except:
+            e = traceback.format_exc()
+            Logger.error('kb_system: on_textinput: %s' % (e))
+
 def _update_modifier(key, is_down):
     '''Saves modifier hold state to module globals
     (held_alt, held_ctrl, held_shift).
@@ -182,3 +198,4 @@ def log_warning(text):
 
 Window.bind(on_key_down=on_key_down)
 Window.bind(on_key_up=on_key_up)
+Window.bind(on_textinput=on_textinput)
