@@ -5,6 +5,7 @@ for handling the data, functions, callbacks
 '''
 
 from utils.compat_queue import Queue, Empty
+from kivy.utils import platform
 from kivy.logger import Logger
 from time import time, sleep
 from .worker import Worker
@@ -27,7 +28,11 @@ class WorkerInterface(object):
     _next_task_id = 0
     '''Task counter, used as task_callbacks dict key for every new task'''
 
-    use_multiprocess = True
+
+    if platform == 'win':
+        use_multiprocess = False
+    else:
+        use_multiprocess = True
 
     def __init__(self):
         self.id = WorkerInterface._next_worker_id
@@ -101,7 +106,8 @@ def add_task(task, callback):
     '''Calls WorkerInterface instance add_task method.
     It puts tasks into worker queue'''
     global workers
-    workers[0].add_task(task, callback)
+    if workers:
+        workers[0].add_task(task, callback)
 
 def stop():
     '''Tells workers to stop'''

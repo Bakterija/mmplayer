@@ -22,10 +22,6 @@ class Config(ConfigBase):
 
     def load_after(self, root):
         store = self.app.store
-        if not store:
-            Logger.warning('user_settings: load_after: app.store is None, '
-                           'skipping load settings')
-            return
         missing = []
         for attr, items in self.defaults.items():
             success = False
