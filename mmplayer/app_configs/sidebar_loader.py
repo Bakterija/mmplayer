@@ -66,7 +66,6 @@ class Config(ConfigBase):
 
         new_list = list(self.default_list)
         cur_section = ''
-
         for section, playlists in  sorted(playlist_dict.items()):
             sorted_playlists = sorted(playlists, key=lambda x: x.name)
             for plist in sorted_playlists:

@@ -9,7 +9,6 @@ from kivy.clock import Clock
 from time import time, sleep
 from . import info_ffprobe
 from kivy.app import App
-import appworker
 
 cache = {}
 '''Dict stores all loaded media information in dicts with media path keys'''

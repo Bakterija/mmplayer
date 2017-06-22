@@ -20,10 +20,10 @@ class LayoutMethods(object):
 
     def init_widgets(self, *args):
         Window.bind(mouse_pos=self.on_mouse_move)
-        Window.bind(on_maximize=self.on_maximize)
-        Window.bind(on_restore=self.on_restore)
-        Window.bind(on_cursor_enter=self.on_cursor_enter)
-        Window.bind(on_cursor_leave=self.on_cursor_leave)
+        # Window.bind(on_maximize=self.on_maximize)
+        # Window.bind(on_restore=self.on_restore)
+        # Window.bind(on_cursor_enter=self.on_cursor_enter)
+        # Window.bind(on_cursor_leave=self.on_cursor_leave)
         self.bind(size=self.on_size)
         self.bind(sm_area_width=self.on_size)
         self.bind(lower_bar_offset_y=self.on_size)

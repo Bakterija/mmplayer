@@ -58,17 +58,15 @@ class BasePlaylist(EventDispatcher):
         super(BasePlaylist, self).__init__(**kwargs)
         self.id = next_id
         next_id += 1
-        self.bind(media=self.refresh_media_id)
+        self.fbind('media', self.refresh_media_id)
+        self.fbind('name', self.update_playlist_name)
 
-    # def set_playing(self, index):
-    #     self.remove_playing()
-    #     self.cur_playing = index
-    #     self.media[index]['state'] = 'playing'
-
-    # def remove_playing(self):
-    #     if self.cur_playing != -1:
-    #         self.media[self.cur_playing]['state'] = 'normal'
-    #         self.cur_playing = -1
+    def update_playlist_name(self, _, value):
+        if self.media:
+            old_value = self.media[0]['playlist_name']
+            if old_value != value:
+                for x in self.media:
+                    x['playlist_name'] = value
 
     def update(self):
         pass
@@ -78,6 +76,7 @@ class BasePlaylist(EventDispatcher):
         self.path = path
         self.name = data['name']
         self.playlist_type = data['playlist_type']
+
         for x in iter(self.media):
             x['playlist_name'] = self.name
 

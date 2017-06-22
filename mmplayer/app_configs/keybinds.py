@@ -3,6 +3,7 @@ from .config_base import ConfigBase
 from kivy_soil.kb_system import keys
 from kivy.app import App
 from kivy_soil import kb_system
+from functools import partial
 
 class Config(ConfigBase):
 
@@ -14,6 +15,13 @@ class Config(ConfigBase):
     def load_after(root):
         app = App.get_running_app()
         # kb_system.log_keys = True
+
+        kb_system.add(
+            'window_pos_text', keys.F10, 'down',
+            partial(app.set_window_pos, 280, 84))
+
+        kb_system.add(
+            'window_fullscreen', keys.F11, 'down', app.toggle_fullscreen)
 
         kb_system.add(
             'theme_randomize', keys.NUM_MULTIPLY, 'down', app.mtheme.randomize,

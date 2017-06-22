@@ -15,6 +15,7 @@ import sys
 from kivy.utils import platform
 from kivy.config import Config
 Config.set('kivy', 'exit_on_escape', 0)
+# Config.set('kivy', 'fullscreen', 'auto')
 # Config.set('kivy', 'log_level', 'debug')
 from kivy import require as kivy_require
 from utils import window_patch
@@ -22,6 +23,7 @@ kivy_require('1.9.2')
 import global_vars
 from kivy.logger import Logger, LoggerHistory
 from kivy.properties import StringProperty, ListProperty, ObjectProperty
+from kivy.properties import BooleanProperty
 from popups_and_dialogs.create_playlist import CreatePlaylistPopup
 from popups_and_dialogs.remove_playlist import RemovePlaylistPopup
 from kivy.uix.screenmanager import ScreenManager, NoTransition
@@ -299,16 +301,80 @@ class MMplayerApp(App):
         logs.error(
             'MMplayerApp: failed to load JsonStore \n{}'.format(str(e)))
 
+    cursor_inside = BooleanProperty(False)
+    fullscreen = BooleanProperty(False)
+    maximized = BooleanProperty(False)
+    last_size = ListProperty([0, 0])
+    last_pos = ListProperty([0, 0])
+    _window_update_lock = False
+
     def build(self):
         self.root_widget = MMplayer(self)
         self.icon = __icon_path__
+        if platform in ('linux', 'win'):
+            Clock.schedule_interval(self._update_window_pos, 0.2)
+            Window.bind(on_cursor_enter=self.on_cursor_enter)
+            Window.bind(on_cursor_leave=self.on_cursor_leave)
+            Window.bind(on_maximize=self.on_window_maximize)
+            Window.bind(on_restore=self.on_window_restore)
+            self.root_widget.bind(size=self._update_window_size)
         return self.root_widget
+
+    def _update_window_size(self, _, value):
+        if not self._window_update_lock:
+            self.last_size = value
+
+    def _update_window_pos(self, *args):
+        if not self._window_update_lock:
+            self.last_pos = [Window.left, Window.top]
+
+    def on_cursor_enter(self, _):
+        self.cursor_inside = True
+
+    def on_cursor_leave(self, _):
+        self.cursor_inside = False
+
+    def on_window_restore(self, *args):
+        self.maximized = False
+
+    def on_window_maximize(self, *args):
+        self.maximized = True
+
+    def set_window_pos(self, x, y):
+        Window.left = x
+        Window.top = y
+        Window.show()
+        Window.restore()
+
+    def set_window_size(self, size):
+        Window.size = size
+        Window.hide()
+
+    def toggle_fullscreen(self, *args):
+        if self.fullscreen:
+            Window.fullscreen = False
+            self.fullscreen = False
+            new_pos = (self.last_pos)
+            new_size = (self.last_size)
+            Clock.schedule_once(
+                lambda dt: self.set_window_pos(*new_pos), 0.2)
+            Clock.schedule_once(
+                lambda dt: self.set_window_size(new_size), 0)
+            self._window_update_lock = False
+        else:
+            self._window_update_lock = True
+            Window.maximize()
+            Clock.schedule_once(
+                lambda dt: setattr(Window, 'fullscreen', True), 0.2)
+            self.fullscreen = True
+        kb_system.active = False
+        Clock.schedule_once(lambda dt: setattr(kb_system, 'active', True), 0.3)
 
     def on_start(self):
         self.root_widget.init_widgets()
         self.last_frame_time = time() - TIME0
         Logger.info('App: on_start: %s' % (self.last_frame_time))
-        Clock.schedule_once(lambda dt: self.on_some_frame(1, 8), 0)
+        Clock.schedule_once(lambda dt: self.on_some_frame(1, 12), 0)
 
     def on_some_frame(self, current, fmax):
         this_time = time() - TIME0
