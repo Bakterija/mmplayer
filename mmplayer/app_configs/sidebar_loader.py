@@ -30,7 +30,7 @@ class Config(ConfigBase):
         self.set_defaults(root_widget)
 
     def load_after(self, root_widget):
-        pass
+        self.root.sidebar_items = list(self.default_list)
 
     def get_button(self, wtype, name, left_click, right_click):
         return {
