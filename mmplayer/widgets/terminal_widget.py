@@ -1,14 +1,19 @@
 from kivy.properties import ListProperty, NumericProperty
+from kivy_soil.kb_system.canvas import FocusBehaviorCanvas
+from kivy_soil.kb_system import keys
+from kivy_soil.app_recycleview import AppRecycleView
+from kivy_soil.app_recycleview import AppRecycleViewClass
 from kivy.logger import Logger, LoggerHistory
+from kivy.uix.boxlayout import BoxLayout
 from kivy.animation import Animation
 from kivy.uix.label import Label
-from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder
 from kivy.clock import Clock
 from kivy.metrics import cm
 
 
 kv = '''
+#: import TerminalWidgetLabel widgets.terminal_widget_label.TerminalWidgetLabel
 <TerminalWidget>:
     orientation: 'vertical'
     size_hint: None, None
@@ -21,54 +26,48 @@ kv = '''
             size: self.size
             pos: self.pos
 
-    ScrollView:
-        id: scroller
-        size_hint_y: None
-        height: root.height - root.input_height
-
-        BoxLayout:
-            id: dbview
+    TerminalWidgetScroller:
+        id: rv
+        grab_focus: True
+        subfocus_widgets: [input]
+        viewclass: 'TerminalWidgetLabel'
+        SingleSelectRecycleBox:
             orientation: 'vertical'
-            size_hint_y: None
+            size_hint: None, None
             height: self.minimum_height
+            width: self.parent.width - self.parent.bar_width
+            default_size_hint: 1, None
+            default_size: None, app.mlayout.button_height07
+            spacing: app.mlayout.spacing
 
-    TextInput:
+    CompatTextInput:
         id: input
         size_hint_y: None
+        is_subfocus: True
+        ignored_keys: [9, 96]
         height: root.input_height
         font_size: self.height * 0.5
-        background_color: 0.12, 0.12, 0.18, 1
-        foreground_color: 1, 1, 1, 1
-        cursor_color: 1, 1, 1, 1
         multiline: False
-        text_color: 1, 1, 1, 1
+        background_active: ''
+        background_normal: ''
+        background_disabled_normal: ''
+        # foreground_color: 1, 1, 1, 1
+        # cursor_color: 1, 1, 1, 1
+        background_color: (0.3, 0.3, 0.8, 0.15)
         on_text_validate: root.on_input(self, self.text)
 '''
 
-
-class TerminalView(Label):
-    def __init__(self, **kwargs):
-        super(TerminalView, self).__init__( **kwargs)
-        self.markup = True
-        self.text_size = self.size
-        self.bind(size= self.on_size)
-        self.bind(text= self.on_text_changed)
-        self.size_hint_y = None # Not needed here
-
-    def on_size(self, widget, size):
-        self.text_size = size[0], None
-        self.texture_update()
-        if self.size_hint_y == None and self.size_hint_x != None:
-            self.height = max(self.texture_size[1], self.line_height)
-        elif self.size_hint_x == None and self.size_hint_y != None:
-            self.width  = self.texture_size[0]
-
-    def on_text_changed(self, widget, text):
-        self.on_size(self, self.size)
-
-    def refresh_view_attrs(self, terminal, index, data):
-        for k, v in data.items():
-            setattr(self, k, v)
+class TerminalWidgetScroller(FocusBehaviorCanvas, AppRecycleView):
+    def on_key_down(self, key, modifier):
+        box = self.children[0]
+        if key == keys.PAGE_UP:
+            self.page_up()
+        elif key == keys.PAGE_DOWN:
+            self.page_down()
+        elif key == keys.HOME:
+            self.scroll_to_start()
+        elif key == keys.END:
+            self.scroll_to_end()
 
 
 class TerminalWidget(BoxLayout):
@@ -79,56 +78,26 @@ class TerminalWidget(BoxLayout):
     def __init__(self, **kwargs):
         super(TerminalWidget, self).__init__(**kwargs)
         Clock.schedule_once(self.after_init, 0.5)
+        self.is_focusable = False
 
     def after_init(self, *args):
+        self.fbind('data', self.ids.rv.setter('data'))
         histo = LoggerHistory()
         for x in histo.history:
             self.data.append({'text': str(x.msg)})
 
-    def on_data(self, instance, value):
-        view = self.ids.dbview
-        children_count = len(view.children)
-        value_count = len(value)
-        if children_count != value_count:
-            if children_count < value_count:
-                for count in range(0, value_count - children_count):
-                    view.add_widget(TerminalView())
-            else:
-                for count in range(0, children_count - value_count):
-                    view.remove_widget(view.children[-1])
-
-        if view.children:
-            for i, child in enumerate(reversed(view.children)):
-                child.refresh_view_attrs(self, i, value[i])
-        self.animate_scroll_bottom()
-
     def enter(self, *args):
+        self.ids.rv.is_focusable = True
         anim = Animation(pos_multiplier=1.0, d=self.anim_speed, t='out_quad')
+        self.ids.rv.scroll_to_end()
+        Clock.schedule_once(self.focus_input, 0)
         anim.start(self)
-        self.ids.input.focus = True
 
     def leave(self, *args):
+        self.ids.rv.is_focusable = False
         anim = Animation(pos_multiplier=0.0, d=self.anim_speed, t='in_quad')
         anim.start(self)
-        if self.ids.input.focus:
-            self.ids.input.focus = False
-
-    def scroll_up(self, *args):
-        distance = self.ids.scroller.convert_distance_to_scroll(0, cm(1))[1]
-        self.ids.scroller.scroll_y += distance
-        if self.ids.scroller.scroll_y > 1:
-            self.ids.scroller.scroll_y = 1
-
-    def scroll_down(self, *args):
-        distance = self.ids.scroller.convert_distance_to_scroll(0, cm(1))[1]
-        self.ids.scroller.scroll_y -= distance
-        if self.ids.scroller.scroll_y < 0:
-            self.ids.scroller.scroll_y = 0
-
-    def animate_scroll_bottom(self, force=False, *args, **kwargs):
-        if self.ids.scroller.scroll_y != 0.0 or force:
-            anim = Animation(scroll_y=0, d=self.anim_speed)
-            anim.start(self.ids.scroller)
+        self.ids.input.focus = False
 
     def toggle_pos_multiplier(self, *args):
         if self.pos_multiplier == 1.0:

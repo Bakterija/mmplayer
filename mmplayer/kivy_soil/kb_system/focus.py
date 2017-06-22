@@ -180,23 +180,34 @@ class FocusBehavior(Widget):
     '''Add widget to focus_grab_widgets or focusable_widgets,
     default is False'''
 
-    is_focusable = True
+    is_focusable = BooleanProperty(False)
 
     receive_textinput = False
 
     def __init__(self, **kwargs):
         self.register_event_type('on_focus_textinput')
         super(FocusBehavior, self).__init__(**kwargs)
-        self.bind(focus=self.remove_other_focused)
+        self.fbind('focus', self.remove_other_focused)
+        self.fbind('is_focusable', self.update_is_focusable)
         if not self.is_subfocus:
             self.bind(parent=on_parent)
             if self.grab_focus:
                 self.focus_widget(self)
 
+    def update_is_focusable(self, _, value):
+        global focus_grab_widgets, focusable_widgets
+        if value:
+            if self.grab_focus and not self in focus_grab_widgets:
+                self.on_grab_focus(None, True)
+            elif not self.grab_focus and not self in focusable_widgets:
+                on_parent(self, self.parent)
+        else:
+            self.remove_from_focus()
+
     def on_grab_focus(self, _, value):
         self.remove_from_focus()
         if self.parent:
-            on_parent(self, parent)
+            on_parent(self, self.parent)
             if value:
                 self.focus_widget(self)
 
