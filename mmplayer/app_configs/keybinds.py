@@ -1,20 +1,27 @@
 from kivy_soil.kb_system import focus as focus_behavior
-from .config_base import ConfigBase
 from kivy_soil.kb_system import keys
-from kivy.app import App
+from .config_base import ConfigBase
 from kivy_soil import kb_system
+from kivy.logger import Logger
 from functools import partial
+from kivy.app import App
+
 
 class Config(ConfigBase):
 
-    @staticmethod
-    def load_before(root):
+    def load_before(self, root):
         pass
 
-    @staticmethod
-    def load_after(root):
+    def toggle_log_keys(self, *args):
+        new_value = not kb_system.log_keys
+        Logger.info('keybinds: set log_keys: %s' % (new_value))
+        kb_system.log_keys = new_value
+
+    def load_after(self, root):
         app = App.get_running_app()
         # kb_system.log_keys = True
+
+        kb_system.add('log_keys_tgl', keys.F12, 'down', self.toggle_log_keys)
 
         kb_system.add(
             'window_pos_text', keys.F10, 'down',

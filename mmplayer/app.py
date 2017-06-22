@@ -41,6 +41,7 @@ from utils import get_unicode, logs
 from media_player import mplayer
 from kivy_soil import kb_system
 from kivy.lang import Builder
+from functools import partial
 from kivy.compat import PY2
 from kivy.app import App
 from utils import logs
@@ -253,12 +254,10 @@ class MMplayer(LayoutMethods, FloatLayout):
 
         self.ids.sidebar.bind(width=self.app.mlayout.setter('sidebar_width'))
 
-        self.ids.video_small.on_video_touch = (
-            lambda: self.switch_screen('video'))
-        self.ids.video_small.on_video_scroll_down = (
-            mcontrol.volume_increase)
-        self.ids.video_small.on_video_scroll_up = (
-            mcontrol.volume_decrease)
+        video_small = self.ids.video_small
+        video_small.on_video_touch = (partial(self.switch_screen, 'video'))
+        video_small.bind(on_video_scroll_down=mcontrol.volume_increase)
+        video_small.bind(on_video_scroll_up=mcontrol.volume_decrease)
 
         super(MMplayer, self).init_widgets()
         self.app_configurator.load_after()
