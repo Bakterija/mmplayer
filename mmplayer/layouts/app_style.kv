@@ -50,11 +50,10 @@
     scroll_wheel_distance: scroll_wheel_distance
     bar_color: app.mtheme.scrollbar
     bar_inactive_color: app.mtheme.scrollbar_inactive
-
-<RecycleView>:
+    bar_background_color: app.mtheme.scrollbar_background
     canvas.before:
         Color:
-            rgba: app.mtheme.scrollbar_background
+            rgba: self.bar_background_color
         Rectangle:
             pos: self.right - self.bar_width, self.pos[1]
             size: self.bar_width, self.height
@@ -79,7 +78,7 @@
     text_color: app.mtheme.text
 
 <CompatTextInput>:
-    font_size: app.mlayout.button_height05
+    font_size: app.mlayout.font_size
 
 <Label>:
     # size_hint_y: None
@@ -151,3 +150,11 @@
 
 <SideBarSeparator>:
     height: app.mlayout.button_height
+
+<TerminalWidget>:
+    background_color: 0.2, 0.2, 0.3, 0.9
+    font_size: app.mlayout.font_size
+
+<TerminalWidgetScroller>:
+    bar_background_color: 0.2, 0.2, 0.3, 0.9
+    border_width: 1

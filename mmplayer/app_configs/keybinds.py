@@ -98,5 +98,8 @@ class Config(ConfigBase):
             root.media_control.play_pause)
 
         kb_system.add(
-            'toggle_terminal', keys.TILDE, 'down',
-            root.ids.terminal_widget.toggle_pos_multiplier)
+            'toggle_terminal_small', keys.TILDE, 'down',
+            root.ids.terminal_widget.animate_small, modifier=['none'])
+        kb_system.add(
+            'toggle_terminal_big', keys.TILDE, 'down',
+            root.ids.terminal_widget.animate_big, modifier=['ctrl'])

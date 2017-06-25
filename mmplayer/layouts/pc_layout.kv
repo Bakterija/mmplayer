@@ -9,7 +9,7 @@
 #: import AppMenuTextItem other.garden_contextmenu.AppMenuTextItem
 #: import ContextMenu other.garden_contextmenu.ContextMenu
 #: import ContextMenuTextItem other.garden_contextmenu.ContextMenuTextItem
-#: import TerminalWidget widgets.terminal_widget.TerminalWidget
+#: import TerminalWidget kivy_soil.terminal_widget.TerminalWidget
 
 
 <MMplayer>:
@@ -145,8 +145,9 @@
 
     TerminalWidget:
         id: terminal_widget
-        size: root.width, root.height * 0.4
         pos: 0, root.height - (self.pos_multiplier * self.height)
+        small_size: root.width, int(root.height * 0.5)
+        big_size: root.width, int(root.height)
 
     InfoWidget:
         id: info_widget

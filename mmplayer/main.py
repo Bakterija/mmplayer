@@ -10,6 +10,7 @@ except:
 
 
 def main_loop():
+    from utils import logs
     import app
     import appworker
     appworker.start_workers(1)

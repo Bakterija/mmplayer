@@ -19,6 +19,7 @@ Config.set('kivy', 'exit_on_escape', 0)
 # Config.set('kivy', 'log_level', 'debug')
 from kivy import require as kivy_require
 from utils import window_patch
+from widgets import scrollview_patch
 kivy_require('1.9.2')
 import global_vars
 from kivy.logger import Logger, LoggerHistory
@@ -268,6 +269,10 @@ class MMplayer(LayoutMethods, FloatLayout):
             self.manager.ids.media_filter_widget: ('media'),
             self.manager.ids.plugin_manager: ('main')
         }
+        logs.LoggerHistoryProper.bind(
+            on_add_data=lambda obj, data: self.ids.terminal_widget.add_data(
+                data['text'], data['level']))
+
 
         # For testing
         def testfunc(*a):
@@ -373,7 +378,7 @@ class MMplayerApp(App):
         self.root_widget.init_widgets()
         self.last_frame_time = time() - TIME0
         Logger.info('App: on_start: %s' % (self.last_frame_time))
-        Clock.schedule_once(lambda dt: self.on_some_frame(1, 12), 0)
+        Clock.schedule_once(lambda dt: self.on_some_frame(1, 7), 0)
 
     def on_some_frame(self, current, fmax):
         this_time = time() - TIME0
