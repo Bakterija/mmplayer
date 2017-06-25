@@ -1,7 +1,9 @@
 from kivy.properties import ListProperty, NumericProperty
 from kivy_soil.app_recycleview import AppRecycleViewClass
 from kivy.utils import get_hex_from_color
+from kivy.utils import escape_markup
 from kivy.uix.label import Label
+import copy
 
 
 class TerminalWidgetLabel(AppRecycleViewClass, Label):
@@ -38,10 +40,10 @@ class TerminalWidgetLabel(AppRecycleViewClass, Label):
                 break
         return text
 
-    def markup_important_words(self, text):
+    def markup_important_words(self, text, len_text):
         for word in self.important_words:
             start = 0
-            for i in range(40):
+            for i in range(len_text):
                 start = text[start:].find(word) + start
                 if start == -1:
                     break
@@ -58,12 +60,27 @@ class TerminalWidgetLabel(AppRecycleViewClass, Label):
         self.index = index
         text = data['text']
         if text:
+            len_text = len(text)
+            opening = 0
+            for i in range(len_text):
+                opening = text[opening:].find('[') + opening
+                if opening == -1:
+                    break
+                else:
+                    is_closing = text[opening:].find(']')
+                    if is_closing == -1:
+                        text = '%s%s%s' % (
+                            text[:opening],
+                            escape_markup(text[opening:opening+2]),
+                            text[opening+2:])
+                    opening += 2
+
             if text[0] == '#':
                 col = get_hex_from_color((0.7, 0.7, 0.3, 1.0))
                 text = '[color=%s]%s[/color]' % (col, text)
             else:
                 text = self.markup_log_level(text)
-                text = self.markup_important_words(text)
+                text = self.markup_important_words(text, len_text)
         for attr, value in data.items():
             if attr != 'text':
                 setattr(self, attr, value)

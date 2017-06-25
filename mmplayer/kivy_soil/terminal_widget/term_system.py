@@ -43,6 +43,7 @@ class TerminalWidgetSystem(EventDispatcher):
             'import': self.do_import,
             'printer': self.printer,
             'help': self.print_help,
+            'clear': lambda: setattr(self, 'data', [])
         }
         for item in self.functions:
             self.autocomplete_words.add(item)
@@ -161,6 +162,7 @@ class TerminalWidgetSystem(EventDispatcher):
         text2 = text2.replace('"', '0')
         words = text2.split('0')
         for word in words:
+            word = word.strip()
             if word:
                 if word not in self.autocomplete_words:
                     self.autocomplete_words.add(word)
@@ -201,8 +203,8 @@ class TerminalWidgetSystem(EventDispatcher):
             self._empty_try_autocompletes += 1
             if self._empty_try_autocompletes > 1:
                 self.add_text(self.get_autocomplete_words())
-                Clock.unschedule(self.reset_empty_autocompletes)
-                Clock.schedule_once(self.reset_empty_autocompletes)
+            Clock.unschedule(self.reset_empty_autocompletes)
+            Clock.schedule_once(self.reset_empty_autocompletes, 0.5)
             return ''
         insert_text = ''
         start = -1
@@ -238,7 +240,7 @@ class TerminalWidgetSystem(EventDispatcher):
                     # Looks for matching strings in autocomplete_words
                     # Appends all results to found list
                     for x in self.autocomplete_words:
-                        if x[:len(word)] == word:
+                        if x[:len(word)].lower() == word.lower():
                             found.append(x)
 
                 len_found = len(found)
@@ -260,7 +262,7 @@ class TerminalWidgetSystem(EventDispatcher):
                         for char in found[0][match_index:]:
                             are_matching = True
                             for x in found[1:]:
-                                if x[match_index] != char:
+                                if x[match_index].lower() != char.lower():
                                     are_matching = False
                                     break
                             match_index += 1
