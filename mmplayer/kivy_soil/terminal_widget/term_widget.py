@@ -145,10 +145,13 @@ class TerminalWidget(BoxLayout):
             inputw.insert_text(text)
         elif key[0] == keys.UP:
             text = self.term_system.get_log_previous()
-            self.ids.input.text = text
+            inputw.text = text
         elif key[0] == keys.DOWN:
             text = self.term_system.get_log_next()
-            self.ids.input.text = text
+            inputw.text = text
+        elif key[0] == keys.C and modifiers == ['ctrl']:
+            self.term_system.keyboard_interrupt()
+            inputw.text = ''
         else:
             inputw.__class__.keyboard_on_key_down(
                 inputw, _, key, text, modifiers)

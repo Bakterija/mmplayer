@@ -1,7 +1,9 @@
 from __future__ import print_function
 from kivy.properties import ListProperty, NumericProperty, ObjectProperty
+from kivy.properties import BooleanProperty
 from kivy.event import EventDispatcher
 from time import time, strftime, gmtime
+from kivy.utils import platform
 from kivy.logger import Logger
 from kivy.clock import Clock
 from functools import partial
@@ -9,15 +11,32 @@ from kivy.app import App
 import traceback
 import random
 import re
+import os
+
+
+DIR_HOME = os.path.expanduser("~")
+APP_NAME = 'UNNAMED_APP'
+if platform == 'linux':
+    DIR_CONF = '%s/.config/github_bakterija/terminal_widget' % (DIR_HOME)
+else:
+    DIR_CONF = '%s/github_bakterija/terminal_widget' % (DIR_HOME)
+DIR_FUNCTIONS = '%s/_functions/' % (DIR_CONF)
+DIR_APP = '%s/%s/' % (DIR_CONF, APP_NAME)
+for x in (DIR_CONF, DIR_FUNCTIONS, DIR_APP):
+    if not os.path.exists(x):
+        os.makedirs(x)
 
 
 class TerminalWidgetSystem(EventDispatcher):
+    autocomplete_words = {'self', 'app', 'term_widget'}
+    handling_multiline_input = BooleanProperty(False)
+    typed_multilines = ListProperty()
     time_stamp_mode = NumericProperty(0)
     input_log_index = NumericProperty(0)
+    app_name = ''
     term_widget = ObjectProperty()
     _empty_try_autocompletes = 0
     input_log = ListProperty()
-    autocomplete_words = {'self', 'app', 'term_widget'}
     data = ListProperty()
     use_logger = False
     exec_locals = {}
@@ -25,6 +44,7 @@ class TerminalWidgetSystem(EventDispatcher):
     _next_id = 0
 
     def __init__(self, term_widget,**kwargs):
+        global DIR_APP, APP_NAME
         self.register_event_type('on_data')
         super(TerminalWidgetSystem, self).__init__(**kwargs)
         self.term_widget = term_widget
@@ -43,13 +63,91 @@ class TerminalWidgetSystem(EventDispatcher):
             'import': self.do_import,
             'printer': self.printer,
             'help': self.print_help,
-            'clear': lambda: setattr(self, 'data', [])
+            'clear': lambda: setattr(self, 'data', []),
+            'record': self.record_input_start,
+            'record_list': self.record_list_app,
+            'record_delete': self.record_delete,
+            'record_exec': self.record_exec,
+            'record_print': self.record_print,
+            'save': self.record_input_save
         }
         for item in self.functions:
             self.autocomplete_words.add(item)
         for item in self.properties():
             self.autocomplete_words.add(item)
         self.exec_locals = {'app': App.get_running_app(), 'self': self}
+        APP_NAME = App.get_running_app().name
+        DIR_APP = '%s/%s' % (DIR_CONF, APP_NAME)
+        if not os.path.exists(DIR_APP):
+            os.makedirs(DIR_APP)
+
+    def record_exec(self, file_name):
+        fpath = '%s/%s' % (DIR_APP, file_name)
+        if os.path.exists(fpath):
+            with open(fpath, 'r') as fp:
+                text = fp.read()
+                self.handle_input(text)
+        else:
+            self.add_text('# %s does not exist' % fpath)
+
+    def record_list_app(self, *args):
+        files = os.listdir(DIR_APP)
+        if files:
+            adt = '# Recorded files in %s\n%s' % (DIR_APP, files)
+        else:
+            adt = '# No files recorded'
+        self.add_text(adt)
+
+    def record_print(self, file_name):
+        fpath = '%s/%s' % (DIR_APP, file_name)
+        if os.path.exists(fpath):
+            with open(fpath, 'r') as fp:
+                text = fp.read().splitlines()
+                self.add_text(text)
+        else:
+            self.add_text('# %s does not exist' % fpath)
+
+    def record_delete(self, file_name):
+        fpath = '%s/%s' % (DIR_APP, file_name)
+        if os.path.exists(fpath):
+            os.remove(fpath)
+            self.add_text('# Deleted %s' % (fpath))
+        else:
+            self.add_text('# %s does not exist' % fpath)
+
+    def record_input_start(self, file_name):
+        fpath = '%s/%s' % (DIR_APP, file_name)
+        if os.path.exists(fpath):
+            self.add_text('# %s already exists' % fpath)
+        else:
+            self.add_text(
+                '# Recording input for %s, type "save" to save' % (file_name))
+            self._record_starts_at = self.input_log_index + 1
+            self._record_file_name = file_name
+
+    def record_input_save(self, *args):
+        addt = ''
+        if not hasattr(self, '_record_starts_at'):
+            addt = '# Nothing to save'
+        elif self._record_starts_at == -1:
+            addt = '# Nothing to save'
+        else:
+            fpath = '%s/%s' % (DIR_APP, self._record_file_name)
+            try:
+                with open(fpath, 'w') as fp:
+                    fp.write('')
+                    lines = self.input_log[self._record_starts_at+1:]
+                    len_lines = len(lines)
+                    joined_text = lines[0]
+                    for line in lines[1:]:
+                        joined_text = '%s\n%s' % (joined_text, line)
+                    fp.write(joined_text)
+                addt = '# Saved recorded in %s' % (fpath)
+            except Exception as e:
+                self.add_text(str(e), level='exception')
+        self._record_starts_at = -1
+        if addt:
+            self.add_text(addt)
 
     def printer(self, *args):
         new_args = []
@@ -299,46 +397,69 @@ class TerminalWidgetSystem(EventDispatcher):
 
     def handle_input(self, text):
         text = text.rstrip()
-        if not text:
-            return
-        args = text.split(' ')
-        if text[-1] == ' ':
-            text = text[:-1]
-        text_mod = args[0]
-        args = args[1:]
-        try:
-            func = self.functions.get(text_mod, None)
-            if func:
-                if args:
-                    ret = func(*args)
+        if self.handling_multiline_input or text and text[-1] == ':':
+            self.handle_input_multiline(text)
+        else:
+            if not text:
+                self.add_text('\n')
+                return
+            args = text.split(' ')
+            if text[-1] == ' ':
+                text = text[:-1]
+            text_mod = args[0]
+            args = args[1:]
+            try:
+                func = self.functions.get(text_mod, None)
+                if func:
+                    if args:
+                        ret = func(*args)
+                    else:
+                        ret = func()
+                    if ret:
+                        self.handle_return({'__ret_value__': ret})
                 else:
-                    ret = func()
-                if ret:
-                    self.handle_return({'__ret_value__': ret})
-            else:
-                self.exec_locals['__ret_value__'] = {}
+                    self.exec_locals['__ret_value__'] = {}
 
-                try:
-                    exec('__ret_value__ = %s' % (
-                        text), globals(), self.exec_locals)
-                except SyntaxError:
-                    exec(text, globals(), self.exec_locals)
-                except AttributeError:
-                    exec(text, globals(), self.exec_locals)
-                self.handle_return(self.exec_locals)
-        except Exception as e:
-            if self.use_logger:
-                Logger.error('TerminalWidgetSystem: %s\n%s' % (
-                    e, traceback.format_exc()))
-            self.add_text('TerminalWidgetSystem: %s\n%s' % (
-                    e, traceback.format_exc()),level='exception')
+                    try:
+                        exec('__ret_value__ = %s' % (
+                            text), globals(), self.exec_locals)
+                    except SyntaxError:
+                        exec(text, globals(), self.exec_locals)
+                    except AttributeError:
+                        exec(text, globals(), self.exec_locals)
+                    self.handle_return(self.exec_locals)
+            except Exception as e:
+                if self.use_logger:
+                    Logger.error('TerminalWidgetSystem: %s\n%s' % (
+                        e, traceback.format_exc()))
+                self.add_text('TerminalWidgetSystem: %s\n%s' % (
+                        e, traceback.format_exc()),level='exception')
+            if not self.typed_multilines:
+                self.add_to_input_log(text)
 
+    def add_to_input_log(self, text):
         len_input_log = len(self.input_log)
         if len_input_log == self.input_log_index:
             self.input_log.append(text)
         elif self.input_log[self.input_log_index] != text:
             self.input_log.append(text)
         self.input_log_index = len(self.input_log)
+
+    def handle_input_multiline(self, text):
+        if text:
+            if not self.handling_multiline_input:
+                self.handling_multiline_input = True
+            self.typed_multilines.append(text)
+            self.add_to_input_log(text)
+            self.add_text(text)
+        else:
+            self.handling_multiline_input = False
+            if len(self.typed_multilines) > 1:
+                joined_multilines = '\n'.join(self.typed_multilines)
+                self.handle_input(joined_multilines)
+                self.typed_multilines = []
+            else:
+                self.typed_multilines = []
 
     def handle_return(self, new_locals):
         ret = new_locals.get('__ret_value__', None)
@@ -355,3 +476,16 @@ class TerminalWidgetSystem(EventDispatcher):
                 self.add_text('#List result end')
             else:
                 self.add_text(ret)
+
+    def on_handling_multiline_input(self, _, value):
+        if value:
+            text = '# Multi line input start'
+        else:
+            text = '# Multi line input stop'
+        self.add_text(text)
+
+    def keyboard_interrupt(self):
+        if self.handling_multiline_input:
+            self.handling_multiline_input = False
+            self.typed_multilines = []
+        self.add_text('# KeyboardInterrupt')
