@@ -3,28 +3,16 @@ from kivy.properties import ListProperty, NumericProperty, ObjectProperty
 from kivy.properties import BooleanProperty
 from kivy.event import EventDispatcher
 from time import time, strftime, gmtime
-from kivy.utils import platform
 from kivy.logger import Logger
 from kivy.clock import Clock
 from functools import partial
+from . import shared_globals
 from kivy.app import App
 import traceback
+import importlib
 import random
 import re
 import os
-
-
-DIR_HOME = os.path.expanduser("~")
-APP_NAME = 'UNNAMED_APP'
-if platform == 'linux':
-    DIR_CONF = '%s/.config/github_bakterija/terminal_widget' % (DIR_HOME)
-else:
-    DIR_CONF = '%s/github_bakterija/terminal_widget' % (DIR_HOME)
-DIR_FUNCTIONS = '%s/_functions/' % (DIR_CONF)
-DIR_APP = '%s/%s/' % (DIR_CONF, APP_NAME)
-for x in (DIR_CONF, DIR_FUNCTIONS, DIR_APP):
-    if not os.path.exists(x):
-        os.makedirs(x)
 
 
 class TerminalWidgetSystem(EventDispatcher):
@@ -44,7 +32,6 @@ class TerminalWidgetSystem(EventDispatcher):
     _next_id = 0
 
     def __init__(self, term_widget,**kwargs):
-        global DIR_APP, APP_NAME
         self.register_event_type('on_data')
         super(TerminalWidgetSystem, self).__init__(**kwargs)
         self.term_widget = term_widget
@@ -55,31 +42,43 @@ class TerminalWidgetSystem(EventDispatcher):
         Clock.schedule_interval(self.on_every_second, 1)
         self.fbind('time_stamp_mode', self.on_time_stamp_mode_reload_data)
         self.functions = {
-            'autocomplete_words': self.get_autocomplete_words,
-            'fromimport': self.do_from_import,
-            'functions': self.get_functions,
-            'properties': self.properties,
-            'setprop': self.set_property,
-            'import': self.do_import,
-            'printer': self.printer,
-            'help': self.print_help,
-            'clear': lambda: setattr(self, 'data', []),
-            'record': self.record_input_start,
-            'record_list': self.record_list_app,
-            'record_delete': self.record_delete,
-            'record_exec': self.record_exec,
-            'record_print': self.record_print,
-            'save': self.record_input_save
+            # 'autocomplete_words': self.get_autocomplete_words,
+            # 'functions': self.get_functions,
+            # 'properties': self.properties,
+            # 'setprop': self.set_property,
+            # 'printer': self.printer,
+            # 'clear': lambda: setattr(self, 'data', []),
+            # 'record': self.record_input_start,
+            # 'record_list': self.record_list_app,
+            # 'record_delete': self.record_delete,
+            # 'record_exec': self.record_exec,
+            # 'record_print': self.record_print,
+            # 'save': self.record_input_save
         }
         for item in self.functions:
             self.autocomplete_words.add(item)
         for item in self.properties():
             self.autocomplete_words.add(item)
-        self.exec_locals = {'app': App.get_running_app(), 'self': self}
-        APP_NAME = App.get_running_app().name
-        DIR_APP = '%s/%s' % (DIR_CONF, APP_NAME)
-        if not os.path.exists(DIR_APP):
-            os.makedirs(DIR_APP)
+        app = App.get_running_app()
+        self.exec_locals = {'app': app, 'self': self}
+        shared_globals.set_app_name(app.name)
+        self._import_built_in_functions()
+
+    def _import_built_in_functions(self):
+        funcpath = os.path.split(os.path.realpath(__file__))[0] + '/functions/'
+        files = os.listdir(funcpath)
+        del_list = reversed([i for i, x in enumerate(files) if x[0] == '_'])
+        for i in del_list:
+            del files[i]
+
+        for x in files:
+            x = x[:-3]
+            func_package = 'kivy_soil.terminal_widget.functions.'
+            new_module = importlib.import_module('%s%s' % (func_package, x))
+            new_func = new_module.Function
+            self.functions[new_func.name] = new_func
+            Logger.info('TerminalWidgetSystem: imported function "%s"' % (
+                new_func.name))
 
     def record_exec(self, file_name):
         fpath = '%s/%s' % (DIR_APP, file_name)
@@ -178,34 +177,6 @@ class TerminalWidgetSystem(EventDispatcher):
 
     def get_functions(self):
         return self.functions
-
-    def do_import(self, import_module, import_as):
-        text_mod = 'import %s as %s' % (import_module, import_as)
-        try:
-            exec(text_mod, globals())
-            self.add_text('Imported %s as %s' % (import_module, import_as))
-        except Exception as e:
-            self.add_text('Failed to import %s\n%s' % (import_module, str(e)))
-
-    def do_from_import(self, from_text, import_text, import_as):
-        text_mod = 'from %s import %s as %s' % (
-            from_text, import_text, import_as)
-        try:
-            exec(text_mod, globals())
-            self.add_text('Imported %s as %s' % (import_text, import_as))
-        except Exception as e:
-            self.add_text('Failed to import %s\n%s' % (import_text, str(e)))
-
-    def print_help(self):
-        ret = (
-            '# Help text\n'
-            'properties:\n{}\n'
-            'functions:\n{}\n'
-            ).format(
-                str([v for v in self.properties()]),
-                str([v for v in self.functions])
-                )
-        self.add_text(ret)
 
     def on_data(self, *args):
         pass
@@ -398,35 +369,26 @@ class TerminalWidgetSystem(EventDispatcher):
 
     def handle_input(self, text):
         text = text.rstrip()
+        self.exec_locals['__ret_value__'] = {}
         if self.handling_multiline_input or text and text[-1] == ':':
             self.handle_input_multiline(text)
         else:
-            if not text:
-                self.add_text('\n')
-                return
-            args = text.split(' ')
-            if text[-1] == ' ':
-                text = text[:-1]
-            text_mod = args[0]
-            args = args[1:]
             try:
-                func = self.functions.get(text_mod, None)
+                if not text:
+                    self.add_text('\n')
+                    return
+                func_name = text.split(' ')[0]
+                func = self.functions.get(func_name, None)
                 if func:
-                    if args:
-                        ret = func(*args)
-                    else:
-                        ret = func()
+                    ret = func.handle_input(
+                        self, globals(), self.exec_locals, text)
                     if ret:
                         self.handle_return({'__ret_value__': ret})
                 else:
-                    self.exec_locals['__ret_value__'] = {}
-
                     try:
                         exec('__ret_value__ = %s' % (
                             text), globals(), self.exec_locals)
                     except SyntaxError:
-                        exec(text, globals(), self.exec_locals)
-                    except AttributeError:
                         exec(text, globals(), self.exec_locals)
                     self.handle_return(self.exec_locals)
             except Exception as e:
