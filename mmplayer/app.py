@@ -269,10 +269,11 @@ class MMplayer(LayoutMethods, FloatLayout):
             self.manager.ids.media_filter_widget: ('media'),
             self.manager.ids.plugin_manager: ('main')
         }
+        for data in logs.LoggerHistoryProper.data:
+            self.ids.terminal_widget.add_data(data['text'], data['level'])
         logs.LoggerHistoryProper.bind(
             on_add_data=lambda obj, data: self.ids.terminal_widget.add_data(
                 data['text'], data['level']))
-
 
         # For testing
         def testfunc(*a):

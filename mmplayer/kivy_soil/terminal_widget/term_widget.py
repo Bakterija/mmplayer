@@ -43,7 +43,6 @@ kv = '''
     CompatTextInput:
         id: input
         size_hint_y: None
-        grab_focus: True
         font_name: root.font_name
         ignored_keys: [9, 96]
         border_width: 1
@@ -55,6 +54,7 @@ kv = '''
 
 class TerminalWidgetScroller(FocusBehaviorCanvas, LineSplitBehavior,
                              AppRecycleView):
+    is_focusable = False
 
     def on_key_down(self, key, modifier):
         box = self.children[0]
@@ -83,7 +83,7 @@ class TerminalWidget(BoxLayout):
 
     def __init__(self, **kwargs):
         super(TerminalWidget, self).__init__(**kwargs)
-        Clock.schedule_once(self.init_widgets, 0.3)
+        Clock.schedule_once(self.init_widgets, 0)
         self.is_focusable = False
         self._temp_init_data = []
 
@@ -116,6 +116,9 @@ class TerminalWidget(BoxLayout):
 
     def init_widgets(self, dt):
         rv = self.ids.rv
+        inputw = self.ids.input
+        inputw.is_focusable = False
+        inputw.grab_focus = True
         rv_box = self.ids.rv_box
         self.fbind('font_size', self.update_chars_per_line)
         self.fbind('font_name', self.update_rv_box_font_name)
@@ -128,9 +131,9 @@ class TerminalWidget(BoxLayout):
 
         rv.bind(width=self.update_chars_per_line)
         rv.set_data(self.term_system.data)
-        rv.input_widget = self.ids.input
+        rv.input_widget = inputw
         self.update_chars_per_line(None, self.font_size)
-        self.ids.input.keyboard_on_key_down = self.on_input_key_down
+        inputw.keyboard_on_key_down = self.on_input_key_down
         for text, level in self._temp_init_data:
             self.add_data(text, level=level)
         del self._temp_init_data
@@ -160,7 +163,7 @@ class TerminalWidget(BoxLayout):
         self.size = self.small_size
         anim = Animation(pos_multiplier=1.0, d=self.anim_speed, t='out_quad')
         Clock.schedule_once(self.focus_input, 0)
-        self.ids.rv.is_focusable = True
+        self.ids.input.is_focusable = True
         self.ids.rv.scroll_to_end()
         anim.start(self)
         self.selected_size = 'small'
@@ -169,15 +172,15 @@ class TerminalWidget(BoxLayout):
         self.size = self.big_size
         anim = Animation(pos_multiplier=1.0, d=self.anim_speed, t='out_quad')
         Clock.schedule_once(self.focus_input, 0)
-        self.ids.rv.is_focusable = True
+        self.ids.input.is_focusable = True
         self.ids.rv.scroll_to_end()
         anim.start(self)
         self.selected_size = 'big'
 
     def animate_out(self, *args):
         anim = Animation(pos_multiplier=0.0, d=self.anim_speed, t='in_quad')
-        self.ids.rv.is_focusable = False
         self.ids.input.focus = False
+        self.ids.input.is_focusable = False
         anim.start(self)
         self.selected_size = ''
 
@@ -199,7 +202,8 @@ class TerminalWidget(BoxLayout):
         widget.text = ''
 
     def focus_input(self, text):
-        self.ids.input.focus = True
+        if self.ids.input.is_focusable:
+            self.ids.input.focus = True
 
 
 Builder.load_string(kv)

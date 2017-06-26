@@ -197,14 +197,14 @@ class TerminalWidgetSystem(EventDispatcher):
             self.add_text('Failed to import %s\n%s' % (import_text, str(e)))
 
     def print_help(self):
-        ret = ('# Help text\n'
-        'properties:\n{}\n'
-        'autocomplete_words:\n{}\n'
-        'functions:\n{}\n'
-        ).format(
-            str([v for v in self.properties()]), str(self.autocomplete_words),
-            str([v for v in self.functions])
-        )
+        ret = (
+            '# Help text\n'
+            'properties:\n{}\n'
+            'functions:\n{}\n'
+            ).format(
+                str([v for v in self.properties()]),
+                str([v for v in self.functions])
+                )
         self.add_text(ret)
 
     def on_data(self, *args):
@@ -251,7 +251,7 @@ class TerminalWidgetSystem(EventDispatcher):
     def add_autocomplete_words_from_text(self, text):
         text2 = text
         for x in (' ', '!', '@', '$', '#', '%', '^', '&', '*', '(', ')',
-                  '-', '_', '=', '+', '{', '}', '[', ']', '\\', '|', '?',
+                  '-', '=', '+', '{', '}', '[', ']', '\\', '|', '?',
                   ';', ':', '<', '>', ',', '.', '/', '1', '2', '3', '4', '5',
                   '6', '7', '8', '9', '`', '~'):
             text2 = text2.replace(x, '0')
@@ -262,6 +262,7 @@ class TerminalWidgetSystem(EventDispatcher):
         for word in words:
             word = word.strip()
             if word:
+                word = word.lower()
                 if word not in self.autocomplete_words:
                     self.autocomplete_words.add(word)
 
@@ -464,18 +465,7 @@ class TerminalWidgetSystem(EventDispatcher):
     def handle_return(self, new_locals):
         ret = new_locals.get('__ret_value__', None)
         if ret:
-            if isinstance(ret, dict):
-                self.add_text('#Dict result')
-                for k, v in ret.items():
-                    self.add_text('%s: %s' % (k, v))
-                self.add_text('#Dict result end')
-            elif isinstance(ret, list):
-                self.add_text('#List result')
-                for x in iter(ret):
-                    self.add_text(x)
-                self.add_text('#List result end')
-            else:
-                self.add_text(ret)
+            self.add_text(ret)
 
     def on_handling_multiline_input(self, _, value):
         if value:

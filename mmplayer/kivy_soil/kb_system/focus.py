@@ -75,21 +75,25 @@ def focus_next():
     global prev_focused_widgets, focus_grab_widgets, focus_grab_widgets
     global current_focus
     new_focus = None
+    grabbed_focus = False
     if focus_grab_widgets:
-        fwidget = focus_grab_widgets[0]
-        if fwidget.subfocus_widgets:
-            if fwidget.focus:
-                new_focus = fwidget.subfocus_widgets[0]
-            else:
-                fprev, fnext = find_next_focusable(fwidget.subfocus_widgets)
-                if fnext[0] != -1:
-                    new_focus = fnext[1]
-                else:
+        for fwidget in focus_grab_widgets:
+            if fwidget.is_focusable:
+                grabbed_focus = True
+                # fwidget = focus_grab_widgets[0]
+                if fwidget.subfocus_widgets:
+                    if fwidget.focus:
+                        new_focus = fwidget.subfocus_widgets[0]
+                    else:
+                        fprev, fnext = find_next_focusable(fwidget.subfocus_widgets)
+                        if fnext[0] != -1:
+                            new_focus = fnext[1]
+                        else:
+                            new_focus = fwidget
+                elif not fwidget.focus:
                     new_focus = fwidget
-        elif not fwidget.focus:
-            new_focus = fwidget
 
-    elif focusable_widgets:
+    if not grabbed_focus and focusable_widgets:
         if not current_focus:
             for x in prev_focused_widgets:
                 widget = x()
@@ -191,7 +195,7 @@ class FocusBehavior(Widget):
         self.fbind('is_focusable', self.update_is_focusable)
         if not self.is_subfocus:
             self.bind(parent=on_parent)
-            if self.grab_focus:
+            if self.grab_focus and self.is_focusable:
                 self.focus_widget(self)
 
     def update_is_focusable(self, _, value):
@@ -208,7 +212,7 @@ class FocusBehavior(Widget):
         self.remove_from_focus()
         if self.parent:
             on_parent(self, self.parent)
-            if value:
+            if value and self.is_focusable:
                 self.focus_widget(self)
 
     def on_is_subfocus(self, _, value):
