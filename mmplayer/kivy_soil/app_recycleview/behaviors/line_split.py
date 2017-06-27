@@ -19,7 +19,7 @@ class LineSplitBehavior(object):
                 key = self.split_text_key
                 self._unsplit_data = [copy.copy(x) for x in data_full]
             else:
-                self._unsplited_text = []
+                self._unsplit_data = []
         if data_full:
             data_full = self.get_line_split_data(data_full)
 

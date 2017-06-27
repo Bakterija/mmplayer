@@ -1,6 +1,6 @@
 from __future__ import print_function
 from kivy.properties import ListProperty, NumericProperty, ObjectProperty
-from kivy.properties import BooleanProperty
+from kivy.properties import BooleanProperty, DictProperty
 from kivy.event import EventDispatcher
 from time import time, strftime, gmtime
 from kivy.logger import Logger
@@ -21,9 +21,9 @@ class TerminalWidgetSystem(EventDispatcher):
     typed_multilines = ListProperty()
     time_stamp_mode = NumericProperty(0)
     input_log_index = NumericProperty(0)
-    app_name = ''
     term_widget = ObjectProperty()
     _empty_try_autocompletes = 0
+    functions = DictProperty()
     input_log = ListProperty()
     data = ListProperty()
     use_logger = False
@@ -41,20 +41,7 @@ class TerminalWidgetSystem(EventDispatcher):
         self._next_id += 1
         Clock.schedule_interval(self.on_every_second, 1)
         self.fbind('time_stamp_mode', self.on_time_stamp_mode_reload_data)
-        self.functions = {
-            # 'autocomplete_words': self.get_autocomplete_words,
-            # 'functions': self.get_functions,
-            # 'properties': self.properties,
-            # 'setprop': self.set_property,
-            # 'printer': self.printer,
-            # 'clear': lambda: setattr(self, 'data', []),
-            # 'record': self.record_input_start,
-            # 'record_list': self.record_list_app,
-            # 'record_delete': self.record_delete,
-            # 'record_exec': self.record_exec,
-            # 'record_print': self.record_print,
-            # 'save': self.record_input_save
-        }
+
         for item in self.functions:
             self.autocomplete_words.add(item)
         for item in self.properties():
@@ -80,104 +67,6 @@ class TerminalWidgetSystem(EventDispatcher):
             Logger.info('TerminalWidgetSystem: imported function "%s"' % (
                 new_func.name))
 
-    def record_exec(self, file_name):
-        fpath = '%s/%s' % (DIR_APP, file_name)
-        if os.path.exists(fpath):
-            with open(fpath, 'r') as fp:
-                text = fp.read()
-                self.handle_input(text)
-        else:
-            self.add_text('# %s does not exist' % fpath)
-
-    def record_list_app(self, *args):
-        files = os.listdir(DIR_APP)
-        if files:
-            adt = '# Recorded files in %s\n%s' % (DIR_APP, files)
-        else:
-            adt = '# No files recorded'
-        self.add_text(adt)
-
-    def record_print(self, file_name):
-        fpath = '%s/%s' % (DIR_APP, file_name)
-        if os.path.exists(fpath):
-            with open(fpath, 'r') as fp:
-                text = fp.read().splitlines()
-                self.add_text(text)
-        else:
-            self.add_text('# %s does not exist' % fpath)
-
-    def record_delete(self, file_name):
-        fpath = '%s/%s' % (DIR_APP, file_name)
-        if os.path.exists(fpath):
-            os.remove(fpath)
-            self.add_text('# Deleted %s' % (fpath))
-        else:
-            self.add_text('# %s does not exist' % fpath)
-
-    def record_input_start(self, file_name):
-        fpath = '%s/%s' % (DIR_APP, file_name)
-        if os.path.exists(fpath):
-            self.add_text('# %s already exists' % fpath)
-        else:
-            self.add_text(
-                '# Recording input for %s, type "save" to save' % (file_name))
-            self._record_starts_at = self.input_log_index + 1
-            self._record_file_name = file_name
-
-    def record_input_save(self, *args):
-        addt = ''
-        if not hasattr(self, '_record_starts_at'):
-            addt = '# Nothing to save'
-        elif self._record_starts_at == -1:
-            addt = '# Nothing to save'
-        else:
-            fpath = '%s/%s' % (DIR_APP, self._record_file_name)
-            try:
-                with open(fpath, 'w') as fp:
-                    fp.write('')
-                    lines = self.input_log[self._record_starts_at+1:]
-                    len_lines = len(lines)
-                    joined_text = lines[0]
-                    for line in lines[1:]:
-                        joined_text = '%s\n%s' % (joined_text, line)
-                    fp.write(joined_text)
-                addt = '# Saved recorded in %s' % (fpath)
-            except Exception as e:
-                self.add_text(str(e), level='exception')
-        self._record_starts_at = -1
-        if addt:
-            self.add_text(addt)
-
-    def printer(self, *args):
-        new_args = []
-        for x in args:
-            gget = None
-            lget = self.exec_locals.get(x, None)
-            if lget:
-                new_args.append(str(lget))
-            if not lget:
-                gget = globals().get(x, None)
-                if gget:
-                    new_args.append(str(gget))
-            if not lget and not gget:
-                exec('__ret_value__ = %s' % (x), globals(), self.exec_locals)
-                if self.exec_locals['__ret_value__']:
-                    new_args.append(str(self.exec_locals['__ret_value__']))
-                else:
-                    raise NameError('name %s is not defined' % (x))
-        exec_text = '%s(%s)' % ('self.add_text', new_args)
-        try:
-            exec(exec_text, globals(), self.exec_locals)
-        except:
-            traceback.print_exc()
-
-    def get_autocomplete_words(self):
-        auto = list(self.autocomplete_words)
-        return auto
-
-    def get_functions(self):
-        return self.functions
-
     def on_data(self, *args):
         pass
 
@@ -198,9 +87,6 @@ class TerminalWidgetSystem(EventDispatcher):
             self.add_text(
                 'TerminalWidgetSystem: tsmode %s: disabled time stamps' % (
                     tsmode))
-
-    def set_property(self, property, value):
-        exec('self.%s = %s' % (property, value))
 
     def on_every_second(self, *a):
         pass

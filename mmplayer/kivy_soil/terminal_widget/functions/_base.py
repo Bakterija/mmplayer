@@ -1,17 +1,39 @@
 class FunctionBase(object):
     name = ''
-    doc = {
-        'class': 'doc about this function class',
+    name_upper = ''
+    doc = 'doc about this class'
+    methods = {
         'help': 'doc about help method',
-        'methods': 'doc about methods method'
+        'get_methods': 'doc about get_methods method'
     }
 
-    def methods():
-        return [key for key in this.doc]
+    def get_methods(self):
+        return [key for key in self.methods]
 
-    def help():
-        pass
+    def help(self, method_name):
+        doc = self.methods.get(method_name[0], None)
+        if doc:
+            ret = doc
+        else:
+            ret = '# %s: %s: %s not found' % (
+                self.name_upper, 'help', method_name)
+        return ret
 
+    @staticmethod
+    def slice_fname(text):
+        fname = ''
+        text2 = ''
+        args = ''
+        if text:
+            b = text.find(' ')
+            if b != -1:
+                text2 = text[b:]
+                fname = text[:b]
+            else:
+                fname = text
+        return fname, text2
+
+    @staticmethod
     def get_method_args(text):
         fname = ''
         method = ''
@@ -26,7 +48,23 @@ class FunctionBase(object):
 
         return fname, method, args
 
-    def handle_input(term_system, term_globals, exec_locals, text):
-        fname, method, args = this.get_method_args(text)
+    def handle_input(self, term_system, term_globals, exec_locals, text):
+        fname, method, args = self.get_method_args(text)
+        found = False
+        if method in self.methods:
+            m = getattr(self, method, None)
+            if m:
+                found = True
+                if args:
+                    result = m(args)
+                else:
+                    result = m()
 
-this = FunctionBase
+        if not found:
+            result = (
+                '# %s: Method "%s" not found\n'
+                '# Available methods are %s\n'
+                '# Type "help [method_name]" for help') % (
+                    self.name_upper, method, self.get_methods())
+
+        return result
