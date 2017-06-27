@@ -184,7 +184,7 @@ class FocusBehavior(Widget):
     '''Add widget to focus_grab_widgets or focusable_widgets,
     default is False'''
 
-    is_focusable = BooleanProperty(False)
+    is_focusable = BooleanProperty(True)
 
     receive_textinput = False
 

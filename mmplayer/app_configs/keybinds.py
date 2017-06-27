@@ -23,9 +23,8 @@ class Config(ConfigBase):
 
         kb_system.add('log_keys_tgl', keys.F12, 'down', self.toggle_log_keys)
 
-        kb_system.add(
-            'window_pos_text', keys.F10, 'down',
-            partial(app.set_window_pos, 280, 84))
+        kb_system.add('shuffle_tgl', keys.S, 'down',
+                      root.media_control.toggle_shuffle, modifier=['ctrl'])
 
         kb_system.add(
             'window_fullscreen', keys.F11, 'down', app.toggle_fullscreen)

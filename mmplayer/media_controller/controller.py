@@ -100,6 +100,9 @@ class MediaController(Widget):
             self.set_volume(self._volume_before_muted)
             Logger.info('MediaController: unmuted')
 
+    def toggle_shuffle(self):
+        self.shuffle = not self.shuffle
+
     def on_shuffle(self, _, value):
         self.mplayer.shuffle = value
         Logger.info(
