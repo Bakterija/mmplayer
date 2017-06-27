@@ -3,17 +3,11 @@ from kivy_soil.kb_system.canvas import FocusBehaviorCanvas
 from kivy.properties import StringProperty, BooleanProperty, ListProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder
+from kivy.clock import Clock
 
 
 Builder.load_string('''
 <FilterInputBox>:
-    # orientation: 'horizontal'
-    # canvas.before:
-    #     Color:
-    #         rgba: self.background_color
-    #     Rectangle:
-    #         pos: self.pos
-    #         size: self.size
     CompatTextInput:
         id: filter_input
         size_hint: 1, 1
@@ -36,6 +30,16 @@ class FilterInputBox(BoxLayout):
     is_focusable = BooleanProperty()
     background_color = ListProperty([0.2, 0.2, 0.2, 1])
     text_color = ListProperty([0.9, 0.9, 0.9, 1])
+
+    def on_ids(self, _, value):
+        value.filter_input.bind(text=self.on_input_text)
+
+    def on_input_text(self, _, value):
+        Clock.unschedule(self.update_filter_text)
+        Clock.schedule_once(self.update_filter_text, 0.5)
+
+    def update_filter_text(self, *args):
+        self.filter_text = self.ids.filter_input.text
 
     def on_is_focusable(self, _, value):
         if value:
