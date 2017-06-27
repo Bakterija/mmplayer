@@ -419,10 +419,6 @@ class MMplayerApp(App):
         if not hasattr(self, 'app_is_stopping_now'):
             Logger.info('MMplayerApp: on_stop')
             self.app_is_stopping_now = True
-            root = self.root_widget
-            new_settings = [('volume', root.media_control.volume)]
-            self.root_widget.app_configurator.load_with_args(
-                'user_settings', 'save', new_settings)
 
 def main_loop():
     try:

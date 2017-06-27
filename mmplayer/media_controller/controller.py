@@ -3,6 +3,8 @@ from kivy.properties import BooleanProperty, StringProperty, DictProperty
 from kivy.properties import ListProperty, NumericProperty, ObjectProperty
 from .playlist_loader import loader as playlist_loader
 from .playlist_loader.base import BasePlaylist
+from utils.settings import SettingHandler
+from kivy.event import EventDispatcher
 from kivy.uix.widget import Widget
 from kivy.utils import platform
 from kivy.logger import Logger
@@ -13,7 +15,7 @@ import traceback
 import media_info
 
 
-class MediaController(Widget):
+class MediaController(SettingHandler, EventDispatcher):
     playlist_ids = DictProperty()
 
     playlists = DictProperty()
@@ -53,6 +55,9 @@ class MediaController(Widget):
     videoframe_small = None
 
     default_relative_volume = 10
+
+    store_properties = (('volume', 100), ('shuffle', False))
+    store_name = 'MediaController'
 
     def __init__(self, mplayer, **kwargs):
         self.register_event_type('on_playlist_update')

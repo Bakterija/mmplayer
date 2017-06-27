@@ -34,7 +34,7 @@ class SettingHandler(object):
                 x(store)
 
         else:
-            Logger.warning(('SettingHandler: store_name for object {}'
+            Logger.warning(('SettingHandler: store_name for object {} '
                            'has not been set').format(self))
 
     def on_stop(self, app):
