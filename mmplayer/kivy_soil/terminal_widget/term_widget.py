@@ -107,8 +107,12 @@ class TerminalWidget(BoxLayout):
         else:
             self._temp_init_data.append((text, level))
 
-    def update_chars_per_line(self, _, font_size):
-        self.ids.rv.chars_per_line = int((self.width / font_size) * 90)
+    def _update_chars_per_line(self, *args):
+        self.ids.rv.chars_per_line = int((self.width / self.font_size) * 1.5)
+
+    def schedule_line_split_update(self, *args):
+        Clock.unschedule(self._update_chars_per_line)
+        Clock.schedule_once(self._update_chars_per_line, 0.3)
 
     def update_rv_box_font_name(self, _, value):
         for child in self.ids.rv_box.children:
@@ -120,7 +124,10 @@ class TerminalWidget(BoxLayout):
         inputw.is_focusable = False
         inputw.grab_focus = True
         rv_box = self.ids.rv_box
-        self.fbind('font_size', self.update_chars_per_line)
+        self.fbind('font_size', self.schedule_line_split_update)
+        self.fbind('size', self.schedule_line_split_update)
+        self.schedule_line_split_update()
+
         self.fbind('font_name', self.update_rv_box_font_name)
         rv_box.bind(children=self.update_rv_box_font_name)
 
@@ -129,10 +136,8 @@ class TerminalWidget(BoxLayout):
         self.term_system.bind(
             on_data=lambda obj, val: self.ids.rv.set_data(val))
 
-        rv.bind(width=self.update_chars_per_line)
         rv.set_data(self.term_system.data)
         rv.input_widget = inputw
-        self.update_chars_per_line(None, self.font_size)
         inputw.keyboard_on_key_down = self.on_input_key_down
         for text, level in self._temp_init_data:
             self.add_data(text, level=level)
@@ -152,9 +157,9 @@ class TerminalWidget(BoxLayout):
         elif key[0] == keys.DOWN:
             text = self.term_system.get_log_next()
             inputw.text = text
-        elif key[0] == keys.C and modifiers == ['ctrl']:
-            self.term_system.keyboard_interrupt()
-            inputw.text = ''
+        # elif key[0] == keys.C and modifiers == ['ctrl']:
+        #     self.term_system.keyboard_interrupt()
+        #     inputw.text = ''
         else:
             inputw.__class__.keyboard_on_key_down(
                 inputw, _, key, text, modifiers)
