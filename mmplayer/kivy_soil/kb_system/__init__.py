@@ -22,6 +22,11 @@ log_keys = False
 active = True
 '''Key events will be managed when True, default is True'''
 
+waiting_press = False
+waiting_release = False
+'''All hotkeys can have a waiting time which will temporarily freeze all input
+events'''
+
 disabled_categories = set()
 '''Storage set for disabled global hotkey categories'''
 
@@ -29,6 +34,7 @@ ignore_warnings = False
 last_key = ''
 last_modifier = []
 last_time = time()
+time_alt_press = {}
 
 def start():
     '''Start managing key events'''
@@ -57,23 +63,28 @@ def stop_categories(categories):
     for x in categories:
         disabled_categories.add(x)
 
-def add(name, key, state, callback, modifier=None, category='n/a'):
+def add(name, key, state, callback, modifier=None, wait=0, category='n/a'):
     '''Add a global hotkey'''
     if name in keybinds:
         log_warning('key_binder: key {} in {} was added to keybinds before,'
                     'replacing with {}'.format(
                         name, keybinds[name], _make_kb_dict(
                             name, key, state, callback,
-                            modifier=modifier, category=category)))
+                            modifier=modifier, wait=wait,
+                            category=category))
+                    )
     keybinds[name] = _make_kb_dict(
-        name, key, state, callback, modifier=modifier, category=category)
+        name, key, state, callback, modifier=modifier,
+        wait=wait, category=category)
 
-def _make_kb_dict(name, key, state, callback, modifier=None, category=''):
+def _make_kb_dict(name, key, state, callback, modifier=None, wait=0,
+                  category=''):
     return {
         'callback': callback,
         'key': int(key),
         'state': state,
         'modifier': modifier,
+        'wait': wait,
         'category': category,
         }
 
@@ -87,23 +98,40 @@ def remove(name):
 
 def on_key_down(window, key, scan, text, modifier):
     '''Detects pressed keys, modifiers and calls on_key_event'''
-    global last_key, last_modifier, last_time
-    modifier = _update_modifier(key, True)
-    time_now = time()
-    if last_time + 0.02 > time_now:
-        if key == last_key and modifier == last_modifier:
-            return
+    global last_key, last_modifier, last_time, time_alt_press, waiting_press
+    global log_keys
+    if waiting_press:
+        if log_keys:
+            Logger.info('kb_dispatcher: on_key_down: waiting')
+    else:
+        modifier = _update_modifier(key, True)
+        time_now = time()
+        if last_time + 0.02 > time_now:
+            if key == last_key and modifier == last_modifier:
+                return
 
-    last_key = key
-    last_modifier = modifier
-    last_time = time_now
+        if 'alt' in modifier:
+            keytime = time_alt_press.get(key, 0)
+            if keytime:
+                if keytime > time_now - 0.3:
+                    return
+            time_alt_press[key] = time_now
 
-    on_key_event(key, modifier, True, text=text)
+        last_key = key
+        last_modifier = modifier
+        last_time = time_now
+
+        on_key_event(key, modifier, True, text=text)
 
 def on_key_up(window, key, *args):
     '''Detects released keys, modifiers and calls on_key_event'''
-    modifier = _update_modifier(key, False)
-    on_key_event(key, modifier, False)
+    global waiting_release, log_keys
+    if waiting_release:
+        if log_keys:
+            Logger.info('kb_dispatcher: on_key_down: waiting')
+    else:
+        modifier = _update_modifier(key, False)
+        on_key_event(key, modifier, False)
 
 def on_key_event(key, modifier, is_down, text=None):
     '''Logs keys(if log_keys is True),
@@ -112,7 +140,8 @@ def on_key_event(key, modifier, is_down, text=None):
     on_key_down or on_key_up method when there is a focused widget
     and key is not used by global callback already or key is grabbed by widget
     '''
-    global held_ctrl, held_alt, held_shift
+    global held_ctrl, held_alt, held_shift, waiting_press, waiting_release
+    global log_keys
     if not active:
         return
     if is_down:
@@ -143,8 +172,23 @@ def on_key_event(key, modifier, is_down, text=None):
                     elif not v['modifier'] or v['modifier'] == modifier:
                         v['callback']()
                         found = True
+                if v['wait']:
+                    if is_down and not waiting_press:
+                        waiting_press = True
+                        Clock.schedule_once(remove_wait_press, v['wait'])
+                    elif not is_down and not waiting_release:
+                        waiting_release = True
+                        Clock.schedule_once(remove_wait_release, v['wait'])
         if not found:
             dispatch_to_focused(key, modifier, is_down)
+
+def remove_wait_press(*args):
+    global waiting_press
+    waiting_press = False
+
+def remove_wait_release(*args):
+    global waiting_release
+    waiting_release = False
 
 def dispatch_to_focused(key, modifier, is_down):
     cf = focus_behavior.current_focus
