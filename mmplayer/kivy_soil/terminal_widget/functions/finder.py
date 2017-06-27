@@ -1,8 +1,10 @@
 from ._base import FunctionBase
 
 class Function(FunctionBase):
+    name_upper = 'Finder'
     name = 'finder'
-    doc = {}
+    doc = 'Finds and returns text from TerminalWidgetSystem data'
+    methods_subclass = {}
 
     def handle_input(term_system, term_globals, exec_locals, text):
         fname, method, args = Function.get_method_args(text)

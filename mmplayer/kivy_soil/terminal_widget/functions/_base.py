@@ -1,11 +1,15 @@
 class FunctionBase(object):
-    name = ''
     name_upper = ''
+    name = ''
     doc = 'doc about this class'
     methods = {
         'help': 'doc about help method',
         'get_methods': 'doc about get_methods method'
     }
+    methods_subclass = {}
+
+    def __init__(self, **kwargs):
+        self.methods.update(self.methods_subclass)
 
     def get_methods(self):
         return [key for key in self.methods]

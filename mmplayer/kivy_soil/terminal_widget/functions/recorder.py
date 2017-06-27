@@ -3,7 +3,9 @@ from ._base import FunctionBase
 class Function(FunctionBase):
     name_upper = 'Recorder'
     name = 'recorder'
-    methods2 = {
+    doc = ('Records and saves input for running later, '
+           'can also list, read and delete saved files')
+    methods_subclass = {
         'run': 'd',
         'list': 'd',
         'read': 'd',
@@ -11,8 +13,6 @@ class Function(FunctionBase):
         'delete': 'd',
         'record': 'd'
     }
-    def __init__(self, **kwargs):
-        self.methods.update(self.methods2)
 
     def run(self, file_name):
         fpath = '%s/%s' % (DIR_APP, file_name)

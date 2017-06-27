@@ -16,13 +16,34 @@ import os
 
 
 class TerminalWidgetSystem(EventDispatcher):
+    doc = (
+    "TerminalWidgetSystem is a system that is meant to\n"
+    "simplify various tasks with evaling and execing python code.\n"
+    "It supports:\n"
+    " - autocomplete,\n"
+    " - dynamic plugin function loading\n"
+    " - recording and replaying inputs\n\n"
+    "It's properties are:\n\n"
+    " - data: list property that stores all displayed data with time stamps "
+    "and raw text\n"
+    " - functions: dict property that stores name, object ref pairs of loaded "
+    "plugin functions\n"
+    " - input_log: list property that stores all input text\n"
+    " - input_log_index: numeric property that stores log index of current "
+    "input, default way to switch is to press up/down arrow\n"
+    " - term_widget: object property of parent TerminalWidget\n"
+    " - time_stamp_mode: numeric property, 0 is disabled, (1, 2, 3) "
+    "are different time stamps\n"
+    " - typed_multilines: list property that stores all typed lines "
+    "while self.handling_multiline_input is True, after that it is cleared\n"
+    )
+
     autocomplete_words = {'self', 'app', 'term_widget'}
     handling_multiline_input = BooleanProperty(False)
     typed_multilines = ListProperty()
     time_stamp_mode = NumericProperty(0)
     input_log_index = NumericProperty(0)
     term_widget = ObjectProperty()
-    _empty_try_autocompletes = 0
     functions = DictProperty()
     input_log = ListProperty()
     data = ListProperty()
@@ -151,16 +172,8 @@ class TerminalWidgetSystem(EventDispatcher):
             ret = text
         return ret
 
-    def reset_empty_autocompletes(self, *args):
-        self._empty_try_autocompletes = 0
-
     def try_autocomplete(self, text, cursor_index):
         if not text:
-            self._empty_try_autocompletes += 1
-            if self._empty_try_autocompletes > 1:
-                self.add_text(self.get_autocomplete_words())
-            Clock.unschedule(self.reset_empty_autocompletes)
-            Clock.schedule_once(self.reset_empty_autocompletes, 0.5)
             return ''
         insert_text = ''
         start = -1

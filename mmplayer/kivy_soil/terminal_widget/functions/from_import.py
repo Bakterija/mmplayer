@@ -1,8 +1,10 @@
 from ._base import FunctionBase
 
 class Function(FunctionBase):
+    name_upper = 'Fromimport'
     name = 'fromimport'
-    doc = {}
+    doc = 'Imports arg[0] module or object from arg[1] module as arg[2] name'
+    methods_subclass = {}
 
     def do_from_import(tglobals, elocal, from_text, import_text, import_as):
         text_mod = 'from %s import %s as %s' % (
