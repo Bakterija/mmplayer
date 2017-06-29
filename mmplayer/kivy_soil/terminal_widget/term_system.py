@@ -85,6 +85,7 @@ class TerminalWidgetSystem(EventDispatcher):
             func_package = 'kivy_soil.terminal_widget.functions.'
             new_module = importlib.import_module('%s%s' % (func_package, x))
             new_func = new_module.Function
+            new_func.on_import(self)
             self.functions[new_func.name] = new_func
             Logger.info('TerminalWidgetSystem: imported function "%s"' % (
                 new_func.name))

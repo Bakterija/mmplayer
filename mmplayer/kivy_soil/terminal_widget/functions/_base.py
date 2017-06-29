@@ -11,6 +11,9 @@ class FunctionBase(object):
     def __init__(self, **kwargs):
         self.methods.update(self.methods_subclass)
 
+    def on_import(term_system):
+        pass
+
     def get_methods(self):
         return [key for key in self.methods]
 
@@ -48,19 +51,20 @@ class FunctionBase(object):
             if len(aspl) > 1:
                 method = aspl[1]
             if len(aspl) > 2:
-                args = aspl[2:]
+                args = tuple(aspl[2:])
 
         return fname, method, args
 
     def handle_input(self, term_system, term_globals, exec_locals, text):
         fname, method, args = self.get_method_args(text)
         found = False
+        
         if method in self.methods:
             m = getattr(self, method, None)
             if m:
                 found = True
                 if args:
-                    result = m(args)
+                    result = m(*args)
                 else:
                     result = m()
 
