@@ -166,12 +166,17 @@ def on_key_event(key, modifier, is_down, text=None):
                 continue
             if v['key'] == key:
                 if v['state'] in (kstate, 'any', 'all'):
-                    if v['modifier'] == ['none'] and not modifier:
-                        v['callback']()
+                    if modifier and v['modifier']:
                         found = True
-                    elif not v['modifier'] or v['modifier'] == modifier:
-                        v['callback']()
-                        found = True
+                        for mod in v['modifier']:
+                            if mod not in modifier:
+                                found = False
+                        if found:
+                            v['callback']()
+                    else:
+                        if v['modifier'] == ['none'] or not v['modifier']:
+                            v['callback']()
+                            found = True
                 if v['wait']:
                     if is_down and not waiting_press:
                         waiting_press = True

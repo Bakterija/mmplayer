@@ -21,16 +21,18 @@ class Config(ConfigBase):
         app = App.get_running_app()
         # kb_system.log_keys = True
 
-        kb_system.add('log_keys_tgl', keys.F12, 'down', self.toggle_log_keys)
+        kb_system.add('log_keys_tgl', keys.F12, 'down', self.toggle_log_keys,
+                      modifier=['none'])
 
         kb_system.add('shuffle_tgl', keys.S, 'down',
                       root.media_control.toggle_shuffle, modifier=['ctrl'])
 
         kb_system.add('mute_tgl', keys.M, 'down',
-                      root.media_control.toggle_mute, modifier=['ctrl'])
+                      root.media_control.toggle_mute, modifier=['ctrl', 'shift'])
 
         kb_system.add(
-            'window_fullscreen', keys.F11, 'down', app.toggle_fullscreen)
+            'window_fullscreen', keys.F11, 'down', app.toggle_fullscreen,
+            modifier=['none'])
 
         kb_system.add(
             'theme_randomize', keys.NUM_MULTIPLY, 'down', app.mtheme.randomize,
@@ -49,7 +51,11 @@ class Config(ConfigBase):
         kb_system.add('add_playlist', keys.N, 'down',
                       root.mgui_add_playlist, modifier=['ctrl'])
 
-        kb_system.add('quit', keys.ESC, 'down', app.kb_esc)
+        kb_system.add('quit', keys.ESC, 'down', app.kb_esc, modifier=['none'])
+
+        # kb_system.add(
+        #     'focus_next', keys.TAB, 'down', kb_system.)
+
         kb_system.add(
             'focus_next', keys.TAB, 'down', focus_behavior.focus_next)
 
@@ -101,7 +107,7 @@ class Config(ConfigBase):
             wait=0.15, modifier=['ctrl'])
         kb_system.add(
             'play_pause_toggle', keys.SPACE, 'down',
-            root.media_control.play_pause)
+            root.media_control.play_pause, ['none'])
 
         kb_system.add(
             'toggle_terminal_small', keys.TILDE, 'down',
