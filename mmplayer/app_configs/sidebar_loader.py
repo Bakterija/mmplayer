@@ -30,7 +30,7 @@ class Config(ConfigBase):
         self.set_defaults(root_widget)
 
     def load_after(self, root_widget):
-        pass
+        self.root.sidebar_items = list(self.default_list)
 
     def get_button(self, wtype, name, left_click, right_click):
         return {
@@ -66,7 +66,6 @@ class Config(ConfigBase):
 
         new_list = list(self.default_list)
         cur_section = ''
-
         for section, playlists in  sorted(playlist_dict.items()):
             sorted_playlists = sorted(playlists, key=lambda x: x.name)
             for plist in sorted_playlists:

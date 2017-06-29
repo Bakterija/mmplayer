@@ -22,10 +22,6 @@ class Config(ConfigBase):
 
     def load_after(self, root):
         store = self.app.store
-        if not store:
-            Logger.warning('user_settings: load_after: app.store is None, '
-                           'skipping load settings')
-            return
         missing = []
         for attr, items in self.defaults.items():
             success = False
@@ -53,7 +49,7 @@ class Config(ConfigBase):
         if missing:
             for section, attr, value in missing:
                 self.update_store(section, attr, value)
-            logs.info(('UserConfig: found {} missing settings,'
+            logs.info(('UserConfig: found {} missing settings, '
                 'saved to file').format(len(missing)))
 
     def update_store(self, section, attr, value):
@@ -69,7 +65,7 @@ class Config(ConfigBase):
     #     self.save_defaults(self.defaults.items())
 
     def _save_settings(self, setting_list):
-        Logger.info('UserConfig: saving settings for %s')
+        Logger.info('UserConfig: saving settings')
         for attr, value in setting_list:
             section = self.defaults[attr][0]
             self.update_store(section, attr, value)

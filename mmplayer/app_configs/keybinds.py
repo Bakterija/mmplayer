@@ -1,19 +1,36 @@
 from kivy_soil.kb_system import focus as focus_behavior
-from .config_base import ConfigBase
 from kivy_soil.kb_system import keys
-from kivy.app import App
+from .config_base import ConfigBase
 from kivy_soil import kb_system
+from kivy.logger import Logger
+from functools import partial
+from kivy.app import App
+
 
 class Config(ConfigBase):
 
-    @staticmethod
-    def load_before(root):
+    def load_before(self, root):
         pass
 
-    @staticmethod
-    def load_after(root):
+    def toggle_log_keys(self, *args):
+        new_value = not kb_system.log_keys
+        Logger.info('keybinds: set log_keys: %s' % (new_value))
+        kb_system.log_keys = new_value
+
+    def load_after(self, root):
         app = App.get_running_app()
         # kb_system.log_keys = True
+
+        kb_system.add('log_keys_tgl', keys.F12, 'down', self.toggle_log_keys)
+
+        kb_system.add('shuffle_tgl', keys.S, 'down',
+                      root.media_control.toggle_shuffle, modifier=['ctrl'])
+
+        kb_system.add('mute_tgl', keys.M, 'down',
+                      root.media_control.toggle_mute, modifier=['ctrl'])
+
+        kb_system.add(
+            'window_fullscreen', keys.F11, 'down', app.toggle_fullscreen)
 
         kb_system.add(
             'theme_randomize', keys.NUM_MULTIPLY, 'down', app.mtheme.randomize,
@@ -68,20 +85,27 @@ class Config(ConfigBase):
             root.mplayer_next, modifier=['alt'])
         kb_system.add(
             'seek_4_sec_back', keys.LEFT, 'down',
-            lambda: root.mplayer_seek_relative(-4), modifier=['shift'])
+            lambda: root.mplayer_seek_relative(-4),
+            wait=0.15, modifier=['shift'])
         kb_system.add(
             'seek_4_sec_forward', keys.RIGHT, 'down',
-            lambda: root.mplayer_seek_relative(4), modifier=['shift'])
+            lambda: root.mplayer_seek_relative(4),
+            wait=0.15, modifier=['shift'])
         kb_system.add(
             'seek_60_sec_back', keys.LEFT, 'down',
-            lambda: root.mplayer_seek_relative(-60), modifier=['ctrl'])
+            lambda: root.mplayer_seek_relative(-60),
+            wait=0.15, modifier=['ctrl'])
         kb_system.add(
             'seek_60_sec_forward', keys.RIGHT, 'down',
-            lambda: root.mplayer_seek_relative(60), modifier=['ctrl'])
+            lambda: root.mplayer_seek_relative(60),
+            wait=0.15, modifier=['ctrl'])
         kb_system.add(
             'play_pause_toggle', keys.SPACE, 'down',
             root.media_control.play_pause)
 
         kb_system.add(
-            'toggle_terminal', keys.TILDE, 'down',
-            root.ids.terminal_widget.toggle_pos_multiplier)
+            'toggle_terminal_small', keys.TILDE, 'down',
+            root.ids.terminal_widget.animate_small, modifier=['none'])
+        kb_system.add(
+            'toggle_terminal_big', keys.TILDE, 'down',
+            root.ids.terminal_widget.animate_big, modifier=['ctrl'])

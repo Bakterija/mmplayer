@@ -42,6 +42,6 @@ Builder.load_string('''
         Color:
             rgba: self.border_color if self.focus else [0, 0, 0, 0]
         Line:
-            points: self.x + 1, self.y + 1, self.x + 1, self.top - 1, self.right - 1, self.top - 1, self.right - 1, self.y + 1, self.x + 1, self.y + 1
+            points: self.x + 1, self.y + 1, self.x + 1, self.top - self.border_width, self.right - self.border_width, self.top - self.border_width, self.right - self.border_width, self.y + 1, self.x + 1, self.y + 1
             width: self.border_width
 ''')

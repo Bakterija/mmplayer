@@ -1,11 +1,13 @@
 from __future__ import print_function
 from kivy.properties import BooleanProperty, StringProperty, DictProperty
 from kivy.properties import ListProperty, NumericProperty, ObjectProperty
+from .playlist_loader import loader as playlist_loader
 from .playlist_loader.base import BasePlaylist
+from utils.settings import SettingHandler
+from kivy.event import EventDispatcher
 from kivy.uix.widget import Widget
 from kivy.utils import platform
 from kivy.logger import Logger
-from . import playlist_loader
 from kivy.clock import Clock
 import global_vars as gvars
 from time import time
@@ -13,7 +15,7 @@ import traceback
 import media_info
 
 
-class MediaController(Widget):
+class MediaController(SettingHandler, EventDispatcher):
     playlist_ids = DictProperty()
 
     playlists = DictProperty()
@@ -54,16 +56,24 @@ class MediaController(Widget):
 
     default_relative_volume = 10
 
+    store_properties = (('volume', 100), ('shuffle', False))
+    store_name = 'MediaController'
+
     def __init__(self, mplayer, **kwargs):
         self.register_event_type('on_playlist_update')
         super(MediaController, self).__init__(**kwargs)
         self.mplayer = mplayer
         self.mplayer.bind(on_start=self._on_mplayer_start)
         self.mplayer.bind(on_video=self.on_mplayer_video)
+        self.fbind('volume', self._set_mplayer_volume)
         Clock.schedule_interval(self.update_seek, 0.1)
         media_info.info_update_callback = self.on_media_info_update
         media_info.update_timer = 0.05
+        playlist_loader.bind(on_playlists=self._on_reset_playlists_done)
         Clock.schedule_once(lambda *a: media_info.start_workers(2), 1)
+
+    def _set_mplayer_volume(self, _, value):
+        self.mplayer.set_volume(value)
 
     def set_volume(self, value):
         value = int(value)
@@ -74,7 +84,6 @@ class MediaController(Widget):
         if self.muted and value > 0:
             self.muted = False
         self.volume = value
-        self.mplayer.set_volume(value)
         Logger.info('MediaController: set_volume: %s' % (value))
 
     def set_volume_relative(self, value):
@@ -98,6 +107,12 @@ class MediaController(Widget):
         else:
             self.set_volume(self._volume_before_muted)
             Logger.info('MediaController: unmuted')
+
+    def toggle_shuffle(self):
+        self.shuffle = not self.shuffle
+
+    def toggle_mute(self):
+        self.muted = not self.muted
 
     def on_shuffle(self, _, value):
         self.mplayer.shuffle = value
@@ -143,9 +158,6 @@ class MediaController(Widget):
         self.last_media = media
         self.refresh_playlist_view()
         self.refresh_queue_view()
-
-    def on_self_playing_id(self, _, value):
-        print (self.playing_id, value)
 
     def on_mplayer_video(self, value, player=None):
         '''Updates self.playing_video property when video starts/stops'''
@@ -356,9 +368,11 @@ class MediaController(Widget):
                     break
 
     def reset_playlists(self, *args):
-        time0 = time()
-        pl = playlist_loader.load_from_directories((
+        self.time_reset = time()
+        playlist_loader.update_from_directories_async((
             'media/playlists/', gvars.DIR_PLAYLISTS))
+
+    def _on_reset_playlists_done(self, _, pl):
         self.playlists = pl
         self.dispatch('on_playlist_update', self.playlists)
         for section, playlists in self.playlists.items():
@@ -366,7 +380,8 @@ class MediaController(Widget):
                 x.bind(media=self.on_playlist_media)
                 self.playlist_ids[x.id] = x
         Logger.info(
-            'MediaController: reset_playlists: %s sec' % (time() - time0))
+            'MediaController: reset_playlists: %s sec' % (
+                time() - self.time_reset))
 
     def open_playlist(self, target):
         for section, playlists in self.playlists.items():

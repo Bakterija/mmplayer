@@ -15,12 +15,16 @@ import sys
 from kivy.utils import platform
 from kivy.config import Config
 Config.set('kivy', 'exit_on_escape', 0)
+# Config.set('kivy', 'fullscreen', 'auto')
 # Config.set('kivy', 'log_level', 'debug')
 from kivy import require as kivy_require
+from utils import window_patch
+from widgets import scrollview_patch
 kivy_require('1.9.2')
 import global_vars
 from kivy.logger import Logger, LoggerHistory
 from kivy.properties import StringProperty, ListProperty, ObjectProperty
+from kivy.properties import BooleanProperty
 from popups_and_dialogs.create_playlist import CreatePlaylistPopup
 from popups_and_dialogs.remove_playlist import RemovePlaylistPopup
 from kivy.uix.screenmanager import ScreenManager, NoTransition
@@ -34,13 +38,14 @@ from kivy.core.clipboard import Clipboard
 from kivy.clock import Clock, mainthread
 from app_configs import AppConfigHandler
 from kivy.core.window import Window
+from utils.settings import SettingHandler
 from utils import get_unicode, logs
 from media_player import mplayer
 from kivy_soil import kb_system
 from kivy.lang import Builder
+from functools import partial
 from kivy.compat import PY2
 from kivy.app import App
-from utils import logs
 import traceback
 import sys
 
@@ -250,12 +255,10 @@ class MMplayer(LayoutMethods, FloatLayout):
 
         self.ids.sidebar.bind(width=self.app.mlayout.setter('sidebar_width'))
 
-        self.ids.video_small.on_video_touch = (
-            lambda: self.switch_screen('video'))
-        self.ids.video_small.on_video_scroll_down = (
-            mcontrol.volume_increase)
-        self.ids.video_small.on_video_scroll_up = (
-            mcontrol.volume_decrease)
+        video_small = self.ids.video_small
+        video_small.on_video_touch = (partial(self.switch_screen, 'video'))
+        video_small.bind(on_video_scroll_down=mcontrol.volume_increase)
+        video_small.bind(on_video_scroll_up=mcontrol.volume_decrease)
 
         super(MMplayer, self).init_widgets()
         self.app_configurator.load_after()
@@ -266,6 +269,11 @@ class MMplayer(LayoutMethods, FloatLayout):
             self.manager.ids.media_filter_widget: ('media'),
             self.manager.ids.plugin_manager: ('main')
         }
+        for data in logs.LoggerHistoryProper.data:
+            self.ids.terminal_widget.add_data(data['text'], data['level'])
+        logs.LoggerHistoryProper.bind(
+            on_add_data=lambda obj, data: self.ids.terminal_widget.add_data(
+                data['text'], data['level']))
 
         # For testing
         def testfunc(*a):
@@ -278,7 +286,7 @@ class MMplayer_SM(ScreenManager):
     pass
 
 
-class MMplayerApp(App):
+class MMplayerApp(SettingHandler, App):
     mlayout = global_vars.layout_manager
     '''Global layout manager'''
 
@@ -293,22 +301,99 @@ class MMplayerApp(App):
     store_path = global_vars.DIR_CONF + '/mmplayer.json'
     try:
         store = JsonStore(store_path, indent=4, sort_keys=True)
-    except:
+    except Exception as e:
         store = None
         logs.error(
-            'MMplayerApp: failed to load JsonStore at path {}\n'.format(
-                store_path))
+            'MMplayerApp: failed to load JsonStore \n{}'.format(str(e)))
+
+    cursor_inside = BooleanProperty(False)
+    fullscreen = BooleanProperty(False)
+    maximized = BooleanProperty(False)
+    last_size = ListProperty([0, 0])
+    last_pos = ListProperty([0, 0])
+    _window_update_lock = False
 
     def build(self):
         self.root_widget = MMplayer(self)
         self.icon = __icon_path__
+        if platform in ('linux', 'win'):
+            Window.bind(on_cursor_enter=self.on_cursor_enter)
+            Window.bind(on_cursor_leave=self.on_cursor_leave)
+            Window.bind(on_maximize=self.on_window_maximize)
+            Window.bind(on_restore=self.on_window_restore)
         return self.root_widget
 
+    def _update_window_size(self, _, value):
+        if not self._window_update_lock:
+            self.last_size = value
+
+    def _update_window_pos(self, *args):
+        if not self._window_update_lock:
+            self.last_pos = [Window.left, Window.top]
+
+    def on_cursor_enter(self, _):
+        self.cursor_inside = True
+
+    def on_cursor_leave(self, _):
+        self.cursor_inside = False
+
+    def on_window_restore(self, *args):
+        self.maximized = False
+
+    def on_window_maximize(self, *args):
+        self.maximized = True
+
+    def set_window_pos(self, pos, restore=False):
+        Window.left = pos[0]
+        Window.top = pos[1]
+        if restore:
+            Window.show()
+            Window.restore()
+
+    def set_window_size(self, size, hide=False):
+        Window.size = size
+        if hide:
+            Window.hide()
+
+    def toggle_fullscreen(self, *args):
+        if self.fullscreen:
+            Window.fullscreen = False
+            self.fullscreen = False
+            new_pos = (self.last_pos)
+            new_size = (self.last_size)
+            Clock.schedule_once(
+                lambda dt: self.set_window_pos(new_pos, restore=True), 0.2)
+            Clock.schedule_once(
+                lambda dt: self.set_window_size(new_size, hide=True), 0)
+            self._window_update_lock = False
+        else:
+            self._window_update_lock = True
+            Window.maximize()
+            Clock.schedule_once(
+                lambda dt: setattr(Window, 'fullscreen', True), 0.2)
+            self.fullscreen = True
+        kb_system.active = False
+        Clock.schedule_once(lambda dt: setattr(kb_system, 'active', True), 0.3)
+
     def on_start(self):
+        self.store_name = 'MMplayerApp'
+        self.store_properties = [
+            ('last_size', [Window.width, Window.height]),
+            ('last_pos', [Window.left, Window.top])
+        ]
+        self.update_store_properties()
+
         self.root_widget.init_widgets()
         self.last_frame_time = time() - TIME0
         Logger.info('App: on_start: %s' % (self.last_frame_time))
-        Clock.schedule_once(lambda dt: self.on_some_frame(1, 8), 0)
+        Clock.schedule_once(lambda dt: self.on_some_frame(1, 7), 0)
+        Clock.schedule_once(self._load_window_pos_size, 0)
+
+    def _load_window_pos_size(self, *args):
+        self.set_window_pos(self.last_pos)
+        self.set_window_size(self.last_size)
+        Clock.schedule_interval(self._update_window_pos, 0.2)
+        self.root_widget.bind(size=self._update_window_size)
 
     def on_some_frame(self, current, fmax):
         this_time = time() - TIME0
@@ -344,14 +429,10 @@ class MMplayerApp(App):
     def reset_escape_presses(self, *args):
         self.escape_presses = 0
 
-    def on_stop(self):
+    def on_stop(self, *args):
         if not hasattr(self, 'app_is_stopping_now'):
             Logger.info('MMplayerApp: on_stop')
             self.app_is_stopping_now = True
-            root = self.root_widget
-            new_settings = [('volume', root.media_control.volume)]
-            self.root_widget.app_configurator.load_with_args(
-                'user_settings', 'save', new_settings)
 
 def main_loop():
     try:

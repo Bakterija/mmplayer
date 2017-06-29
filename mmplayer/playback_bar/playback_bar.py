@@ -60,7 +60,7 @@ class PlayBackBar(BoxLayout):
     media_progress_val = NumericProperty(0)
     '''NumericProperty of media player positon in seconds'''
 
-    media_volume = NumericProperty(50.0)
+    media_volume = NumericProperty(0)
     '''NumericProperty on which volume slider is binded'''
 
     media_progress_val_readable = StringProperty('00:00')

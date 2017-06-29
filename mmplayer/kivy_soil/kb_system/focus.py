@@ -75,21 +75,25 @@ def focus_next():
     global prev_focused_widgets, focus_grab_widgets, focus_grab_widgets
     global current_focus
     new_focus = None
+    grabbed_focus = False
     if focus_grab_widgets:
-        fwidget = focus_grab_widgets[0]
-        if fwidget.subfocus_widgets:
-            if fwidget.focus:
-                new_focus = fwidget.subfocus_widgets[0]
-            else:
-                fprev, fnext = find_next_focusable(fwidget.subfocus_widgets)
-                if fnext[0] != -1:
-                    new_focus = fnext[1]
-                else:
+        for fwidget in focus_grab_widgets:
+            if fwidget.is_focusable:
+                grabbed_focus = True
+                # fwidget = focus_grab_widgets[0]
+                if fwidget.subfocus_widgets:
+                    if fwidget.focus:
+                        new_focus = fwidget.subfocus_widgets[0]
+                    else:
+                        fprev, fnext = find_next_focusable(fwidget.subfocus_widgets)
+                        if fnext[0] != -1:
+                            new_focus = fnext[1]
+                        else:
+                            new_focus = fwidget
+                elif not fwidget.focus:
                     new_focus = fwidget
-        elif not fwidget.focus:
-            new_focus = fwidget
 
-    elif focusable_widgets:
+    if not grabbed_focus and focusable_widgets:
         if not current_focus:
             for x in prev_focused_widgets:
                 widget = x()
@@ -180,21 +184,35 @@ class FocusBehavior(Widget):
     '''Add widget to focus_grab_widgets or focusable_widgets,
     default is False'''
 
-    is_focusable = True
+    is_focusable = BooleanProperty(True)
+
+    receive_textinput = False
 
     def __init__(self, **kwargs):
+        self.register_event_type('on_focus_textinput')
         super(FocusBehavior, self).__init__(**kwargs)
-        self.bind(focus=self.remove_other_focused)
+        self.fbind('focus', self.remove_other_focused)
+        self.fbind('is_focusable', self.update_is_focusable)
         if not self.is_subfocus:
             self.bind(parent=on_parent)
-            if self.grab_focus:
+            if self.grab_focus and self.is_focusable:
                 self.focus_widget(self)
+
+    def update_is_focusable(self, _, value):
+        global focus_grab_widgets, focusable_widgets
+        if value:
+            if self.grab_focus and not self in focus_grab_widgets:
+                self.on_grab_focus(None, True)
+            elif not self.grab_focus and not self in focusable_widgets:
+                on_parent(self, self.parent)
+        else:
+            self.remove_from_focus()
 
     def on_grab_focus(self, _, value):
         self.remove_from_focus()
         if self.parent:
-            on_parent(self, parent)
-            if value:
+            on_parent(self, self.parent)
+            if value and self.is_focusable:
                 self.focus_widget(self)
 
     def on_is_subfocus(self, _, value):
@@ -238,4 +256,7 @@ class FocusBehavior(Widget):
         pass
 
     def on_key_up(self, key, *args):
+        pass
+
+    def on_focus_textinput(self, text):
         pass

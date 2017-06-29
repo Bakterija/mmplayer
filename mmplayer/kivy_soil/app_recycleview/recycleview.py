@@ -149,3 +149,28 @@ class AppRecycleView(RecycleView):
         else:
             sy = 1
         return sx, sy
+
+    def find_index_by_text(
+        self, key, value, multiple=False, match=False, case_sensitive=False):
+        '''Looks for text in data. If match is True, compares first letters to
+        value. Returns list with found index number or numbers'''
+        templist = []
+        if not case_sensitive:
+            value = value.lower()
+        for i, item in enumerate(self.data):
+            v = item.get(key, None)
+            if v:
+                if not case_sensitive:
+                    v = v.lower()
+                found = False
+                if match:
+                    if v[:len(value)] == value:
+                        found = True
+                else:
+                    if v.find(value) != -1:
+                        found = True
+                if found:
+                    templist.append(i)
+                    if not multiple:
+                        break
+        return templist

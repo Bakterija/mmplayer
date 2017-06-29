@@ -4,6 +4,6 @@ this imports the correct one
 
 from kivy.compat import PY2
 if PY2:
-    from Queue import Queue
+    from Queue import Queue, Empty
 else:
-    from queue import Queue
+    from queue import Queue, Empty

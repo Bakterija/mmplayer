@@ -16,9 +16,9 @@ class VideoFrame(BoxLayout):
 
     def __init__(self, **kwargs):
         super(VideoFrame, self).__init__(**kwargs)
-        if platform in ('linux', 'win'):
-            Window.bind(on_maximize=self.on_maximize)
-            Window.bind(on_restore=self.on_restore)
+        # if platform in ('linux', 'win'):
+        #     Window.bind(on_maximize=self.on_maximize)
+        #     Window.bind(on_restore=self.on_restore)
 
     def on_touch_down(self, touch):
         '''Depending on self.maximizer_mode, maximizes window or sets app

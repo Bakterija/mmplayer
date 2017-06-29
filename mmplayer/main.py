@@ -10,12 +10,12 @@ except:
 
 
 def main_loop():
+    from utils import logs
     import app
     import appworker
     appworker.start_workers(1)
     app.main_loop()
     appworker.stop()
-
 
 if __name__ == '__main__':
     from multiprocessing import freeze_support

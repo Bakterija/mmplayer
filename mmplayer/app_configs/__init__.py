@@ -2,7 +2,6 @@ from .dir_maker import Config as Directories
 from .user_settings import Config as UserConfig
 from .keybinds import Config as KeybindConfig
 from .sidebar_loader import Config as SidebarLoader
-from .terminal_input_handler import Config as TerminalConfig
 from utils import logs
 import importlib
 
@@ -14,7 +13,6 @@ class AppConfigHandler(object):
         'user_settings': UserConfig(),
         'keybinder': KeybindConfig(),
         'sidebar_loader': SidebarLoader(),
-        'terminal_config': TerminalConfig()
     }
 
     def __init__(self, root_widget):

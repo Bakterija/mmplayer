@@ -20,6 +20,11 @@ class SmallVideo(ResizableBehavior, BoxLayout):
     resizable_left = True
     can_move_resize = True
 
+    def __init__(self, **kwargs):
+        super(SmallVideo, self).__init__(**kwargs)
+        self.register_event_type('on_video_scroll_up')
+        self.register_event_type('on_video_scroll_down')
+
     def animate_in(self, *args):
         anim = Animation(
             offset_x = self.offset_x_in, offset_y = self.offset_y_in,
@@ -46,9 +51,9 @@ class SmallVideo(ResizableBehavior, BoxLayout):
     def on_touch_up(self, touch):
         if self.collide_point(*touch.pos):
             if touch.button == 'scrolldown':
-                self.on_video_scroll_down()
+                self.dispatch('on_video_scroll_down')
             elif touch.button == 'scrollup':
-                self.on_video_scroll_up()
+                self.dispatch('on_video_scroll_up')
             else:
                 super(SmallVideo, self).on_touch_up(touch)
             return True

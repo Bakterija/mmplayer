@@ -103,7 +103,6 @@ class MediaPlayer(object):
 
         except Exception as e:
             traceback.print_exc()
-            return
         self.starting = False
         # self.player = ErrorPlayer()
 

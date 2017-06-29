@@ -21,7 +21,7 @@ class SettingHandler(object):
 
     def bind_on_stop(self, *args):
         app = App.get_running_app()
-        app.bind(on_stop=self.on_stop)
+        app.bind(on_stop=self.on_stop_settings)
 
     def update_store_properties(self):
         global update_callbacks, store
@@ -34,10 +34,10 @@ class SettingHandler(object):
                 x(store)
 
         else:
-            Logger.warning(('SettingHandler: store_name for object {}'
+            Logger.warning(('SettingHandler: store_name for object {} '
                            'has not been set').format(self))
 
-    def on_stop(self, app):
+    def on_stop_settings(self, app):
         if not self.is_stopping_now:
             self.is_stopping_now = True
             new_settings = []
