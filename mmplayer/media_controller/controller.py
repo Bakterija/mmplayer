@@ -65,11 +65,15 @@ class MediaController(SettingHandler, EventDispatcher):
         self.mplayer = mplayer
         self.mplayer.bind(on_start=self._on_mplayer_start)
         self.mplayer.bind(on_video=self.on_mplayer_video)
+        self.fbind('volume', self._set_mplayer_volume)
         Clock.schedule_interval(self.update_seek, 0.1)
         media_info.info_update_callback = self.on_media_info_update
         media_info.update_timer = 0.05
         playlist_loader.bind(on_playlists=self._on_reset_playlists_done)
         Clock.schedule_once(lambda *a: media_info.start_workers(2), 1)
+
+    def _set_mplayer_volume(self, _, value):
+        self.mplayer.set_volume(value)
 
     def set_volume(self, value):
         value = int(value)
@@ -80,7 +84,6 @@ class MediaController(SettingHandler, EventDispatcher):
         if self.muted and value > 0:
             self.muted = False
         self.volume = value
-        self.mplayer.set_volume(value)
         Logger.info('MediaController: set_volume: %s' % (value))
 
     def set_volume_relative(self, value):
@@ -107,6 +110,9 @@ class MediaController(SettingHandler, EventDispatcher):
 
     def toggle_shuffle(self):
         self.shuffle = not self.shuffle
+
+    def toggle_mute(self):
+        self.muted = not self.muted
 
     def on_shuffle(self, _, value):
         self.mplayer.shuffle = value

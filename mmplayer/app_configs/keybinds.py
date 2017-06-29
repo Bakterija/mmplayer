@@ -26,6 +26,9 @@ class Config(ConfigBase):
         kb_system.add('shuffle_tgl', keys.S, 'down',
                       root.media_control.toggle_shuffle, modifier=['ctrl'])
 
+        kb_system.add('mute_tgl', keys.M, 'down',
+                      root.media_control.toggle_mute, modifier=['ctrl'])
+
         kb_system.add(
             'window_fullscreen', keys.F11, 'down', app.toggle_fullscreen)
 
@@ -82,16 +85,20 @@ class Config(ConfigBase):
             root.mplayer_next, modifier=['alt'])
         kb_system.add(
             'seek_4_sec_back', keys.LEFT, 'down',
-            lambda: root.mplayer_seek_relative(-4), modifier=['shift'])
+            lambda: root.mplayer_seek_relative(-4),
+            wait=0.15, modifier=['shift'])
         kb_system.add(
             'seek_4_sec_forward', keys.RIGHT, 'down',
-            lambda: root.mplayer_seek_relative(4), modifier=['shift'])
+            lambda: root.mplayer_seek_relative(4),
+            wait=0.15, modifier=['shift'])
         kb_system.add(
             'seek_60_sec_back', keys.LEFT, 'down',
-            lambda: root.mplayer_seek_relative(-60), modifier=['ctrl'])
+            lambda: root.mplayer_seek_relative(-60),
+            wait=0.15, modifier=['ctrl'])
         kb_system.add(
             'seek_60_sec_forward', keys.RIGHT, 'down',
-            lambda: root.mplayer_seek_relative(60), modifier=['ctrl'])
+            lambda: root.mplayer_seek_relative(60),
+            wait=0.15, modifier=['ctrl'])
         kb_system.add(
             'play_pause_toggle', keys.SPACE, 'down',
             root.media_control.play_pause)
