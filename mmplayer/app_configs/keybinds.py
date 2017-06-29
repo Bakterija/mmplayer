@@ -28,7 +28,7 @@ class Config(ConfigBase):
                       root.media_control.toggle_shuffle, modifier=['ctrl'])
 
         kb_system.add('mute_tgl', keys.M, 'down',
-                      root.media_control.toggle_mute, modifier=['ctrl', 'shift'])
+                      root.media_control.toggle_mute, modifier=['ctrl'])
 
         kb_system.add(
             'window_fullscreen', keys.F11, 'down', app.toggle_fullscreen,
