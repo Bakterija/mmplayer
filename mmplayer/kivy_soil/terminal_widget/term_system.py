@@ -46,6 +46,7 @@ class TerminalWidgetSystem(EventDispatcher):
     term_widget = ObjectProperty()
     functions = DictProperty()
     input_log = ListProperty()
+    write_input_log_to_file = True
     data = ListProperty()
     use_logger = False
     exec_locals = {}
@@ -301,10 +302,18 @@ class TerminalWidgetSystem(EventDispatcher):
 
     def add_to_input_log(self, text):
         len_input_log = len(self.input_log)
+        can_append = False
         if len_input_log == self.input_log_index:
-            self.input_log.append(text)
+            can_append = True
         elif self.input_log[self.input_log_index] != text:
+            can_append = True
+        if can_append:
             self.input_log.append(text)
+            if self.write_input_log_to_file:
+                log_path = '%s/input_log.txt' % shared_globals.DIR_CONF
+                with open(log_path, 'a') as f:
+                    f.write(text)
+
         self.input_log_index = len(self.input_log)
 
     def handle_input_multiline(self, text):

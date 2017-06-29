@@ -49,7 +49,7 @@ class Config(ConfigBase):
         if missing:
             for section, attr, value in missing:
                 self.update_store(section, attr, value)
-            logs.info(('UserConfig: found {} missing settings,'
+            logs.info(('UserConfig: found {} missing settings, '
                 'saved to file').format(len(missing)))
 
     def update_store(self, section, attr, value):

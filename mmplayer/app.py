@@ -38,6 +38,7 @@ from kivy.core.clipboard import Clipboard
 from kivy.clock import Clock, mainthread
 from app_configs import AppConfigHandler
 from kivy.core.window import Window
+from utils.settings import SettingHandler
 from utils import get_unicode, logs
 from media_player import mplayer
 from kivy_soil import kb_system
@@ -45,7 +46,6 @@ from kivy.lang import Builder
 from functools import partial
 from kivy.compat import PY2
 from kivy.app import App
-from utils import logs
 import traceback
 import sys
 
@@ -286,7 +286,7 @@ class MMplayer_SM(ScreenManager):
     pass
 
 
-class MMplayerApp(App):
+class MMplayerApp(SettingHandler, App):
     mlayout = global_vars.layout_manager
     '''Global layout manager'''
 
@@ -317,12 +317,10 @@ class MMplayerApp(App):
         self.root_widget = MMplayer(self)
         self.icon = __icon_path__
         if platform in ('linux', 'win'):
-            Clock.schedule_interval(self._update_window_pos, 0.2)
             Window.bind(on_cursor_enter=self.on_cursor_enter)
             Window.bind(on_cursor_leave=self.on_cursor_leave)
             Window.bind(on_maximize=self.on_window_maximize)
             Window.bind(on_restore=self.on_window_restore)
-            self.root_widget.bind(size=self._update_window_size)
         return self.root_widget
 
     def _update_window_size(self, _, value):
@@ -345,15 +343,17 @@ class MMplayerApp(App):
     def on_window_maximize(self, *args):
         self.maximized = True
 
-    def set_window_pos(self, x, y):
-        Window.left = x
-        Window.top = y
-        Window.show()
-        Window.restore()
+    def set_window_pos(self, pos, restore=False):
+        Window.left = pos[0]
+        Window.top = pos[1]
+        if restore:
+            Window.show()
+            Window.restore()
 
-    def set_window_size(self, size):
+    def set_window_size(self, size, hide=False):
         Window.size = size
-        Window.hide()
+        if hide:
+            Window.hide()
 
     def toggle_fullscreen(self, *args):
         if self.fullscreen:
@@ -362,9 +362,9 @@ class MMplayerApp(App):
             new_pos = (self.last_pos)
             new_size = (self.last_size)
             Clock.schedule_once(
-                lambda dt: self.set_window_pos(*new_pos), 0.2)
+                lambda dt: self.set_window_pos(new_pos, restore=True), 0.2)
             Clock.schedule_once(
-                lambda dt: self.set_window_size(new_size), 0)
+                lambda dt: self.set_window_size(new_size, hide=True), 0)
             self._window_update_lock = False
         else:
             self._window_update_lock = True
@@ -376,10 +376,24 @@ class MMplayerApp(App):
         Clock.schedule_once(lambda dt: setattr(kb_system, 'active', True), 0.3)
 
     def on_start(self):
+        self.store_name = 'MMplayerApp'
+        self.store_properties = [
+            ('last_size', [Window.width, Window.height]),
+            ('last_pos', [Window.left, Window.top])
+        ]
+        self.update_store_properties()
+
         self.root_widget.init_widgets()
         self.last_frame_time = time() - TIME0
         Logger.info('App: on_start: %s' % (self.last_frame_time))
         Clock.schedule_once(lambda dt: self.on_some_frame(1, 7), 0)
+        Clock.schedule_once(self._load_window_pos_size, 0)
+
+    def _load_window_pos_size(self, *args):
+        self.set_window_pos(self.last_pos)
+        self.set_window_size(self.last_size)
+        Clock.schedule_interval(self._update_window_pos, 0.2)
+        self.root_widget.bind(size=self._update_window_size)
 
     def on_some_frame(self, current, fmax):
         this_time = time() - TIME0
@@ -415,7 +429,7 @@ class MMplayerApp(App):
     def reset_escape_presses(self, *args):
         self.escape_presses = 0
 
-    def on_stop(self):
+    def on_stop(self, *args):
         if not hasattr(self, 'app_is_stopping_now'):
             Logger.info('MMplayerApp: on_stop')
             self.app_is_stopping_now = True
