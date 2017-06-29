@@ -53,11 +53,9 @@ class Config(ConfigBase):
 
         kb_system.add('quit', keys.ESC, 'down', app.kb_esc, modifier=['none'])
 
-        # kb_system.add(
-        #     'focus_next', keys.TAB, 'down', kb_system.)
-
         kb_system.add(
-            'focus_next', keys.TAB, 'down', focus_behavior.focus_next)
+            'focus_next', keys.TAB, 'down', focus_behavior.focus_next,
+            modifier=['none'])
 
         kb_system.add(
             'focus_filter', keys.L, 'down',
