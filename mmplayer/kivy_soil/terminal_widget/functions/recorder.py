@@ -11,7 +11,6 @@ if not os.path.exists(PATH_AUTORUN):
 
 class Function(FunctionBase):
     _record_starts_at = -1
-    name_upper = 'Recorder'
     name = 'recorder'
     doc = ('Records and saves input for running later, '
            'can also list, read and delete saved files')
@@ -152,5 +151,3 @@ class Function(FunctionBase):
             finally:
                 self._record_starts_at = -1
         return ret
-
-Function = Function()

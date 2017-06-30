@@ -49,6 +49,7 @@ class TerminalWidgetSystem(EventDispatcher):
     write_input_log_to_file = True
     data = ListProperty()
     use_logger = False
+    grab_input = None
     exec_locals = {}
     _time0 = time()
     _next_id = 0
@@ -69,9 +70,28 @@ class TerminalWidgetSystem(EventDispatcher):
         for item in self.properties():
             self.autocomplete_words.add(item)
         app = App.get_running_app()
-        self.exec_locals = {'app': app, 'self': self}
+        self.exec_locals = {
+            'app': app, 'self': self, 'add_text': self.add_text}
+        for x in self.exec_locals:
+            self.autocomplete_words.add(x)
         shared_globals.set_app_name(app.name)
         self._import_built_in_functions()
+        self._load_input_log()
+
+    def _load_input_log(self):
+        _write_true_after = False
+        if self.write_input_log_to_file:
+            self.write_input_log_to_file = False
+            _write_true_after = True
+        log_path = '%s/input_log.txt' % shared_globals.DIR_CONF
+        with open(log_path, 'r') as f:
+            text = f.read()
+            for x in text.splitlines():
+                self.add_to_input_log(x)
+        if _write_true_after:
+            self.write_input_log_to_file = True
+        for x in self.input_log:
+            self.autocomplete_words.add(x)
 
     def _import_built_in_functions(self):
         funcpath = os.path.split(os.path.realpath(__file__))[0] + '/functions/'
@@ -84,7 +104,7 @@ class TerminalWidgetSystem(EventDispatcher):
             x = x[:-3]
             func_package = 'kivy_soil.terminal_widget.functions.'
             new_module = importlib.import_module('%s%s' % (func_package, x))
-            new_func = new_module.Function
+            new_func = new_module.Function()
             new_func.on_import(self)
             self.functions[new_func.name] = new_func
             Logger.info('TerminalWidgetSystem: imported function "%s"' % (
@@ -210,7 +230,9 @@ class TerminalWidgetSystem(EventDispatcher):
                     len_word = len(word)
                     # Looks for matching strings in autocomplete_words
                     # Appends all results to found list
-                    for x in self.autocomplete_words:
+                    autocomplete_words = list(
+                        self.autocomplete_words) + list(self.exec_locals)
+                    for x in autocomplete_words:
                         if x[:len(word)].lower() == word.lower():
                             found.append(x)
 
@@ -269,6 +291,10 @@ class TerminalWidgetSystem(EventDispatcher):
         return ret
 
     def handle_input(self, text):
+        if self.grab_input:
+            self.grab_input.handle_input(
+                self, globals(), self.exec_locals, text)
+            return
         text = text.rstrip()
         self.exec_locals['__ret_value__'] = {}
         if self.handling_multiline_input or text and text[-1] == ':':
@@ -313,9 +339,14 @@ class TerminalWidgetSystem(EventDispatcher):
             if self.write_input_log_to_file:
                 log_path = '%s/input_log.txt' % shared_globals.DIR_CONF
                 with open(log_path, 'a') as f:
-                    f.write(text)
-
+                    f.write(text + '\n')
         self.input_log_index = len(self.input_log)
+
+    def clear_input_log(self, *args):
+        self.input_log = []
+        log_path = '%s/input_log.txt' % shared_globals.DIR_CONF
+        with open(log_path, 'w') as f:
+            f.write('')
 
     def handle_input_multiline(self, text):
         if text:

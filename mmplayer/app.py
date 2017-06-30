@@ -275,12 +275,6 @@ class MMplayer(LayoutMethods, FloatLayout):
             on_add_data=lambda obj, data: self.ids.terminal_widget.add_data(
                 data['text'], data['level']))
 
-        # For testing
-        def testfunc(*a):
-            self.media_control.open_playlist_by_id(3)
-            self.switch_screen('media')
-        Clock.schedule_once(testfunc, 1)
-
 
 class MMplayer_SM(ScreenManager):
     pass

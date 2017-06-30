@@ -1,5 +1,4 @@
 class FunctionBase(object):
-    name_upper = ''
     name = ''
     doc = 'doc about this class'
     methods = {
@@ -11,7 +10,7 @@ class FunctionBase(object):
     def __init__(self, **kwargs):
         self.methods.update(self.methods_subclass)
 
-    def on_import(term_system):
+    def on_import(self, term_system):
         pass
 
     def get_methods(self):
@@ -23,7 +22,7 @@ class FunctionBase(object):
             ret = doc
         else:
             ret = '# %s: %s: %s not found' % (
-                self.name_upper, 'help', method_name)
+                self.name, 'help', method_name)
         return ret
 
     @staticmethod
@@ -34,7 +33,7 @@ class FunctionBase(object):
         if text:
             b = text.find(' ')
             if b != -1:
-                text2 = text[b:]
+                text2 = text[b+1:]
                 fname = text[:b]
             else:
                 fname = text
@@ -58,7 +57,7 @@ class FunctionBase(object):
     def handle_input(self, term_system, term_globals, exec_locals, text):
         fname, method, args = self.get_method_args(text)
         found = False
-        
+
         if method in self.methods:
             m = getattr(self, method, None)
             if m:
@@ -73,6 +72,6 @@ class FunctionBase(object):
                 '# %s: Method "%s" not found\n'
                 '# Available methods are %s\n'
                 '# Type "help [method_name]" for help') % (
-                    self.name_upper, method, self.get_methods())
+                    self.name, method, self.get_methods())
 
         return result
