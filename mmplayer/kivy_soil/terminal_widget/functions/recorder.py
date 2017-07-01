@@ -10,7 +10,6 @@ if not os.path.exists(PATH_AUTORUN):
 
 
 class Function(FunctionBase):
-    _record_starts_at = -1
     name = 'recorder'
     doc = ('Records and saves input for running later, '
            'can also list, read and delete saved files')
@@ -30,6 +29,7 @@ class Function(FunctionBase):
     def on_import(self, term_system):
         self.term_system = term_system
         self._load_autorun_files()
+        self._input_log = []
         Clock.schedule_once(self._run_autorun_files, 0)
 
     def _load_autorun_files(self, *args):
@@ -48,6 +48,7 @@ class Function(FunctionBase):
 
     def autorun(self, file_name, *args):
         on = True
+        ret = '#'
         if args:
             on = args[0]
         else:
@@ -55,8 +56,10 @@ class Function(FunctionBase):
                 on = False
         if on and not file_name in self.autorun_files:
             self.autorun_files.add(file_name)
+            ret = '# Added %s to autorun' % (file_name)
         elif not on and file_name in self.autorun_files:
             self.autorun_files.remove(file_name)
+            ret = '# Removed %s from autorun' % (file_name)
         with open(PATH_AUTORUN, 'w') as fp:
             autolist = list(self.autorun_files)
             if autolist:
@@ -67,6 +70,7 @@ class Function(FunctionBase):
             else:
                 string = ''
             fp.write(string)
+        return ret
 
     def run(self, file_name):
         fpath = '%s/%s' % (DIR_APP, file_name)
@@ -98,7 +102,10 @@ class Function(FunctionBase):
         if os.path.exists(fpath):
             with open(fpath, 'r') as fp:
                 text = fp.read().splitlines()
-                ret = text
+                ret = '0: %s' % (text[0])
+                if len(text) > 1:
+                    for i, x in enumerate(text[1:]):
+                        ret = '%s\n%s: %s' % (ret, i+1, x)
         else:
             ret = '# %s does not exist' % fpath
         return ret
@@ -114,17 +121,24 @@ class Function(FunctionBase):
 
     def record(self, file_name):
         fpath = '%s/%s' % (DIR_APP, file_name)
-        if os.path.exists(fpath):
-            ret = '# %s already exists' % fpath
+        if self._input_log:
+            ret = '# Recording already'
         else:
-            ret = '# Recording input for %s, type "save" to save' % (file_name)
-            self._record_starts_at = self.term_system.input_log_index + 1
-            self._record_file_name = file_name
+            if os.path.exists(fpath):
+                ret = '# Path: %s already exists' % fpath
+            else:
+                ret = '# Recording input for %s, type "save" to save' % (file_name)
+                self._input_log = []
+                self._record_file_name = file_name
+                self.term_system.bind(on_input=self.on_term_input)
         return ret
 
+    def on_term_input(self, _, text):
+        self._input_log.append(text)
+
     def stop_recording(self, *args):
-        if self._record_starts_at != -1:
-            self._record_starts_at = -1
+        if self._input_log:
+            self._input_log = []
             ret = '# Stopped recording'
         else:
             ret = '# Nothing to stop'
@@ -132,22 +146,22 @@ class Function(FunctionBase):
 
     def save(self, *args):
         ret = ''
-        if self._record_starts_at == -1:
+        if not self._input_log:
             ret = '# Nothing to save'
         else:
             fpath = '%s/%s' % (DIR_APP, self._record_file_name)
             try:
                 with open(fpath, 'w') as fp:
                     fp.write('')
-                    ln = self.term_system.input_log[self._record_starts_at+1:]
-                    len_lines = len(ln)
-                    joined_text = ln[0]
-                    for line in ln[1:]:
+                    len_lines = len(self._input_log)
+                    joined_text = self._input_log[0]
+                    for line in self._input_log[1:-1]:
                         joined_text = '%s\n%s' % (joined_text, line)
                     fp.write(joined_text)
                 ret = '# Saved in %s' % (fpath)
             except Exception as e:
                 raise e
             finally:
-                self._record_starts_at = -1
+                self._input_log = []
+                self.term_system.unbind(on_input=self.on_term_input)
         return ret

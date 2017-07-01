@@ -56,6 +56,7 @@ class TerminalWidgetSystem(EventDispatcher):
 
     def __init__(self, term_widget,**kwargs):
         self.register_event_type('on_data')
+        self.register_event_type('on_input')
         super(TerminalWidgetSystem, self).__init__(**kwargs)
         self.term_widget = term_widget
         self.id = self._next_id
@@ -107,8 +108,11 @@ class TerminalWidgetSystem(EventDispatcher):
             new_func = new_module.Function()
             new_func.on_import(self)
             self.functions[new_func.name] = new_func
-            Logger.info('TerminalWidgetSystem: imported function "%s"' % (
-                new_func.name))
+        Logger.info('TerminalWidgetSystem: imported %s functions' % (
+            len(files)))
+
+    def on_input(self, *args):
+        pass
 
     def on_data(self, *args):
         pass
@@ -290,12 +294,16 @@ class TerminalWidgetSystem(EventDispatcher):
             ret = self.input_log[self.input_log_index]
         return ret
 
+    def get_globals(self):
+        return globals()
+
     def handle_input(self, text):
+        self.dispatch('on_input', text)
+        text = text.rstrip()
         if self.grab_input:
             self.grab_input.handle_input(
                 self, globals(), self.exec_locals, text)
             return
-        text = text.rstrip()
         self.exec_locals['__ret_value__'] = {}
         if self.handling_multiline_input or text and text[-1] == ':':
             self.handle_input_multiline(text)
@@ -347,6 +355,7 @@ class TerminalWidgetSystem(EventDispatcher):
         log_path = '%s/input_log.txt' % shared_globals.DIR_CONF
         with open(log_path, 'w') as f:
             f.write('')
+        self.input_log_index = 0
 
     def handle_input_multiline(self, text):
         if text:

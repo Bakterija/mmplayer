@@ -142,7 +142,7 @@ class BasePlaylist(EventDispatcher):
         #     templist
         if time() - time0 > 1.0:
             Logger.info('{}-playlist: found {} files in {} seconds'.format(
-                self.name, len(templist), time() - time0))
+                self.name, len(templist), round(time() - time0, 2)))
         return templist
 
     def get_default_media_dict(self, file_path):

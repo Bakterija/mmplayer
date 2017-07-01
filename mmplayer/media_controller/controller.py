@@ -381,7 +381,7 @@ class MediaController(SettingHandler, EventDispatcher):
                 self.playlist_ids[x.id] = x
         Logger.info(
             'MediaController: reset_playlists: %s sec' % (
-                time() - self.time_reset))
+                round(time() - self.time_reset, 2)))
 
     def open_playlist(self, target):
         for section, playlists in self.playlists.items():

@@ -379,7 +379,7 @@ class MMplayerApp(SettingHandler, App):
 
         self.root_widget.init_widgets()
         self.last_frame_time = time() - TIME0
-        Logger.info('App: on_start: %s' % (self.last_frame_time))
+        Logger.info('App: on_start: %s' % (round(self.last_frame_time, 2)))
         Clock.schedule_once(lambda dt: self.on_some_frame(1, 7), 0)
         Clock.schedule_once(self._load_window_pos_size, 0)
 

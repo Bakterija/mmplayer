@@ -18,7 +18,7 @@ kv = '''
 <TerminalWidget>:
     orientation: 'vertical'
     size_hint: None, None
-    input_height: int(cm(0.8))
+    input_height: int(self.font_size * 2.2)
     anim_speed: 0.2
     canvas:
         Color:
@@ -47,7 +47,7 @@ kv = '''
         ignored_keys: [9, 96]
         border_width: 1
         height: root.input_height
-        font_size: int(root.input_height * 0.5)
+        font_size: root.font_size
         multiline: False
         on_text_validate: root.on_input(self, self.text)
 '''
@@ -76,7 +76,7 @@ class TerminalWidget(BoxLayout):
     selected_size = StringProperty('')
     pos_multiplier = NumericProperty()
     term_system = ObjectProperty()
-    font_size = NumericProperty()
+    font_size = NumericProperty(12)
     global_objects = {
         'app': App.get_running_app(),
     }
@@ -108,7 +108,7 @@ class TerminalWidget(BoxLayout):
             self._temp_init_data.append((text, level))
 
     def _update_chars_per_line(self, *args):
-        self.ids.rv.chars_per_line = int((self.width / self.font_size) * 1.5)
+        self.ids.rv.chars_per_line = int((self.width / self.font_size) * 1.6)
 
     def schedule_line_split_update(self, *args):
         Clock.unschedule(self._update_chars_per_line)
