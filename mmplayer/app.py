@@ -49,7 +49,7 @@ from kivy.app import App
 import traceback
 import sys
 
-if platform in ('windows','win', 'linux'):
+if platform in ('win', 'linux'):
     from layouts.pc_layout_methods import LayoutMethods
     Config.set( 'input', 'mouse', 'mouse,disable_multitouch')
 
@@ -275,12 +275,6 @@ class MMplayer(LayoutMethods, FloatLayout):
             on_add_data=lambda obj, data: self.ids.terminal_widget.add_data(
                 data['text'], data['level']))
 
-        # For testing
-        def testfunc(*a):
-            self.media_control.open_playlist_by_id(3)
-            self.switch_screen('media')
-        Clock.schedule_once(testfunc, 1)
-
 
 class MMplayer_SM(ScreenManager):
     pass
@@ -295,8 +289,6 @@ class MMplayerApp(SettingHandler, App):
 
     escape_presses = 0
     '''Tracks escape press counts for kb_quit method'''
-
-    root_widget = None
 
     store_path = global_vars.DIR_CONF + '/mmplayer.json'
     try:
@@ -314,14 +306,14 @@ class MMplayerApp(SettingHandler, App):
     _window_update_lock = False
 
     def build(self):
-        self.root_widget = MMplayer(self)
+        root = MMplayer(self)
         self.icon = __icon_path__
         if platform in ('linux', 'win'):
             Window.bind(on_cursor_enter=self.on_cursor_enter)
             Window.bind(on_cursor_leave=self.on_cursor_leave)
             Window.bind(on_maximize=self.on_window_maximize)
             Window.bind(on_restore=self.on_window_restore)
-        return self.root_widget
+        return root
 
     def _update_window_size(self, _, value):
         if not self._window_update_lock:
@@ -383,9 +375,9 @@ class MMplayerApp(SettingHandler, App):
         ]
         self.update_store_properties()
 
-        self.root_widget.init_widgets()
+        self.root.init_widgets()
         self.last_frame_time = time() - TIME0
-        Logger.info('App: on_start: %s' % (self.last_frame_time))
+        Logger.info('App: on_start: %s' % (round(self.last_frame_time, 2)))
         Clock.schedule_once(lambda dt: self.on_some_frame(1, 7), 0)
         Clock.schedule_once(self._load_window_pos_size, 0)
 
@@ -393,7 +385,7 @@ class MMplayerApp(SettingHandler, App):
         self.set_window_pos(self.last_pos)
         self.set_window_size(self.last_size)
         Clock.schedule_interval(self._update_window_pos, 0.2)
-        self.root_widget.bind(size=self._update_window_size)
+        self.root.bind(size=self._update_window_size)
 
     def on_some_frame(self, current, fmax):
         this_time = time() - TIME0
@@ -421,7 +413,7 @@ class MMplayerApp(SettingHandler, App):
             if self.escape_presses == 1:
                 self.stop()
             else:
-                self.root_widget.display_info('Double press escape to quit')
+                self.root.display_info('Double press escape to quit')
             self.escape_presses += 1
             Clock.unschedule(self.reset_escape_presses)
             Clock.schedule_once(self.reset_escape_presses, 0.8)

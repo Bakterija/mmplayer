@@ -7,7 +7,6 @@ from kivy_soil.hover_behavior import HoverBehavior
 from popups_and_dialogs.media_properties import MediaPropertiesDialog
 from popups_and_dialogs import media_context_menu
 from kivy.uix.behaviors import ButtonBehavior
-from behaviors.button2 import ButtonBehavior2
 from kivy.uix.stacklayout import StackLayout
 from utils import seconds_to_minutes_hours
 from kivy.clock import Clock, mainthread
@@ -19,7 +18,7 @@ from kivy.metrics import cm
 import media_info
 
 
-class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
+class MediaButton(ButtonBehavior, HoverBehavior, AppRecycleViewClass,
                   StackLayout):
     '''Base view class of media buttons'''
     id = NumericProperty(-1)
@@ -90,7 +89,9 @@ class MediaButton(ButtonBehavior2, HoverBehavior, AppRecycleViewClass,
         else:
             self.text = self.name
 
-    def on_press(self, button, double_tap):
+    def on_press(self):
+        double_tap = self.last_touch.is_double_tap
+        button = self.last_touch.button
         if button == 'left':
             if double_tap:
                 self.start_media()

@@ -1,0 +1,99 @@
+#: import CompatTextInput kivy_soil.kb_system.compat_widgets.textinput.CompatTextInput
+#: import ConditionLayout kivy_soil.condition_layout.ConditionLayout
+#: import keys kivy_soil.kb_system.keys
+#: import platform kivy.utils.platform
+
+<TermButton>:
+    size_hint: None, 0.9
+    width: self.height
+    pos_hint: {'center_y': 0.5}
+    source: ''
+    Image:
+        size: root.size
+        pos: root.pos
+        source: root.source
+
+<TerminalWidget>:
+    orientation: 'vertical'
+    size_hint: None, None
+    input_height: int(self.font_size * 2.4)
+    anim_speed: 0.2
+    canvas:
+        Color:
+            rgba: self.background_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    TerminalWidgetScroller:
+        id: rv
+        size_hint_y: None
+        height: root.height - inputw.height - button_box.height
+        viewclass: 'TerminalWidgetLabel'
+        font_name: root.font_name
+        font_size: root.font_size
+        SingleSelectRecycleBox:
+            id: rv_box
+            orientation: 'vertical'
+            is_focusable: False
+            size_hint: None, None
+            height: self.minimum_height
+            width: self.parent.width - self.parent.bar_width
+            default_size_hint: 1, None
+            default_size: None, int(root.font_size * 1.5)
+            spacing: int(cm(0.1))
+
+    CompatTextInput:
+        id: inputw
+        markup: True
+        size_hint_y: None
+        font_name: root.font_name
+        ignored_keys: [9, 96]
+        border_width: 1
+        height: root.input_height
+        font_size: root.font_size
+        multiline: False
+        on_text_validate: root.on_input(self, self.text)
+
+    ConditionLayout:
+        id: button_box
+        condition: True if platform == 'android' else False
+        size_hint_y: None
+        height: self.minimum_height
+        BoxLayout:
+            size_hint: None, None
+            size: root.width, int(root.input_height * 1.5)
+            orientation: 'horizontal'
+            spacing: int(cm(0.2))
+            canvas.before:
+                Color:
+                    rgba:
+                        [root.background_color[0] + 0.05,
+                        root.background_color[1] + 0.05,
+                        root.background_color[2] + 0.15,
+                        1]
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+            TermButton:
+                text: 'Tab'
+                width: self.texture_size[0] * 2
+                on_press:
+                    root.on_input_key_down(None, (keys.TAB, 0), None, None)
+
+            TermButton:
+                source: 'kivy_soil/terminal_widget/data/arrow_up.png'
+                on_press:
+                    root.on_input_key_down(None, (keys.UP, 0), None, None)
+            TermButton:
+                source: 'kivy_soil/terminal_widget/data/arrow_down.png'
+                on_press:
+                    root.on_input_key_down(None, (keys.DOWN, 0), None, None)
+            TermButton:
+                source: 'kivy_soil/terminal_widget/data/arrow_left.png'
+                on_press:
+                    inputw.do_cursor_movement('cursor_left')
+            TermButton:
+                source: 'kivy_soil/terminal_widget/data/arrow_right.png'
+                on_press:
+                    inputw.do_cursor_movement('cursor_right')

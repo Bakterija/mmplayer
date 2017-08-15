@@ -47,7 +47,8 @@ class BasePlaylist(EventDispatcher):
     allowed_extensions = {
         '.flac', '.midi', '.webm', '.vob', '.ogv', '.mp3', '.ogg',
         '.m4a', '.mp4', '.mkv', '.mdl', '.mpg', '.mp2', '.mpeg',
-        '.mpe', '.mpv', '.avi', '.flv', '.wav', '.mid', '.mv2', '.m4v'
+        '.mpe', '.mpv', '.avi', '.flv', '.wav', '.mid', '.mv2', '.m4v',
+        '.opus'
         }
     saved_media_keys = {
         'ext', 'name', 'path', 'duration'
@@ -142,7 +143,7 @@ class BasePlaylist(EventDispatcher):
         #     templist
         if time() - time0 > 1.0:
             Logger.info('{}-playlist: found {} files in {} seconds'.format(
-                self.name, len(templist), time() - time0))
+                self.name, len(templist), round(time() - time0, 2)))
         return templist
 
     def get_default_media_dict(self, file_path):

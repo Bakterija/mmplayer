@@ -1,56 +1,57 @@
 from __future__ import print_function
 from kivy.properties import ListProperty, NumericProperty, ObjectProperty
-from kivy.properties import StringProperty
+from kivy.properties import StringProperty, BooleanProperty
 from kivy_soil.kb_system.canvas import FocusBehaviorCanvas
 from kivy_soil.kb_system import keys
 from kivy_soil.app_recycleview.behaviors.line_split import LineSplitBehavior
 from kivy_soil.app_recycleview import AppRecycleViewClass
 from kivy_soil.app_recycleview import AppRecycleView
 from .term_system import TerminalWidgetSystem
+from kivy.uix.behaviors import FocusBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.animation import Animation
+from kivy.core.window import Window
+from kivy_soil.utils import intdp, intcm
+from kivy.uix.label import Label
+from kivy.utils import platform
 from kivy.lang import Builder
 from kivy.clock import Clock
-from kivy.metrics import cm
 from kivy.app import App
 
-kv = '''
-<TerminalWidget>:
-    orientation: 'vertical'
-    size_hint: None, None
-    input_height: int(cm(0.8))
-    anim_speed: 0.2
-    canvas:
-        Color:
-            rgba: self.background_color
-        Rectangle:
-            size: self.size
-            pos: self.pos
+Builder.load_file('kivy_soil/terminal_widget/term_layout.kv')
 
-    TerminalWidgetScroller:
-        id: rv
-        viewclass: 'TerminalWidgetLabel'
-        SingleSelectRecycleBox:
-            id: rv_box
-            orientation: 'vertical'
-            size_hint: None, None
-            height: self.minimum_height
-            width: self.parent.width - self.parent.bar_width
-            default_size_hint: 1, None
-            default_size: None, app.mlayout.button_height07
-            spacing: app.mlayout.spacing
+class TermButton(Label):
+    is_held = BooleanProperty(False)
 
-    CompatTextInput:
-        id: input
-        size_hint_y: None
-        font_name: root.font_name
-        ignored_keys: [9, 96]
-        border_width: 1
-        height: root.input_height
-        font_size: int(root.input_height * 0.5)
-        multiline: False
-        on_text_validate: root.on_input(self, self.text)
-'''
+    def __init__(self, **kwargs):
+        self.register_event_type('on_press')
+        super(TermButton, self).__init__(**kwargs)
+
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos):
+            FocusBehavior.ignored_touch.append(touch)
+            self.is_held = True
+            return True
+
+    def on_is_held(self, _, value):
+        if value:
+            self.dispatch('on_press')
+            Clock.schedule_once(self.dispatch_held, 0.7)
+
+    def dispatch_held(self, *args):
+        if self.is_held:
+            self.dispatch('on_press')
+            Clock.schedule_once(self.dispatch_held, 0.1)
+
+    def on_touch_up(self, touch):
+        self.is_held = False
+        if self.collide_point(*touch.pos):
+            FocusBehavior.ignored_touch.append(touch)
+            return True
+
+    def on_press(self, *args):
+        pass
+
 
 class TerminalWidgetScroller(FocusBehaviorCanvas, LineSplitBehavior,
                              AppRecycleView):
@@ -70,13 +71,17 @@ class TerminalWidgetScroller(FocusBehaviorCanvas, LineSplitBehavior,
 
 class TerminalWidget(BoxLayout):
     font_name = StringProperty('RobotoMono-Regular.ttf')
-    background_color = ListProperty([0.2, 0.2, 0.2, 0.9])
+    background_color = ListProperty([0.2, 0.2, 0.3, 0.9])
     small_size = ListProperty([100, 100])
     big_size = ListProperty([100, 100])
     selected_size = StringProperty('')
-    pos_multiplier = NumericProperty()
+    pos_multiplier = NumericProperty(0.0)
     term_system = ObjectProperty()
-    font_size = NumericProperty()
+    font_size = NumericProperty(intdp(14))
+    is_being_pulled = BooleanProperty(False)
+    pull_area_pos = ListProperty([0, 0])
+    pull_area_size = ListProperty([0, 0])
+    movable_with_touch = BooleanProperty(True)
     global_objects = {
         'app': App.get_running_app(),
     }
@@ -86,6 +91,7 @@ class TerminalWidget(BoxLayout):
         Clock.schedule_once(self.init_widgets, 0)
         self.is_focusable = False
         self._temp_init_data = []
+        self.size = self.small_size
 
     def on_small_size(self, _, value):
         if self.selected_size == 'small':
@@ -108,7 +114,8 @@ class TerminalWidget(BoxLayout):
             self._temp_init_data.append((text, level))
 
     def _update_chars_per_line(self, *args):
-        self.ids.rv.chars_per_line = int((self.width / self.font_size) * 1.5)
+        self.ids.rv.chars_per_line = int(
+            ((self.width - intcm(0.5)) / self.font_size) * 1.6)
 
     def schedule_line_split_update(self, *args):
         Clock.unschedule(self._update_chars_per_line)
@@ -120,7 +127,7 @@ class TerminalWidget(BoxLayout):
 
     def init_widgets(self, dt):
         rv = self.ids.rv
-        inputw = self.ids.input
+        inputw = self.ids.inputw
         inputw.is_focusable = False
         inputw.grab_focus = True
         rv_box = self.ids.rv_box
@@ -144,7 +151,7 @@ class TerminalWidget(BoxLayout):
         del self._temp_init_data
 
     def on_input_key_down(self, _, key, text, modifiers):
-        inputw = self.ids.input
+        inputw = self.ids.inputw
         if key[0] in (keys.PAGE_UP, keys.PAGE_DOWN):
             self.ids.rv.on_key_down(key[0], modifiers)
         elif key[0] == keys.TAB:
@@ -157,35 +164,48 @@ class TerminalWidget(BoxLayout):
         elif key[0] == keys.DOWN:
             text = self.term_system.get_log_next()
             inputw.text = text
-        # elif key[0] == keys.C and modifiers == ['ctrl']:
-        #     self.term_system.keyboard_interrupt()
-        #     inputw.text = ''
         else:
             inputw.__class__.keyboard_on_key_down(
                 inputw, _, key, text, modifiers)
 
-    def animate_in_small(self, *args):
+    def animate_in_small(self, focus_input=True):
         self.size = self.small_size
-        anim = Animation(pos_multiplier=1.0, d=self.anim_speed, t='out_quad')
-        Clock.schedule_once(self.focus_input, 0)
-        self.ids.input.is_focusable = True
-        self.ids.rv.scroll_to_end()
-        anim.start(self)
         self.selected_size = 'small'
+        if self.pos_multiplier < 1.0:
+            if self.pos_multiplier:
+                d = self.anim_speed * (1.0 - (self.pos_multiplier))
+            else:
+                d = self.anim_speed
+            anim = Animation(pos_multiplier=1.0, d=d, t='out_quad')
+            anim.start(self)
+            self.ids.rv.scroll_to_end()
+        else:
+            d = 0.05
+        self.ids.inputw.is_focusable = True
+        if focus_input:
+            Clock.schedule_once(self.focus_input, d * 3.0)
 
-    def animate_in_big(self, *args):
+    def animate_in_big(self, focus_input=True):
         self.size = self.big_size
-        anim = Animation(pos_multiplier=1.0, d=self.anim_speed, t='out_quad')
-        Clock.schedule_once(self.focus_input, 0)
-        self.ids.input.is_focusable = True
-        self.ids.rv.scroll_to_end()
-        anim.start(self)
         self.selected_size = 'big'
+        if self.pos_multiplier < 1.0:
+            if self.pos_multiplier:
+                d = self.anim_speed * (1.0 - (self.pos_multiplier))
+            else:
+                d = self.anim_speed
+            anim = Animation(pos_multiplier=1.0, d=d, t='out_quad')
+            anim.start(self)
+            self.ids.rv.scroll_to_end()
+        else:
+            d = 0.05
+        self.ids.inputw.is_focusable = True
+        if focus_input:
+            Clock.schedule_once(self.focus_input, d * 3.0)
 
     def animate_out(self, *args):
+        self.ids.inputw.focus = False
+        self.ids.inputw.is_focusable = False
         anim = Animation(pos_multiplier=0.0, d=self.anim_speed, t='in_quad')
-        self.ids.input.focus = False
-        self.ids.input.is_focusable = False
         anim.start(self)
         self.selected_size = ''
 
@@ -207,8 +227,45 @@ class TerminalWidget(BoxLayout):
         widget.text = ''
 
     def focus_input(self, text):
-        if self.ids.input.is_focusable:
-            self.ids.input.focus = True
+        if self.ids.inputw.is_focusable:
+            self.ids.inputw.focus = True
 
+    def on_touch_down(self, touch):
+        if 0 not in self.pull_area_size:
+            ppos = self.pull_area_pos
+            psize = self.pull_area_size
+            tpos = self.to_local(*touch.pos)
+            if self.movable_with_touch and self.pos_multiplier in (0.0, 1.0):
+                if ppos[0] < tpos[0] < ppos[0] + psize[0]:
+                    if ppos[1] < tpos[1] < ppos[1] + psize[1]:
+                        if self.ids.inputw.focus:
+                            self.ids.inputw.focus = False
+                        self.is_being_pulled = True
+                        return True
+        return super(TerminalWidget, self).on_touch_down(touch)
 
-Builder.load_string(kv)
+    def on_touch_move(self, touch):
+        if self.is_being_pulled:
+            res = 1.0 - (float(touch.pos[1]) / float(Window.system_size[1]))
+            if res > 0.8:
+                if self.selected_size != 'big':
+                    self.size = self.big_size
+                    self.selected_size = 'big'
+            elif self.selected_size != 'small':
+                self.size = self.small_size
+                self.selected_size = 'small'
+            self.pos_multiplier = res
+        else:
+            return super(TerminalWidget, self).on_touch_move(touch)
+
+    def on_touch_up(self, touch):
+        if self.is_being_pulled:
+            self.is_being_pulled = False
+            if self.pos_multiplier >= 0.44:
+                if self.selected_size == 'small':
+                    self.animate_in_small(focus_input=False)
+                elif self.selected_size == 'big':
+                    self.animate_in_big(focus_input=False)
+            else:
+                self.animate_out()
+        return super(TerminalWidget, self).on_touch_up(touch)

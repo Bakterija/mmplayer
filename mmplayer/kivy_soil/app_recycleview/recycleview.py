@@ -1,7 +1,9 @@
 from kivy.properties import ListProperty, StringProperty, BooleanProperty
 from kivy.uix.recycleview import RecycleView
+from kivy_soil.kb_system import keys
 from kivy.animation import Animation
 from operator import itemgetter
+from kivy.logger import Logger
 from kivy.clock import Clock
 from kivy.metrics import dp
 
@@ -21,12 +23,33 @@ class AppRecycleView(RecycleView):
     data_full = ListProperty()
     '''ListProperty that stores all widget data unsorted'''
 
+    filters = ListProperty()
+
     def __init__(self, **kwargs):
         super(AppRecycleView, self).__init__(**kwargs)
         self.fbind('reverse_sorting', self.update_data_from_filter)
         self.fbind('filter_text', self.update_data_from_filter)
         self.fbind('filter_keys', self.update_data_from_filter)
         self.fbind('sorting_key', self.update_data_from_filter)
+
+    def on_key_down(self, key, modifier):
+        '''Default keys for kivy_soil focus behavior'''
+        if key == keys.UP:
+            self.children[0].on_arrow_up()
+        elif key == keys.DOWN:
+            self.children[0].on_arrow_down()
+        elif key == keys.PAGE_UP:
+            self.page_up()
+        elif key == keys.PAGE_DOWN:
+            self.page_down()
+        elif key == keys.HOME:
+            self.scroll_to_start()
+        elif key == keys.END:
+            self.scroll_to_end()
+        elif key in (keys.MENU, keys.MENU_WIN):
+            drop = self.children[0].open_context_menu()
+        elif key == keys.ESC:
+            self.remove_focus()
 
     def set_data(self, data_full):
         '''Sets self.data_full, call updates data from filter, then sorts.
@@ -47,6 +70,8 @@ class AppRecycleView(RecycleView):
         data = self.sort_data(data, self.reverse_sorting, self.sorting_key)
         if self.children:
             self.children[0].on_data_update_sel(len(self.data), len(data))
+        for x in self.filters:
+            data = x(data)
         self.data = data
         self.refresh_from_data()
 
@@ -113,15 +138,27 @@ class AppRecycleView(RecycleView):
             pos_index = (box.default_size[1] + box.spacing) * index
         else:
             pos_index = 0
-            for x in self.data[:index]:
-                pos_index += x['height'] + box.spacing
-        scroll = self.convert_distance_to_scroll(
-            0, pos_index - (self.height * 0.5))[1]
-        if scroll > 1.0:
-            scroll = 1.0
-        elif scroll < 0.0:
-            scroll = 0.0
-        self.scroll_y = 1.0 - scroll
+            try:
+                for x in self.data[:index]:
+                    pos_index += x['height'] + box.spacing
+            except KeyError:
+                pos_index = -1
+                self._log_height_key_warning('scroll_to_index')
+        if not pos_index == -1:
+            scroll = self.convert_distance_to_scroll(
+                0, pos_index - (self.height * 0.5))[1]
+            if scroll > 1.0:
+                scroll = 1.0
+            elif scroll < 0.0:
+                scroll = 0.0
+            self.scroll_y = 1.0 - scroll
+
+    def _log_height_key_warning(self, funcname):
+        Logger.warning((
+            'AppRecycleView: {}: '
+            'no default height has been set and data dictionaries '
+            'do not have a height value, scrolling to selected index '
+            'will not work').format(funcname))
 
     def convert_distance_to_scroll(self, dx, dy):
         '''Modified convert_distance_to_scroll method for better reliability'''
@@ -130,9 +167,13 @@ class AppRecycleView(RecycleView):
             wheight = box.default_size[1] + box.spacing
             vp_height = len(self.data) * wheight
         else:
-            vp_height = 0
-            for x in self.data:
-                vp_height += x['height']
+            try:
+                vp_height = 0
+                for x in self.data:
+                    vp_height += x['height']
+            except KeyError:
+                self._log_height_key_warning('convert_distance_to_scroll')
+                return 0, 0
 
         if not self._viewport:
             return 0, 0

@@ -100,11 +100,11 @@ def on_key_down(window, key, scan, text, modifier):
     '''Detects pressed keys, modifiers and calls on_key_event'''
     global last_key, last_modifier, last_time, time_alt_press, waiting_press
     global log_keys
+    modifier = _update_modifier(key, True)
     if waiting_press:
         if log_keys:
             Logger.info('kb_dispatcher: on_key_down: waiting')
     else:
-        modifier = _update_modifier(key, True)
         time_now = time()
         if last_time + 0.02 > time_now:
             if key == last_key and modifier == last_modifier:
@@ -126,11 +126,11 @@ def on_key_down(window, key, scan, text, modifier):
 def on_key_up(window, key, *args):
     '''Detects released keys, modifiers and calls on_key_event'''
     global waiting_release, log_keys
+    modifier = _update_modifier(key, False)
     if waiting_release:
         if log_keys:
             Logger.info('kb_dispatcher: on_key_down: waiting')
     else:
-        modifier = _update_modifier(key, False)
         on_key_event(key, modifier, False)
 
 def on_key_event(key, modifier, is_down, text=None):
@@ -141,9 +141,10 @@ def on_key_event(key, modifier, is_down, text=None):
     and key is not used by global callback already or key is grabbed by widget
     '''
     global held_ctrl, held_alt, held_shift, waiting_press, waiting_release
-    global log_keys
+    global log_keys, ignored_keys
     if not active:
         return
+
     if is_down:
         kstate = 'down'
     else:
@@ -166,12 +167,17 @@ def on_key_event(key, modifier, is_down, text=None):
                 continue
             if v['key'] == key:
                 if v['state'] in (kstate, 'any', 'all'):
-                    if v['modifier'] == ['none'] and not modifier:
-                        v['callback']()
+                    if modifier and v['modifier']:
                         found = True
-                    elif not v['modifier'] or v['modifier'] == modifier:
-                        v['callback']()
-                        found = True
+                        for mod in v['modifier']:
+                            if mod not in modifier:
+                                found = False
+                        if found:
+                            v['callback']()
+                    else:
+                        if v['modifier'] == ['none'] or not v['modifier']:
+                            v['callback']()
+                            found = True
                 if v['wait']:
                     if is_down and not waiting_press:
                         waiting_press = True

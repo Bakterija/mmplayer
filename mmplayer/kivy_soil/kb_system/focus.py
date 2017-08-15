@@ -80,7 +80,6 @@ def focus_next():
         for fwidget in focus_grab_widgets:
             if fwidget.is_focusable:
                 grabbed_focus = True
-                # fwidget = focus_grab_widgets[0]
                 if fwidget.subfocus_widgets:
                     if fwidget.focus:
                         new_focus = fwidget.subfocus_widgets[0]
@@ -209,11 +208,12 @@ class FocusBehavior(Widget):
             self.remove_from_focus()
 
     def on_grab_focus(self, _, value):
-        self.remove_from_focus()
-        if self.parent:
-            on_parent(self, self.parent)
-            if value and self.is_focusable:
-                self.focus_widget(self)
+        if self.is_focusable:
+            self.remove_from_focus()
+            if self.parent:
+                on_parent(self, self.parent)
+                if value and self.is_focusable:
+                    self.focus_widget(self)
 
     def on_is_subfocus(self, _, value):
         if value:
@@ -247,6 +247,9 @@ class FocusBehavior(Widget):
             if current_focus != self:
                 remove_focus()
                 set_focus(self)
+
+    def focus_previous(self, *args):
+        set_focus_previous()
 
     def focus_widget(self, *args):
         '''Focus this widget'''

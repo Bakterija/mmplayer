@@ -72,6 +72,9 @@ class TerminalWidgetLabel(AppRecycleViewClass, Label):
 
     def refresh_view_attrs(self, rv, index, data):
         self.index = index
+        self.font_name = rv.font_name
+        self.font_size = rv.font_size
+
         text = data['text']
         if text:
             len_text = len(text)

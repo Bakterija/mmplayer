@@ -1,3 +1,4 @@
+BACKSPACE = 8
 TAB = 9
 RETURN = 13
 

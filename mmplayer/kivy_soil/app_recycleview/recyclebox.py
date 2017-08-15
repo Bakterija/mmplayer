@@ -152,6 +152,7 @@ class AppRecycleBoxLayout(RecycleBoxLayout):
 
     def open_context_menu(self, pos=None):
         widget = None
+        ret = None
         if self.sel_last != -1:
             for x in self.children:
                 if x.index == self.sel_last:
@@ -159,9 +160,10 @@ class AppRecycleBoxLayout(RecycleBoxLayout):
                     widget, widget_index = x, x.index
                     break
         if widget:
-            self.context_menu_function(widget, widget_index, pos)
+            ret = self.context_menu_function(widget, widget_index, pos)
         else:
-            self.context_menu_function(self, None, self.pos)
+            ret = self.context_menu_function(self, None, self.pos)
+        return ret
 
     def context_menu_function(self, child, index, pos):
         '''Stub method for context menu'''

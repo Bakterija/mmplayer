@@ -5,7 +5,6 @@ import copy
 
 class LineSplitBehavior(object):
     split_text_key = StringProperty('text')
-    split_text_indent = NumericProperty(4)
     chars_per_line = NumericProperty(100)
     _unsplit_data = ListProperty()
 
@@ -99,7 +98,7 @@ class LineSplitBehavior(object):
                             if split_remain:
                                 for word in word_split[:-1]:
                                     new_lines.append(word)
-                                new_line = word
+                                new_line = word_split[-1]
                             else:
                                 for word in word_split:
                                     new_lines.append(word)
