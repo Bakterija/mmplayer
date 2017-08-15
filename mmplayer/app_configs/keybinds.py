@@ -17,6 +17,11 @@ class Config(ConfigBase):
         Logger.info('keybinds: set log_keys: %s' % (new_value))
         kb_system.log_keys = new_value
 
+    def toggle_pause(self):
+        app = App.get_running_app()
+        if not focus_behavior.current_focus:
+            app.root.media_control.play_pause()
+
     def load_after(self, root):
         app = App.get_running_app()
         # kb_system.log_keys = True
@@ -105,7 +110,7 @@ class Config(ConfigBase):
             wait=0.15, modifier=['ctrl'])
         kb_system.add(
             'play_pause_toggle', keys.SPACE, 'down',
-            root.media_control.play_pause, ['none'])
+            self.toggle_pause, ['none'])
 
         kb_system.add(
             'toggle_terminal_small', keys.TILDE, 'down',
