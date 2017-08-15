@@ -6,4 +6,4 @@ Includes some [KivyMD](https://gitlab.com/kivymd/KivyMD) widgets
      
 Beta 6 screenshot below     
 
-![ScreenShot](https://github.com/Bakterija/mmplayer/blob/master/doc/screenshot.png)
+![ScreenShot](https://github.com/Bakterija/mmplayer/blob/master/doc/screenshot2.png)
