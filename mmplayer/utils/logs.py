@@ -52,7 +52,7 @@ import traceback
 
 def display_toast(text, level):
     app = App.get_running_app()
-    root = app.root_widget
+    root = app.root
     if level == 'warning':
         root.display_warning(text)
     elif level == 'error':
