@@ -27,7 +27,7 @@
         FilterInputBox:
             id: media_filter_widget
             pos: 0, root.height - self.height
-            on_filter_text: app.root_widget.set_media_filter_text(self.filter_text)
+            on_filter_text: app.root.set_media_filter_text(self.filter_text)
 
         StackLayout:
             id: media_stack

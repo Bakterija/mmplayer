@@ -4,6 +4,6 @@ based crossplatform media player (GNU/Linux and Windows supported currently)
 
 Includes some [KivyMD](https://gitlab.com/kivymd/KivyMD) widgets
      
-Beta 6 screenshot below     
+Beta 11 screenshot below     
 
 ![ScreenShot](https://github.com/Bakterija/mmplayer/blob/master/doc/screenshot2.png)
