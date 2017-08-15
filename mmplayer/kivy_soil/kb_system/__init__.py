@@ -100,11 +100,11 @@ def on_key_down(window, key, scan, text, modifier):
     '''Detects pressed keys, modifiers and calls on_key_event'''
     global last_key, last_modifier, last_time, time_alt_press, waiting_press
     global log_keys
+    modifier = _update_modifier(key, True)
     if waiting_press:
         if log_keys:
             Logger.info('kb_dispatcher: on_key_down: waiting')
     else:
-        modifier = _update_modifier(key, True)
         time_now = time()
         if last_time + 0.02 > time_now:
             if key == last_key and modifier == last_modifier:
@@ -126,11 +126,11 @@ def on_key_down(window, key, scan, text, modifier):
 def on_key_up(window, key, *args):
     '''Detects released keys, modifiers and calls on_key_event'''
     global waiting_release, log_keys
+    modifier = _update_modifier(key, False)
     if waiting_release:
         if log_keys:
             Logger.info('kb_dispatcher: on_key_down: waiting')
     else:
-        modifier = _update_modifier(key, False)
         on_key_event(key, modifier, False)
 
 def on_key_event(key, modifier, is_down, text=None):

@@ -44,5 +44,5 @@ class SettingHandler(object):
             for attr, value in self.store_properties:
                 new_settings.append((attr, getattr(self, attr)))
 
-            app.root_widget.app_configurator.load_with_args(
+            app.root.app_configurator.load_with_args(
                'user_settings', 'save', new_settings)
