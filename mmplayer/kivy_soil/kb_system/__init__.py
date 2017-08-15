@@ -141,9 +141,10 @@ def on_key_event(key, modifier, is_down, text=None):
     and key is not used by global callback already or key is grabbed by widget
     '''
     global held_ctrl, held_alt, held_shift, waiting_press, waiting_release
-    global log_keys
+    global log_keys, ignored_keys
     if not active:
         return
+
     if is_down:
         kstate = 'down'
     else:

@@ -1,0 +1,15 @@
+#: import Window kivy.core.window.Window
+
+<TerminalWidget>:
+    id: terminal_widget
+    size_hint: None, None
+    pos: 0, Window.height - (self.pos_multiplier * self.height)
+    small_size: Window.width, int(Window.height * 0.5)
+    big_size: Window.width, int(Window.height)
+    pull_area_pos: self.right - self.pull_area_size[0], self.y - self.pull_area_size[1] * 0.5
+    pull_area_size: self.width * 0.12, self.big_size[1] * 0.12
+
+<InfoWidget>:
+    id: info_widget
+    width: int(cm(3)) if Window.width < int(cm(9)) else int(Window.width * 0.3)
+    pos: Window.width - self.width - dp(20), Window.height - self.height - dp(20)

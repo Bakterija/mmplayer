@@ -1,11 +1,10 @@
+from kivy_soil.kb_system.compat_widgets.popup import AppPopup
 from utils import get_containing_directory, open_directory
 from utils import seconds_to_minutes_hours
-from kivy_soil.kb_system.canvas import FocusBehaviorCanvas
 from media_info import cache as media_cache
 from kivy.properties import StringProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy_soil.kb_system import keys
-from widgets.app_popup import AppPopup
 from kivy.uix.popup import Popup
 from kivy.metrics import dp, cm
 from kivy.uix.label import Label
@@ -95,7 +94,7 @@ class MediaPropertiesDialogText(BoxLayout):
         self.t_value = str(value)
 
 
-class MediaPropertiesDialog(FocusBehaviorCanvas, AppPopup):
+class MediaPropertiesDialog(AppPopup):
     '''Takes a dictionary as first __init__ argument and adds
     Label widget pairs in boxlayouts to display, has handling for
     media data'''

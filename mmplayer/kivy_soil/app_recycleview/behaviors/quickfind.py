@@ -1,5 +1,5 @@
 from kivy.properties import StringProperty, NumericProperty, ObjectProperty
-from widgets.compat_textinput import CompatTextInput
+from kivy_soil.kb_system.compat_widgets.textinput import CompatTextInput
 from kivy.uix.textinput import TextInput
 from kivy.core.window import Window
 from kivy.uix.widget import Widget

@@ -47,7 +47,8 @@ class BasePlaylist(EventDispatcher):
     allowed_extensions = {
         '.flac', '.midi', '.webm', '.vob', '.ogv', '.mp3', '.ogg',
         '.m4a', '.mp4', '.mkv', '.mdl', '.mpg', '.mp2', '.mpeg',
-        '.mpe', '.mpv', '.avi', '.flv', '.wav', '.mid', '.mv2', '.m4v'
+        '.mpe', '.mpv', '.avi', '.flv', '.wav', '.mid', '.mv2', '.m4v',
+        '.opus'
         }
     saved_media_keys = {
         'ext', 'name', 'path', 'duration'

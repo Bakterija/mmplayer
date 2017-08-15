@@ -49,7 +49,7 @@ from kivy.app import App
 import traceback
 import sys
 
-if platform in ('windows','win', 'linux'):
+if platform in ('win', 'linux'):
     from layouts.pc_layout_methods import LayoutMethods
     Config.set( 'input', 'mouse', 'mouse,disable_multitouch')
 

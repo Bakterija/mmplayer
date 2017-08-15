@@ -1,20 +1,47 @@
-from kivy.properties import StringProperty, NumericProperty
+from __future__ import division
+from kivy.properties import StringProperty, NumericProperty, ObjectProperty
+from kivy_soil.kb_system.canvas import FocusBehaviorCanvas
+from kivy.properties import BooleanProperty
 from kivy.uix.boxlayout import BoxLayout
+from kivy.clock import Clock, mainthread
 from kivy.uix.popup import Popup
 from kivy.lang import Builder
-from kivy.clock import Clock, mainthread
 
 
 Builder.load_string('''
+#: import CompatTextInput kivy_soil.kb_system.compat_widgets.textinput.CompatTextInput
+#: import DampedScrollEffect kivy.effects.dampedscroll.DampedScrollEffect
+
 <TextEditor>:
+    border_color: inputw.border_color
+    border_width: inputw.border_width
+    focus: inputw.focus
+    inputw: inputw
     orientation: 'horizontal'
+    canvas.after:
+        Color:
+            rgba:
+                [self.border_color[0], self.border_color[1],
+                self.border_color[2], 1] if self.focus else [0, 0, 0, 0]
+        Line:
+            width: self.border_width
+            points:
+                [self.x + 1, self.y + 1, self.x + 1,
+                self.top - self.border_width, self.right - self.border_width,
+                self.top - self.border_width, self.right - self.border_width,
+                self.y + 1, self.x + 1, self.y + 1]
     ScrollView:
         id: scroller
+        effect_cls: DampedScrollEffect
         CompatTextInput:
-            id: input
-            grab_focus: True
+            id: inputw
             size_hint: 1, None
             height: self.minimum_height if root.height < self.minimum_height else root.height
+            is_focusable: root.is_focusable
+            border_width: 1
+            border_color:
+                [self.border_color[0], self.border_color[1],
+                self.border_color[2], 0]
             multiline: True
             on_cursor: root.on_cursor(args[1])
             on_cursor_row: root.on_cursor_row(args[1])
@@ -24,9 +51,25 @@ Builder.load_string('''
 
 
 class TextEditor(BoxLayout):
+    is_focusable = BooleanProperty(True)
+    border_width = NumericProperty(1)
+    focus = BooleanProperty(False)
+    inputw = ObjectProperty()
+    text = StringProperty()
 
     def __init__(self, **kwargs):
         super(TextEditor, self).__init__(**kwargs)
+
+    def on_inputw(self, _, value):
+        value.bind(text=self.on_inputw_text)
+
+    def on_inputw_text(self, _, value):
+        if self.text != value:
+            self.text = value
+
+    def on_text(self, _, value):
+        if self.inputw.text != self.text:
+            self.inputw.text = value
 
     def on_cursor(self, value):
         pass
@@ -35,11 +78,11 @@ class TextEditor(BoxLayout):
         scroll_y = self.ids.scroller.scroll_y
         negscroll_y = 1.0 - self.ids.scroller.scroll_y
 
-        inp_height = self.ids.input.height
+        inp_height = self.ids.inputw.height
         scrl_height = self.ids.scroller.height
         size1 = inp_height - scrl_height
 
-        line_height = self.ids.input.line_height
+        line_height = self.ids.inputw.line_height
         max_lines = int(inp_height / line_height) - 1
         rem_lines = int(size1 / line_height)
         mrem_lines = (max_lines - (max_lines - rem_lines))
@@ -61,21 +104,41 @@ class TextEditor(BoxLayout):
             self.ids.scroller.scroll_y = 1.0 - prc + conv_lh[1]
 
 
-class TextEditorPopup(Popup):
+class TextEditorPopup(Popup, FocusBehaviorCanvas):
     text = StringProperty()
     title = 'Text editor'
+    grab_focus = True
 
     def __init__(self, **kwargs):
         super(TextEditorPopup, self).__init__(**kwargs)
-        self.content = TextEditor()
         self.size_hint = (0.9, 0.9)
+        self.content = TextEditor(is_focusable=True)
+        if self.content.inputw:
+            self.on_inputw(None, self.content.inputw)
+        else:
+            self.content.bind(inputw=self.on_inputw)
 
-    def open(self, *args):
+    def on_inputw(self, _, widget):
+        widget.bind(border_width=self.setter('border_width'))
+        self.border_width = widget.border_width
+        widget.is_subfocus = True
+        self.subfocus_widgets = [widget]
+
+    def open(self, focus=False, *args):
         super(TextEditorPopup, self).open(*args)
-        self.content.ids.input.text = self.text
-        Clock.schedule_once(self.focus_textinput, 0)
+        self.content.ids.inputw.text = self.text
+        self.content.ids.inputw.cursor = (0, 0)
+        if focus:
+            Clock.schedule_once(self.focus_textinput, 0)
 
     def focus_textinput(self, *args):
-        winput = self.content.ids.input
+        winput = self.content.ids.inputw
         winput.focus = True
-        winput.cursor = (0, 0)
+
+    @staticmethod
+    def quick_open(text, focus=False):
+        '''Static method that creates a new popup with argument text
+        and opens it, then returns the new widget'''
+        new = TextEditorPopup(text=text)
+        new.open(focus=focus)
+        return new

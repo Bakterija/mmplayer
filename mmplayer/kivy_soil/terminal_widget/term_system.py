@@ -1,11 +1,14 @@
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 from kivy.properties import ListProperty, NumericProperty, ObjectProperty
-from kivy.properties import BooleanProperty, DictProperty
+from kivy.properties import BooleanProperty, DictProperty, StringProperty
+from kivy_soil.utils.autocomplete import Autocompleter
 from kivy.event import EventDispatcher
 from time import time, strftime, gmtime
+from kivy_soil.utils import get_unicode
 from kivy.logger import Logger
 from kivy.clock import Clock
 from functools import partial
+from kivy.compat import PY2
 from . import shared_globals
 from kivy.app import App
 import traceback
@@ -21,13 +24,13 @@ class TerminalWidgetSystem(EventDispatcher):
     "simplify various tasks with evaling and execing python code.\n"
     "It supports:\n"
     " - autocomplete,\n"
-    " - dynamic plugin function loading\n"
+    " - dynamic plugin loading\n"
     " - recording and replaying inputs\n\n"
     "It's properties are:\n\n"
     " - data: list property that stores all displayed data with time stamps "
     "and raw text\n"
-    " - functions: dict property that stores name, object ref pairs of loaded "
-    "plugin functions\n"
+    " - plugins: dict property that stores name, object ref pairs of loaded "
+    "plugins\n"
     " - input_log: list property that stores all input text\n"
     " - input_log_index: numeric property that stores log index of current "
     "input, default way to switch is to press up/down arrow\n"
@@ -38,13 +41,14 @@ class TerminalWidgetSystem(EventDispatcher):
     "while self.handling_multiline_input is True, after that it is cleared\n"
     )
 
-    autocomplete_words = {'self', 'app', 'term_widget'}
+    autocompleter = Autocompleter()
     handling_multiline_input = BooleanProperty(False)
+    log_path = '%s/input_log.txt' % shared_globals.DIR_CONF
     typed_multilines = ListProperty()
     time_stamp_mode = NumericProperty(0)
     input_log_index = NumericProperty(0)
     term_widget = ObjectProperty()
-    functions = DictProperty()
+    plugins = DictProperty()
     input_log = ListProperty()
     write_input_log_to_file = True
     data = ListProperty()
@@ -56,6 +60,7 @@ class TerminalWidgetSystem(EventDispatcher):
 
     def __init__(self, term_widget,**kwargs):
         self.register_event_type('on_data')
+        self.register_event_type('on_data_append')
         self.register_event_type('on_input')
         super(TerminalWidgetSystem, self).__init__(**kwargs)
         self.term_widget = term_widget
@@ -66,50 +71,72 @@ class TerminalWidgetSystem(EventDispatcher):
         Clock.schedule_interval(self.on_every_second, 1)
         self.fbind('time_stamp_mode', self.on_time_stamp_mode_reload_data)
 
-        for item in self.functions:
-            self.autocomplete_words.add(item)
-        for item in self.properties():
-            self.autocomplete_words.add(item)
         app = App.get_running_app()
         self.exec_locals = {
-            'app': app, 'self': self, 'add_text': self.add_text}
+            'app': app, 'self': self, 'add_text': self.add_text,
+            'term_widget': self.term_widget,
+            'hide': self.term_widget.animate_out}
         for x in self.exec_locals:
-            self.autocomplete_words.add(x)
+            self.autocompleter.add_word(x)
+        for item in self.plugins:
+            self.autocompleter.add_word(item)
+        for item in self.properties():
+            self.autocompleter.add_word(item)
+
         shared_globals.set_app_name(app.name)
-        self._import_built_in_functions()
+        self._import_built_in_plugins()
         self._load_input_log()
+
+    def on_data_append(self, *args):
+        pass
 
     def _load_input_log(self):
         _write_true_after = False
         if self.write_input_log_to_file:
             self.write_input_log_to_file = False
             _write_true_after = True
-        log_path = '%s/input_log.txt' % shared_globals.DIR_CONF
-        with open(log_path, 'r') as f:
-            text = f.read()
-            for x in text.splitlines():
-                self.add_to_input_log(x)
+        try:
+            if os.path.exists(self.log_path):
+                with open(self.log_path, 'r') as f:
+                    text = f.read()
+                    for x in text.splitlines():
+                        self.add_to_input_log(x)
+            else:
+                with open(self.log_path, 'w') as f:
+                    f.write('')
+        except:
+            Logger.error('TerminalWidgetSystem: %s' % (traceback.format_exc()))
         if _write_true_after:
             self.write_input_log_to_file = True
         for x in self.input_log:
-            self.autocomplete_words.add(x)
+            self.add_autocomplete_words_from_text(x)
 
-    def _import_built_in_functions(self):
-        funcpath = os.path.split(os.path.realpath(__file__))[0] + '/functions/'
+    def _import_built_in_plugins(self):
+        funcpath = os.path.split(os.path.realpath(__file__))[0] + '/plugins/'
         files = os.listdir(funcpath)
-        del_list = reversed([i for i, x in enumerate(files) if x[0] == '_'])
-        for i in del_list:
-            del files[i]
-
+        modules = []
         for x in files:
-            x = x[:-3]
-            func_package = 'kivy_soil.terminal_widget.functions.'
-            new_module = importlib.import_module('%s%s' % (func_package, x))
-            new_func = new_module.Function()
-            new_func.on_import(self)
-            self.functions[new_func.name] = new_func
-        Logger.info('TerminalWidgetSystem: imported %s functions' % (
-            len(files)))
+            if not x[-4:] == '.pyc' and not x[0] == '_':
+                dot = x[::-1].find('.')
+                if dot == -1:
+                    modules.append(x)
+                else:
+                    modules.append(x[:-dot-1])
+
+        for x in modules:
+            func_package = 'kivy_soil.terminal_widget.plugins.'
+            func_module = '%s%s' % (func_package, x)
+            try:
+                new_module = importlib.import_module(func_module)
+                new_func = new_module.Plugin()
+                new_func.on_import(self)
+                self.plugins[new_func.name] = new_func
+            except:
+                Logger.error(
+                    'TerminalWidgetSystem: failed to import %s\n %s' % (
+                        func_module, traceback.format_exc()))
+        Logger.info('TerminalWidgetSystem: imported %s plugins' % (
+            len(modules)))
 
     def on_input(self, *args):
         pass
@@ -138,9 +165,11 @@ class TerminalWidgetSystem(EventDispatcher):
     def on_every_second(self, *a):
         pass
 
-    def add_text(self,text, text_time=None, level=None,
+    def add_text(self, text, text_time=None, level=None,
                  add_autocomplete=True):
         text = str(text)
+        if PY2:
+            text = get_unicode(text)
         if add_autocomplete:
             self.add_autocomplete_words_from_text(text)
         if not text_time:
@@ -151,24 +180,10 @@ class TerminalWidgetSystem(EventDispatcher):
             'time': text_time, 'text_raw': form_first, 'text': text_formatted,
             'level': level}
         self.data.append(new)
+        self.dispatch('on_data_append', new)
 
     def add_autocomplete_words_from_text(self, text):
-        text2 = text
-        for x in (' ', '!', '@', '$', '#', '%', '^', '&', '*', '(', ')',
-                  '-', '=', '+', '{', '}', '[', ']', '\\', '|', '?',
-                  ';', ':', '<', '>', ',', '.', '/', '1', '2', '3', '4', '5',
-                  '6', '7', '8', '9', '`', '~'):
-            text2 = text2.replace(x, '0')
-        text2 = text2.replace("'", '0')
-        text2 = text2.replace('"', '0')
-        text2 = text2.replace('"', '0')
-        words = text2.split('0')
-        for word in words:
-            word = word.strip()
-            if word:
-                word = word.lower()
-                if word not in self.autocomplete_words:
-                    self.autocomplete_words.add(word)
+        self.autocompleter.add_words_from_text(text)
 
     def first_time_text_format(self, text, time, level):
         if level:
@@ -199,84 +214,20 @@ class TerminalWidgetSystem(EventDispatcher):
         return ret
 
     def try_autocomplete(self, text, cursor_index):
-        if not text:
-            return ''
-        insert_text = ''
-        start = -1
-        end = cursor_index
+        ret = ''
         try:
-            len_text = len(text)
-            rev_text = text[::-1]
-            # If cursor is at end, looks for a space character
-            # before it, then sets word start slice number
-            if len_text == cursor_index:
-                start = rev_text.find(' ')
-                if start == -1:
-                    start = 0
-                else:
-                    start = len_text - start
-            else:
-                # If cursor is at end of a word, looks for a space character
-                # before it, then sets start slice number
-                if text[cursor_index] == ' ' and text[cursor_index-1] != ' ':
-                    end = cursor_index
-                    start = rev_text[len_text-end:].find(' ')
-                    if start == -1:
-                        start = 0
-                    else:
-                        start = end - start
-            # Skips if no word found
-            if start != -1:
-                word = text[start:cursor_index]
-                found = []
-                # Does nothing when word is empty
-                if word:
-                    len_word = len(word)
-                    # Looks for matching strings in autocomplete_words
-                    # Appends all results to found list
-                    autocomplete_words = list(
-                        self.autocomplete_words) + list(self.exec_locals)
-                    for x in autocomplete_words:
-                        if x[:len(word)].lower() == word.lower():
-                            found.append(x)
-
-                len_found = len(found)
-                # If only one result found, new characters for inserting
-                if len_found:
-                    if len_found == 1:
-                        insert_text = found[0][len_word:]
-                        if len_text == cursor_index:
-                            insert_text = insert_text + ' '
-                    else:
-                        # If multiple words found, looks for and adds
-                        # matching characters untill word_min_len index
-                        # is reached, then stops and returns character string
-                        # for inserting
-                        found_lens = [len(x) for x in found]
-                        word_min_len = min(found_lens)
-                        len_word = len(word)
-                        match_index = len_word
-                        for char in found[0][match_index:]:
-                            are_matching = True
-                            for x in found[1:]:
-                                if x[match_index].lower() != char.lower():
-                                    are_matching = False
-                                    break
-                            match_index += 1
-                            if are_matching:
-                                insert_text += char
-                            else:
-                                break
-                            if word_min_len - 1 < match_index:
-                                break
-                        self.add_text(found)
-        except Exception as e:
+            for key in self.exec_locals:
+                self.autocompleter.add_word(key)
+            found, ret = self.autocompleter.autocomplete(text, cursor_index)
+            if len(found) > 1:
+                self.add_text(str(found))
+        except:
             if self.use_logger:
-                Logger.error('TerminalWidgetSystem: %s\n%s' % (
-                    e, traceback.format_exc()))
-            self.add_text('TerminalWidgetSystem: %s\n%s' % (
-                    e, traceback.format_exc()),level='exception')
-        return insert_text
+                Logger.error('TerminalWidgetSystem: \n%s' % (
+                    traceback.format_exc()))
+            self.add_text('TerminalWidgetSystem: \n%s' % (
+                    traceback.format_exc()),level='exception')
+        return ret
 
     def get_log_previous(self, *a):
         ret = ''
@@ -289,72 +240,94 @@ class TerminalWidgetSystem(EventDispatcher):
     def get_log_next(self, *a):
         ret = ''
         if self.input_log:
+            len_input_log = len(self.input_log)
+            new_index = self.input_log_index
             if len(self.input_log) - 1 > self.input_log_index:
-                self.input_log_index += 1
+                new_index = self.input_log_index + 1
+            if new_index > len_input_log - 1:
+                new_index = len_input_log - 1
+            self.input_log_index = new_index
             ret = self.input_log[self.input_log_index]
         return ret
 
     def get_globals(self):
         return globals()
 
-    def handle_input(self, text):
-        self.dispatch('on_input', text)
-        text = text.rstrip()
-        if self.grab_input:
-            self.grab_input.handle_input(
-                self, globals(), self.exec_locals, text)
-            return
-        self.exec_locals['__ret_value__'] = {}
-        if self.handling_multiline_input or text and text[-1] == ':':
-            self.handle_input_multiline(text)
-        else:
-            try:
+    def handle_input(self, text, add_to_input_log=True):
+        try:
+            self.dispatch('on_input', text)
+            text = text.rstrip()
+            if self.grab_input:
+                self.grab_input.handle_input(
+                    self, globals(), self.exec_locals, text)
+                return
+            self.exec_locals['__ret_value__'] = {}
+            if self.handling_multiline_input or text and text[-1] == ':':
+                self.handle_input_multiline(text)
+            else:
                 if not text:
                     self.add_text('\n')
                     return
-                func_name = text.split(' ')[0]
-                func = self.functions.get(func_name, None)
-                if func:
-                    ret = func.handle_input(
-                        self, globals(), self.exec_locals, text)
-                    if ret:
-                        self.handle_return({'__ret_value__': ret})
-                else:
-                    try:
-                        exec('__ret_value__ = %s' % (
-                            text), globals(), self.exec_locals)
-                    except SyntaxError:
-                        exec(text, globals(), self.exec_locals)
+                if text:
+                    if text[0] == '.':
+                        func_name = text.split(' ')[0]
+                        func = self.plugins.get(func_name[1:], None)
+                        if func:
+                            ret = func.handle_input(
+                                self, globals(), self.exec_locals, text)
+                            self.exec_locals['__ret_value__'] = ret
+                        else:
+                            self.add_text('# Did not find plugin: "%s"' % (
+                                func_name))
+                            self.add_text('# Available plugins are: %s' % (
+                                [x for x in self.plugins]))
+
+                    else:
+                        try:
+                            exec('__ret_value__ = %s' % (
+                                text), globals(), self.exec_locals)
+                        except SyntaxError:
+                            exec(text, globals(), self.exec_locals)
                     self.handle_return(self.exec_locals)
-            except Exception as e:
-                if self.use_logger:
-                    Logger.error('TerminalWidgetSystem: %s\n%s' % (
-                        e, traceback.format_exc()))
-                self.add_text('TerminalWidgetSystem: %s\n%s' % (
-                        e, traceback.format_exc()),level='exception')
-            if not self.typed_multilines:
-                self.add_to_input_log(text)
+        except Exception as e:
+            if self.use_logger:
+                Logger.error('TerminalWidgetSystem: %s\n%s' % (
+                    e, traceback.format_exc()))
+            self.add_text('TerminalWidgetSystem: %s\n%s' % (
+                    e, traceback.format_exc()),level='exception')
+        if not self.typed_multilines and add_to_input_log:
+            self.add_to_input_log(text)
 
     def add_to_input_log(self, text):
         len_input_log = len(self.input_log)
-        can_append = False
-        if len_input_log == self.input_log_index:
-            can_append = True
-        elif self.input_log[self.input_log_index] != text:
-            can_append = True
+        can_append = True
+        try:
+            self.input_log.remove(text)
+        except:
+            pass
+
         if can_append:
             self.input_log.append(text)
             if self.write_input_log_to_file:
-                log_path = '%s/input_log.txt' % shared_globals.DIR_CONF
-                with open(log_path, 'a') as f:
-                    f.write(text + '\n')
+                try:
+                    if PY2 and isinstance(text, unicode):
+                        text = text.encode('utf-8')
+                    with open(self.log_path, 'a') as f:
+                        f.write(text + '\n')
+                except:
+                    Logger.error('TerminalWidgetSystem: %s' % (
+                        traceback.format_exc()))
         self.input_log_index = len(self.input_log)
 
     def clear_input_log(self, *args):
         self.input_log = []
         log_path = '%s/input_log.txt' % shared_globals.DIR_CONF
-        with open(log_path, 'w') as f:
-            f.write('')
+        try:
+            with open(self.log_path, 'w') as f:
+                f.write('')
+        except:
+            Logger.error('TerminalWidgetSystem: %s' % (
+                traceback.format_exc()))
         self.input_log_index = 0
 
     def handle_input_multiline(self, text):

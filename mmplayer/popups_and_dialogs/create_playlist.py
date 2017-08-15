@@ -1,9 +1,8 @@
+from kivy_soil.kb_system.compat_widgets.popup import AppPopup
 from utils import get_containing_directory, open_directory
-from kivy_soil.kb_system.canvas import FocusBehaviorCanvas
 from media_info import cache as media_cache
 from kivy.properties import StringProperty
 from kivy.uix.boxlayout import BoxLayout
-from widgets.app_popup import AppPopup
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.metrics import dp, cm
@@ -49,7 +48,7 @@ Builder.load_string('''
 ''')
 
 
-class CreatePlaylistPopup(FocusBehaviorCanvas, AppPopup):
+class CreatePlaylistPopup(AppPopup):
     grab_focus = True
 
     def on_text_validate(self, text):
